@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Xcapade - Explore Mountains</title>
+  <link rel="stylesheet" href="assets/css/style.css"/>
+</head>
+<body>
+  <header id="navbar">
+    <img src="assets/img/logo.png" alt="Xcapade" height="40">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="pages/community.html">Community</a>
+      <a href="pages/login.html">Login</a>
+      <select id="language-switcher">
+        <option value="en">English</option>
+        <option value="id">Bahasa</option>
+      </select>
+    </nav>
+  </header>
+
+  <main>
+    <section class="controls">
+      <input type="text" id="search" placeholder="Search mountain..."/>
+      <label>Suhu:
+        <select id="temp-unit">
+          <option value="c">°C</option>
+          <option value="f">°F</option>
+        </select>
+      </label>
+      <label>Ketinggian:
+        <select id="elevation-unit">
+          <option value="m">mdpl</option>
+          <option value="ft">feet</option>
+        </select>
+      </label>
+      <label>Mata Uang:
+        <select id="currency">
+          <option value="usd">USD</option>
+          <option value="idr">IDR</option>
+          <option value="eur">EUR</option>
+        </select>
+      </label>
+    </section>
+    <section id="table-section">
+      <table id="mountain-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Temperature</th>
+            <th>Elevation</th>
+            <th>Climb Price</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>Xcapade &copy; 2025</p>
+    <p><a href="#">Terms & Conditions</a> | <a href="#">Vision & Mission</a> | <a href="#">Contact</a></p>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
