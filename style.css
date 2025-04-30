@@ -1,10 +1,9 @@
-/* General Styling */
+/* Gaya Umum */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    background-color: #f8f9fa;
+    background-color: #f9f9f9;
     color: #333;
 }
 
@@ -12,6 +11,16 @@ header {
     background-color: #333;
     color: white;
     padding: 10px 20px;
+}
+
+header .top-bar {
+    background-color: #444;
+    padding: 5px;
+    text-align: center;
+    font-size: 14px;
+}
+
+header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -21,7 +30,6 @@ header .logo h1 {
     margin: 0;
     font-size: 24px;
     text-transform: uppercase;
-    letter-spacing: 2px;
 }
 
 nav ul {
@@ -37,59 +45,53 @@ nav ul li a {
     color: white;
 }
 
-.hero {
-    background: url('assets/mountain.jpg') no-repeat center center/cover;
-    height: 300px;
+.search-bar {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    text-align: center;
-    padding: 20px;
+    gap: 5px;
 }
 
-.hero button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
+.search-bar input {
+    padding: 5px;
     border: none;
     border-radius: 5px;
+}
+
+.search-bar button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #ff9800;
+    color: white;
     cursor: pointer;
 }
 
-.hero button:hover {
-    background-color: #0056b3;
-}
-
-.data-cards {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.card {
-    background-color: white;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: 200px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.card h3 {
-    margin-top: 0;
-}
-
-.chart-container {
+/* Gaya Tabel */
+table {
+    width: 100%;
+    border-collapse: collapse;
     margin-top: 20px;
+    background-color: white;
 }
 
-/* Footer */
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Gaya Footer */
 footer {
     background-color: #333;
     color: white;
     text-align: center;
-    padding: 10px;
-    position: relative;
+    padding: 10px 0;
 }
