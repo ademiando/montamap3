@@ -1,74 +1,119 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xcapeak - Jelajahi Dunia Gunung</title>
+    <title>CoinMarketCap Clone</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <!-- Header -->
     <header>
         <div class="top-bar">
-            <p>Total Gunung: 1,500 | Cuaca Terkini: Berawan | Ketinggian Rata-rata: 3,500m</p>
+            <p>Cryptos: 14.64M | Exchanges: 813 | Market Cap: $2.93T | 24h Vol: $82.78B | Dominance: BTC 63.8%, ETH 7.3%</p>
         </div>
-        <div class="container">
+        <div class="nav-container">
             <div class="logo">
-                <h1>Xcapeak</h1>
+                <h1>CoinMarketCap</h1>
             </div>
             <nav>
                 <ul>
-                    <li><a href="#mountains">Gunung</a></li>
-                    <li><a href="#guides">Guide & Porter</a></li>
-                    <li><a href="#weather">Cuaca</a></li>
-                    <li><a href="#maps">Peta</a></li>
-                    <li><a href="#community">Komunitas</a></li>
-                    <li><a href="#products">Produk</a></li>
+                    <li><a href="#cryptos">Cryptocurrencies</a></li>
+                    <li><a href="#dexscan">DexScan</a></li>
+                    <li><a href="#exchanges">Exchanges</a></li>
+                    <li><a href="#community">Community</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#portfolio">Portfolio</a></li>
+                    <li><a href="#watchlist">Watchlist</a></li>
                 </ul>
             </nav>
-            <div class="search-bar">
-                <input type="text" id="search-input" placeholder="Cari gunung...">
-                <button id="search-btn">Cari</button>
+            <div class="actions">
+                <input type="text" placeholder="Search">
+                <button>Log In</button>
             </div>
         </div>
     </header>
+
+    <!-- Main Content -->
     <main>
-        <!-- Daftar Gunung -->
-        <section id="mountains">
-            <h2>Daftar Gunung</h2>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h2>Today's Cryptocurrency Prices by Market Cap</h2>
+            <p>The global crypto market cap is $2.93T, a 1.63% decrease over the last day.</p>
+        </section>
+
+        <!-- Trending Coins -->
+        <section id="trending-coins">
+            <h2>Trending Coins</h2>
+            <div class="trending-list">
+                <div class="coin">
+                    <p>1. <strong>ALPACA</strong> - $0.651 (+287.68%)</p>
+                </div>
+                <div class="coin">
+                    <p>2. <strong>BTC</strong> - $93,643.5 (+1.51%)</p>
+                </div>
+                <div class="coin">
+                    <p>3. <strong>PUNDIX</strong> - $0.5158 (+22.60%)</p>
+                </div>
+                <div class="coin">
+                    <p>4. <strong>BSW</strong> - $0.0488 (+58.26%)</p>
+                </div>
+                <div class="coin">
+                    <p>5. <strong>VOXEL</strong> - $0.1223 (+50.26%)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Table Section -->
+        <section id="crypto-table">
+            <h2>Cryptocurrency Prices</h2>
             <table>
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Nama Gunung</th>
-                        <th>Harga Tiket</th>
-                        <th>Suhu</th>
-                        <th>Ketinggian</th>
-                        <th>Status</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>1h %</th>
+                        <th>24h %</th>
+                        <th>7d %</th>
+                        <th>Market Cap</th>
+                        <th>Volume (24h)</th>
+                        <th>Circulating Supply</th>
                     </tr>
                 </thead>
-                <tbody id="mountain-list">
-                    <!-- Data Gunung akan dimuat secara dinamis -->
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Bitcoin (BTC)</td>
+                        <td>$93,643.50</td>
+                        <td>0.39%</td>
+                        <td>1.51%</td>
+                        <td>0.76%</td>
+                        <td>$1,859,590,874,755</td>
+                        <td>$29,845,150,250</td>
+                        <td>19.85M BTC</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Ethereum (ETH)</td>
+                        <td>$1,758.23</td>
+                        <td>0.32%</td>
+                        <td>3.57%</td>
+                        <td>1.38%</td>
+                        <td>$212,272,352,966</td>
+                        <td>$14,309,949,129</td>
+                        <td>120.73M ETH</td>
+                    </tr>
+                    <!-- Add more rows as needed -->
                 </tbody>
             </table>
         </section>
-
-        <!-- Statistik -->
-        <section id="stats">
-            <h2>Statistik Pendakian</h2>
-            <canvas id="chart"></canvas>
-        </section>
-
-        <!-- Komunitas -->
-        <section id="community">
-            <h2>Komunitas Pendaki</h2>
-            <p>Bergabung dengan komunitas pendaki untuk berbagi pengalaman dan informasi.</p>
-            <button id="join-community">Bergabung</button>
-        </section>
     </main>
+
+    <!-- Footer -->
     <footer>
-        <p>&copy; 2025 Xcapeak - Semua Hak Cipta Dilindungi.</p>
+        <p>&copy; 2025 CoinMarketCap Clone. All rights reserved.</p>
     </footer>
-    <script src="script.js"></script>
 </body>
 </html>
