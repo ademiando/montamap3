@@ -1,78 +1,57 @@
-/* General Styles */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f9f9f9;
-    color: #333;
-}
-
-/* Header */
-header {
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-}
-
-header .top-bar {
-    font-size: 14px;
-    text-align: center;
-}
-
-header .nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-header .logo h1 {
-    margin: 0;
-}
-
-header nav ul {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-    padding: 0;
-    margin: 0;
-}
-
-header nav ul li a {
-    color: white;
-    text-decoration: none;
-}
-
-header .actions {
-    display: flex;
-    gap: 10px;
-}
-
-/* Table */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: white;
-}
-
-table th, table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-}
-
-table th {
-    background-color: #f4f4f4;
-}
-
-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-/* Footer */
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-}
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xcapade - Discover Mountains</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-primary" href="#">Xcapade</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#mountains">Mountains</a></li>
+          <li class="nav-item"><a class="nav-link" href="#weather">Weather</a></li>
+          <li class="nav-item"><a class="nav-link" href="#tickets">Tickets</a></li>
+          <li class="nav-item"><a class="nav-link" href="#guides">Guides</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>  <!-- Hero Section -->  <section id="home" class="vh-100 d-flex align-items-center bg-light" style="background-image: url('https://images.unsplash.com/photo-1586953208448-7fdf84b9c18b'); background-size: cover; background-position: center;">
+    <div class="container text-center text-white">
+      <h1 class="display-4 fw-bold">Explore Indonesia's Peaks</h1>
+      <p class="lead">Your gateway to adventure, tickets, and guides</p>
+      <a href="#mountains" class="btn btn-primary btn-lg mt-3">Explore Mountains</a>
+    </div>
+  </section>  <!-- Top 10 Mountains -->  <section id="mountains" class="py-5">
+    <div class="container">
+      <h2 class="text-center mb-4 fw-bold">Top 10 Favorite Mountains</h2>
+      <div class="row g-4">
+        <!-- Mountain Card Example -->
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <img src="https://source.unsplash.com/400x300/?mountain" class="card-img-top" alt="Mountain">
+            <div class="card-body">
+              <h5 class="card-title">Gunung Rinjani</h5>
+              <p class="card-text">Elevation: 3,726 mdpl<br>Location: Lombok, NTB</p>
+              <a href="#" class="btn btn-outline-primary btn-sm">View Details</a>
+            </div>
+          </div>
+        </div>
+        <!-- Tambahkan 9 kartu lainnya dengan gunung-gunung favorit -->
+      </div>
+    </div>
+  </section>  <!-- Footer -->  <footer class="bg-dark text-white py-4">
+    <div class="container text-center">
+      <p class="mb-1">&copy; 2025 Xcapade. All rights reserved.</p>
+      <small>Contact us: hello@xcapade.id | Instagram @xcapade</small>
+    </div>
+  </footer>  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>  <script src="app.js"></script></body>
+</html>
