@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ademiando - Explore Mountaineering</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>Ademiando</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#favorites">Favorites</a></li>
+                    <li><a href="#stats">Statistics</a></li>
+                    <li><a href="#porter">Porter</a></li>
+                    <li><a href="#guide">Guide</a></li>
+                    <li><a href="#maps">Offline Maps</a></li>
+                    <li><a href="#community">Community</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="settings">
+                <select id="language-selector">
+                    <option value="en">English</option>
+                    <option value="id">Bahasa Indonesia</option>
+                </select>
+                <select id="currency-selector">
+                    <option value="usd">USD</option>
+                    <option value="idr">IDR</option>
+                </select>
+                <select id="temperature-selector">
+                    <option value="celsius">Celsius</option>
+                    <option value="fahrenheit">Fahrenheit</option>
+                </select>
+                <button id="login-btn">Login</button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <section id="home">
+            <h2>Welcome to Ademiando</h2>
+            <p>Explore the world's most comprehensive mountaineering platform.</p>
+        </section>
+
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>Ademiando provides detailed information on mountains, guides, and tools for your next adventure.</p>
+        </section>
+
+        <section id="favorites">
+            <h2>Favorite Mountains</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Height</th>
+                        <th>Temperature</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mount Everest</td>
+                        <td>Nepal/Tibet</td>
+                        <td>8,848m</td>
+                        <td>-19°C</td>
+                    </tr>
+                    <tr>
+                        <td>K2</td>
+                        <td>Pakistan/China</td>
+                        <td>8,611m</td>
+                        <td>-25°C</td>
+                    </tr>
+                    <tr>
+                        <td>Kangchenjunga</td>
+                        <td>Nepal/India</td>
+                        <td>8,586m</td>
+                        <td>-30°C</td>
+                    </tr>
+                    <tr>
+                        <td>Lhotse</td>
+                        <td>Nepal/Tibet</td>
+                        <td>8,516m</td>
+                        <td>-27°C</td>
+                    </tr>
+                    <tr>
+                        <td>Makalu</td>
+                        <td>Nepal/Tibet</td>
+                        <td>8,485m</td>
+                        <td>-24°C</td>
+                    </tr>
+                    <tr>
+                        <td>Cho Oyu</td>
+                        <td>Nepal/Tibet</td>
+                        <td>8,188m</td>
+                        <td>-20°C</td>
+                    </tr>
+                    <tr>
+                        <td>Dhaulagiri</td>
+                        <td>Nepal</td>
+                        <td>8,167m</td>
+                        <td>-18°C</td>
+                    </tr>
+                    <tr>
+                        <td>Manaslu</td>
+                        <td>Nepal</td>
+                        <td>8,163m</td>
+                        <td>-22°C</td>
+                    </tr>
+                    <tr>
+                        <td>Nanga Parbat</td>
+                        <td>Pakistan</td>
+                        <td>8,126m</td>
+                        <td>-26°C</td>
+                    </tr>
+                    <tr>
+                        <td>Annapurna</td>
+                        <td>Nepal</td>
+                        <td>8,091m</td>
+                        <td>-19°C</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="stats">
+            <h2>Statistics</h2>
+            <canvas id="chart"></canvas>
+        </section>
+
+        <section id="porter">
+            <h2>Porter Services</h2>
+            <p>Find trusted porter services to help carry your equipment.</p>
+        </section>
+
+        <section id="guide">
+            <h2>Mountain Guides</h2>
+            <p>Explore certified guides for your next adventure.</p>
+        </section>
+
+        <section id="maps">
+            <h2>Offline Maps</h2>
+            <p>Download offline maps for your trips to remote areas.</p>
+        </section>
+
+        <section id="community">
+            <h2>Community Forum</h2>
+            <p>Join discussions and share insights with others.</p>
+            <button>View Forum</button>
+        </section>
+
+        <section id="about">
+            <h2>About Us</h2>
+            <p>Ademiando is a platform dedicated to exploring and visualizing mountaineering data from around the world.</p>
+            <h3>Our Mission</h3>
+            <p>To make mountaineering safer and more accessible for everyone.</p>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <form>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" required></textarea>
+                
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 Ademiando. All rights reserved.</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
