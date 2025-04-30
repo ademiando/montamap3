@@ -1,120 +1,76 @@
-/* General Styling */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    background-color: #f4f4f4;
-    color: #333;
-}
+document.addEventListener("DOMContentLoaded", () => {
+    // Language Selector
+    const languageSelector = document.getElementById("language-selector");
+    languageSelector.addEventListener("change", (e) => {
+        alert(`Language switched to: ${e.target.value}`);
+    });
 
-header {
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-}
+    // Currency Selector
+    const currencySelector = document.getElementById("currency-selector");
+    currencySelector.addEventListener("change", (e) => {
+        alert(`Currency switched to: ${e.target.value}`);
+    });
 
-header .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+    // Temperature Selector
+    const temperatureSelector = document.getElementById("temperature-selector");
+    temperatureSelector.addEventListener("change", (e) => {
+        alert(`Temperature unit switched to: ${e.target.value}`);
+    });
 
-header .logo h1 {
-    margin: 0;
-    font-size: 24px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
+    // Chart.js Example
+    const ctx = document.getElementById("chart").getContext("2d");
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: [
+                "Mount Everest", 
+                "K2", 
+                "Kangchenjunga", 
+                "Lhotse", 
+                "Makalu",
+                "Cho Oyu",
+                "Dhaulagiri",
+                "Manaslu",
+                "Nanga Parbat",
+                "Annapurna"
+            ],
+            datasets: [
+                {
+                    label: "Height (meters)",
+                    data: [8848, 8611, 8586, 8516, 8485, 8188, 8167, 8163, 8126, 8091],
+                    backgroundColor: [
+                        "#ff9800",
+                        "#4caf50",
+                        "#2196f3",
+                        "#9c27b0",
+                        "#f44336",
+                        "#00bcd4",
+                        "#3f51b5",
+                        "#ffc107",
+                        "#8bc34a",
+                        "#ff5722"
+                    ]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: "top"
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 
-nav ul {
-    list-style: none;
-    display: flex;
-    gap: 15px;
-    margin: 0;
-    padding: 0;
-}
-
-nav ul li a {
-    text-decoration: none;
-    color: white;
-    font-weight: bold;
-}
-
-nav ul li a:hover {
-    color: #ff9800;
-}
-
-.settings select, .settings button {
-    margin-left: 10px;
-    padding: 5px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-main {
-    padding: 20px;
-}
-
-section {
-    margin-bottom: 40px;
-}
-
-section h2 {
-    margin-bottom: 15px;
-    color: #444;
-    text-transform: uppercase;
-}
-
-section p {
-    line-height: 1.6;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: white;
-}
-
-table th, table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-}
-
-table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-}
-
-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-canvas {
-    max-width: 100%;
-    height: 300px;
-}
-
-button {
-    padding: 10px 15px;
-    background-color: #ff9800;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #e68900;
-}
-
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    margin-top: 40px;
-}
+    // Login Button Action
+    const loginButton = document.getElementById("login-btn");
+    loginButton.addEventListener("click", () => {
+        alert("Login functionality is coming soon!");
+    });
+});
