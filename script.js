@@ -1,55 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Language Selector
-    const languageSelector = document.getElementById("language-selector");
-    languageSelector.addEventListener("change", (e) => {
-        alert(`Language switched to: ${e.target.value}`);
-    });
-
-    // Currency Selector
-    const currencySelector = document.getElementById("currency-selector");
-    currencySelector.addEventListener("change", (e) => {
-        alert(`Currency switched to: ${e.target.value}`);
-    });
-
-    // Temperature Selector
-    const temperatureSelector = document.getElementById("temperature-selector");
-    temperatureSelector.addEventListener("change", (e) => {
-        alert(`Temperature unit switched to: ${e.target.value}`);
-    });
-
-    // Chart.js Example
+    // Chart.js Initialization
     const ctx = document.getElementById("chart").getContext("2d");
     new Chart(ctx, {
-        type: "bar",
+        type: "line",
         data: {
-            labels: [
-                "Mount Everest", 
-                "K2", 
-                "Kangchenjunga", 
-                "Lhotse", 
-                "Makalu",
-                "Cho Oyu",
-                "Dhaulagiri",
-                "Manaslu",
-                "Nanga Parbat",
-                "Annapurna"
-            ],
+            labels: ["Mount Everest", "K2", "Kangchenjunga", "Lhotse", "Makalu"],
             datasets: [
                 {
                     label: "Height (meters)",
-                    data: [8848, 8611, 8586, 8516, 8485, 8188, 8167, 8163, 8126, 8091],
-                    backgroundColor: [
-                        "#ff9800",
-                        "#4caf50",
-                        "#2196f3",
-                        "#9c27b0",
-                        "#f44336",
-                        "#00bcd4",
-                        "#3f51b5",
-                        "#ffc107",
-                        "#8bc34a",
-                        "#ff5722"
-                    ]
+                    data: [8848, 8611, 8586, 8516, 8485],
+                    borderColor: "#007bff",
+                    backgroundColor: "rgba(0, 123, 255, 0.1)",
+                    fill: true
                 }
             ]
         },
@@ -68,9 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Login Button Action
-    const loginButton = document.getElementById("login-btn");
-    loginButton.addEventListener("click", () => {
-        alert("Login functionality is coming soon!");
+    // Get Started Button
+    document.getElementById("get-started").addEventListener("click", () => {
+        window.location.href = "#overview";
     });
 });
