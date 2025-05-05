@@ -268,89 +268,93 @@ body.dark .dropdown-menu button:hover {
 }
 
 .mountain-tab {
-  margin: 20px; /* KONTEN GUNUNG RINJANI DI TAB GUNUNG */
+  margin: 20px; /* Memberikan jarak luar (margin) sebesar 20px di semua sisi untuk elemen tab gunung */
 }
 
 .mountain-container {
-  position: relative;
-  width: 100%;
-  max-width: 800px;
-  margin: auto;
-  overflow: hidden;
-  border-radius: 8px;
-}
-
-.mountain-image {
-  width: 100%;
-  height: auto;
-  display: block;
+  position: relative; /* Elemen ini menjadi referensi posisi untuk elemen di dalamnya yang menggunakan positioning absolute */
+  width: 100%; /* Lebar elemen akan memenuhi kontainer induk sepenuhnya */
+  aspect-ratio: 14/6; /* Opsional, mengatur rasio aspek elemen menjadi 14:7 */
+  max-width: 800px; /* Membatasi lebar maksimum elemen hingga 800px */
+  margin: auto; /* Memusatkan elemen secara horizontal */
+  overflow: hidden; /* Menyembunyikan konten yang melampaui batas elemen ini */
+  border-radius: 8px; /* Membuat sudut elemen menjadi melengkung dengan radius 8px */
+  background-image: url('path-to-rinjani-image.jpg'); /* Ganti 'path-to-rinjani-image.jpg' dengan path gambar Gunung Rinjani */
+  background-size: cover; /* Membuat gambar memenuhi kontainer */
+  background-position: center; /* Memusatkan gambar di dalam kontainer */
 }
 
 .mountain-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: space-between;
-  flex-direction: row;
-  color: white;
-  padding: 20px;
-  box-sizing: border-box;
+  position: absolute; /* Memposisikan overlay di atas elemen parent (mountain-container) */
+  top: 30px; /* Posisi overlay dimulai dari tepi atas kontainer */
+  left: 0; /* Posisi overlay dimulai dari tepi kiri kontainer */
+  width: 100%; /* Overlay menutupi seluruh lebar kontainer */
+  height: 80%; /* Overlay menutupi seluruh tinggi kontainer */
+  display: flex; /* Menggunakan Flexbox untuk mengatur tata letak elemen di dalam overlay */
+  flex-direction: column; /* Elemen diatur dalam kolom vertikal */
+  color: white; /* Warna teks pada overlay adalah putih */
+  padding: 20px; /* Memberikan jarak dalam (padding) sebesar 20px di semua sisi */
+  box-sizing: border-box; /* Padding dihitung dalam ukuran total elemen */
 }
 
 .mountain-info-left {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  text-align: left;
+  position: absolute; /* Memposisikan elemen relatif terhadap kontainer overlay */
+  bottom: 20px; /* Berada 20px dari tepi bawah kontainer */
+  left: 20px; /* Berada 20px dari tepi kiri kontainer */
+  text-align: left; /* Teks rata kiri */
+  background-color: rgba(0, 0, 0, 0.6); /* Memberikan latar belakang semi-transparan untuk keterbacaan */
+  padding: 10px; /* Memberikan jarak dalam pada elemen */
+  border-radius: 5px; /* Membuat sudut elemen menjadi melengkung */
 }
 
 .mountain-info-left h1 {
-  margin: 0;
-  font-size: 2rem; /* Judul Gunung */
-  font-weight: bold;
+  margin: 0; /* Menghapus margin default pada elemen h1 */
+  font-size: 2rem; /* Ukuran font untuk judul gunung */
+  font-weight: bold; /* Membuat teks menjadi tebal */
 }
 
 .mountain-info-left .elevation {
-  font-size: 1.2rem; /* Tinggi Gunung */
-  margin: 5px 0;
+  font-size: 1.2rem; /* Ukuran font untuk informasi tinggi gunung */
+  margin: 5px 0; /* Memberikan jarak vertikal sebesar 5px di atas dan bawah elemen */
 }
 
 .mountain-info-left .price {
-  font-size: 1rem; /* Harga */
-}
-
-.mountain-info-right {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  text-align: right;
+  font-size: 1rem; /* Ukuran font untuk informasi harga */
 }
 
 .weather-info {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  text-align: right;
+  position: absolute; /* Memposisikan elemen relatif terhadap kontainer overlay */
+  top: 20px; /* Berada 20px dari tepi atas kontainer */
+  right: 20px; /* Berada 20px dari tepi kanan kontainer */
+  text-align: right; /* Teks rata kanan */
+  background-color: rgba(0, 0, 0, 0.6); /* Memberikan latar belakang semi-transparan untuk keterbacaan */
+  padding: 10px; /* Memberikan jarak dalam pada elemen */
+  border-radius: 5px; /* Membuat sudut elemen menjadi melengkung */
 }
 
 .weather-info .temperature {
-  font-size: 1.5rem; /* Suhu */
-  font-weight: bold;
+  font-size: 1.5rem; /* Ukuran font untuk informasi suhu */
+  font-weight: bold; /* Membuat teks menjadi tebal */
 }
 
 .weather-info .weather {
-  font-size: 1.2rem; /* Kondisi Cuaca */
+  font-size: 1.2rem; /* Ukuran font untuk informasi kondisi cuaca */
+}
+
+.region-info {
+  position: absolute; /* Memposisikan elemen relatif terhadap kontainer overlay */
+  bottom: 20px; /* Berada 20px dari tepi bawah kontainer */
+  right: 20px; /* Berada 20px dari tepi kanan kontainer */
+  text-align: right; /* Teks rata kanan */
+  background-color: rgba(0, 0, 0, 0.6); /* Memberikan latar belakang semi-transparan untuk keterbacaan */
+  padding: 10px; /* Memberikan jarak dalam pada elemen */
+  border-radius: 5px; /* Membuat sudut elemen menjadi melengkung */
 }
 
 .region-info .region,
 .region-info .duration,
 .region-info .trail-type,
 .region-info .best-season {
-  font-size: 0.9rem; /* Informasi Region, Durasi, dll */
-  margin: 3px 0;
+  font-size: 0.9rem; /* Ukuran font untuk informasi tambahan (region, durasi, dll) */
+  margin: 3px 0; /* Memberikan jarak vertikal sebesar 3px di atas dan bawah elemen */
 }
-
-
