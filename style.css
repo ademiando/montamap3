@@ -267,4 +267,90 @@ body.dark .dropdown-menu button:hover {
     cursor: pointer;
 }
 
+.mountain-tab {
+  margin: 20px; /* KONTEN GUNUNG RINJANI DI TAB GUNUNG */
+}
+
+.mountain-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: auto;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.mountain-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mountain-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.mountain-info-left {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  text-align: left;
+}
+
+.mountain-info-left h1 {
+  margin: 0;
+  font-size: 2rem; /* Judul Gunung */
+  font-weight: bold;
+}
+
+.mountain-info-left .elevation {
+  font-size: 1.2rem; /* Tinggi Gunung */
+  margin: 5px 0;
+}
+
+.mountain-info-left .price {
+  font-size: 1rem; /* Harga */
+}
+
+.mountain-info-right {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  text-align: right;
+}
+
+.weather-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  text-align: right;
+}
+
+.weather-info .temperature {
+  font-size: 1.5rem; /* Suhu */
+  font-weight: bold;
+}
+
+.weather-info .weather {
+  font-size: 1.2rem; /* Kondisi Cuaca */
+}
+
+.region-info .region,
+.region-info .duration,
+.region-info .trail-type,
+.region-info .best-season {
+  font-size: 0.9rem; /* Informasi Region, Durasi, dll */
+  margin: 3px 0;
+}
+
 
