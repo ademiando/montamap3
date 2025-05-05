@@ -286,7 +286,7 @@ body.dark .dropdown-menu button:hover {
 
 .mountain-overlay {
   position: absolute; /* Memposisikan overlay di atas elemen parent (mountain-container) */
-  top: 30px; /* Posisi overlay dimulai dari tepi atas kontainer */
+  top: 10px; /* Posisi overlay dimulai dari tepi atas kontainer */
   left: 0; /* Posisi overlay dimulai dari tepi kiri kontainer */
   width: 100%; /* Overlay menutupi seluruh lebar kontainer */
   height: 80%; /* Overlay menutupi seluruh tinggi kontainer */
