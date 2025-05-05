@@ -91,10 +91,3 @@ themeSwitch.addEventListener('click', () => {
   // Tandai tab yang aktif
   event.currentTarget.classList.add('active');
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const defaultTab = document.querySelector('.tab');
-  if (defaultTab) {
-    defaultTab.click();
-  }
-});
