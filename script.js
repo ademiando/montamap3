@@ -1,95 +1,100 @@
-// app.js
+// Elements
+const menuToggle = document.getElementById('menuToggle');
+const dropdownMenu = document.getElementById('dropdownMenu');
+const loginButton = document.getElementById('loginButton');
+const loginDropdown = document.getElementById('loginDropdown');
+const languageSelect = document.getElementById('language');
+const themeSwitch = document.getElementById('themeSwitch');
+const title = document.getElementById('title');
+const description = document.getElementById('description');
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Load mountain data (Mock JSON for demo purpose)
-    const mountainData = [
-        { id: 1, name: "Mount Rinjani", elevation: 3726, region: "West Nusa Tenggara", weather: "Sunny", image: "images/mountain1.jpg" },
-        { id: 2, name: "Mount Semeru", elevation: 3676, region: "East Java", weather: "Cloudy", image: "images/mountain2.jpg" },
-        { id: 3, name: "Mount Kerinci", elevation: 3805, region: "Jambi", weather: "Rainy", image: "images/mountain3.jpg" },
-        { id: 4, name: "Mount Bromo", elevation: 2329, region: "East Java", weather: "Windy", image: "images/mountain4.jpg" },
-        { id: 5, name: "Mount Merapi", elevation: 2910, region: "Central Java", weather: "Sunny", image: "images/mountain5.jpg" },
-        { id: 6, name: "Mount Agung", elevation: 3142, region: "Bali", weather: "Cloudy", image: "images/mountain6.jpg" },
-        { id: 7, name: "Mount Lawu", elevation: 3265, region: "Central Java", weather: "Rainy", image: "images/mountain7.jpg" },
-        { id: 8, name: "Mount Slamet", elevation: 3428, region: "Central Java", weather: "Windy", image: "images/mountain8.jpg" },
-        { id: 9, name: "Mount Tambora", elevation: 2850, region: "West Nusa Tenggara", weather: "Sunny", image: "images/mountain9.jpg" },
-        { id: 10, name: "Mount Papandayan", elevation: 2665, region: "West Java", weather: "Cloudy", image: "images/mountain10.jpg" }
-    ];
+// Toggle Dropdown Menu
+menuToggle.addEventListener('click', (event) => {
+  dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+});
 
-    // Helper function to get query parameter
-    const getQueryParam = (param) => {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
-    };
+// Close Hamburger Menu when clicking outside
+document.addEventListener('click', (event) => {
+  if (!menuToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
+    dropdownMenu.style.display = 'none'; // Menutup menu
+  }
+});
 
-    // Display Top 10 Mountains on homepage
-    const displayTopMountains = () => {
-        const topMountainsContainer = document.querySelector(".favorite-mountains .row");
-        if (topMountainsContainer) {
-            mountainData.slice(0, 10).forEach(mountain => {
-                const mountainCard = `
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <img src="${mountain.image}" class="card-img-top" alt="${mountain.name}">
-                            <div class="card-body">
-                                <h5 class="card-title">${mountain.name}</h5>
-                                <p class="card-text">Elevation: ${mountain.elevation}m<br>Region: ${mountain.region}</p>
-                                <a href="detail.html?id=${mountain.id}" class="btn btn-primary">View Details</a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                topMountainsContainer.innerHTML += mountainCard;
-            });
-        }
-    };
+// Toggle Login Dropdown
+loginButton.addEventListener('click', () => {
+  loginDropdown.style.display = loginDropdown.style.display === 'block' ? 'none' : 'block';
+});
 
-    // Display Full Table in mountains.html
-    const displayMountainTable = () => {
-        const tableBody = document.querySelector("table tbody");
-        if (tableBody) {
-            mountainData.forEach(mountain => {
-                const row = `
-                    <tr>
-                        <td><img src="${mountain.image}" alt="${mountain.name}" width="50"></td>
-                        <td>${mountain.name}</td>
-                        <td>${mountain.elevation} mdpl</td>
-                        <td>${mountain.region}</td>
-                        <td>${mountain.weather}</td>
-                        <td><button class="btn btn-primary">Buy Ticket</button></td>
-                        <td><button class="btn btn-secondary">Book Guide</button></td>
-                    </tr>
-                `;
-                tableBody.innerHTML += row;
-            });
-        }
-    };
+// Close Login Dropdown when clicking outside
+document.addEventListener('click', (event) => {
+  if (!loginButton.contains(event.target) && !loginDropdown.contains(event.target)) {
+    loginDropdown.style.display = 'none';
+  }
+});
 
-    // Display Mountain Detail Page
-    const displayMountainDetail = () => {
-        const mountainId = getQueryParam("id");
-        const mountain = mountainData.find(m => m.id === parseInt(mountainId));
-        if (mountain) {
-            document.querySelector(".banner").style.backgroundImage = `url(${mountain.image})`;
-            document.querySelector(".banner h1").innerText = mountain.name;
-            document.querySelector(".banner p").innerText = `Elevation: ${mountain.elevation}m | Region: ${mountain.region}`;
-            document.querySelector("#overview").innerHTML = `
-                <h3>Overview</h3>
-                <p>${mountain.name} is one of the most popular mountains in the region of ${mountain.region}. It has an elevation of ${mountain.elevation} meters and is known for its ${mountain.weather} weather conditions.</p>
-            `;
-        } else {
-            document.querySelector(".banner").innerHTML = "<h1>Mountain Not Found</h1>";
-        }
-    };
+// Language Translations
+const translations = {
+  en: {
+    title: "Welcome to Xcapeak",
+    description: "This is your mountain tracker and ticket website."
+  },
+  id: {
+    title: "Selamat Datang di Xcapeak",
+    description: "Ini adalah situs pelacak gunung dan tiket Anda."
+  },
+  zh: {
+    title: "欢迎来到 Xcapeak",
+    description: "这是您的山地追踪和票务网站。"
+  },
+  hi: {
+    title: "Xcapeak में आपका स्वागत है",
+    description: "यह आपका पर्वत ट्रैकर और टिकट वेबसाइट है।"
+  },
+  ru: {
+    title: "Добро пожаловать в Xcapeak",
+    description: "Это ваш сайт для отслеживания гор и билетов."
+  }
+};
 
-    // Initialize Page
-    if (document.querySelector(".hero-section")) {
-        // Homepage
-        displayTopMountains();
-    } else if (document.querySelector("table")) {
-        // Mountains List Page
-        displayMountainTable();
-    } else if (document.querySelector(".banner")) {
-        // Mountain Detail Page
-        displayMountainDetail();
-    }
+// Update Language Content
+languageSelect.addEventListener('change', () => {
+  const selectedLanguage = languageSelect.value;
+  title.textContent = translations[selectedLanguage].title;
+  description.textContent = translations[selectedLanguage].description;
+});
+
+// Toggle Theme (Light/Dark)
+themeSwitch.addEventListener('click', () => {
+  const isDarkMode = document.body.classList.toggle('dark');
+  themeSwitch.textContent = isDarkMode ? "Theme: Dark Mode" : "Theme: Light Mode";
+});
+
+  function openTab(event, tabName) {
+  // Sembunyikan semua konten tab
+  const tabContents = document.querySelectorAll('.tab-content');
+  tabContents.forEach((content) => {
+    content.style.display = 'none';
+    content.classList.remove('active');
+  });
+
+  // Nonaktifkan semua tab
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach((tab) => {
+    tab.classList.remove('active');
+  });
+
+  // Tampilkan konten tab yang dipilih
+  const selectedTabContent = document.getElementById(tabName);
+  selectedTabContent.style.display = 'block';
+  selectedTabContent.classList.add('active');
+
+  // Tandai tab yang aktif
+  event.currentTarget.classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const defaultTab = document.querySelector('.tab');
+  if (defaultTab) {
+    defaultTab.click();
+  }
 });
