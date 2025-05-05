@@ -1,45 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xcapade - Discover Indonesia's Peaks</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xcapeak</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Hero Section -->
-    <header class="hero-section text-center text-white">
-        <div class="container">
-            <h1 class="display-4">Discover Indonesia's Peaks with Xcapade</h1>
-            <p class="lead">Your adventure starts here. Explore the most breathtaking mountains in Indonesia.</p>
-            <div class="mt-4">
-                <a href="mountain.html" class="btn btn-primary btn-lg">Explore Mountains</a>
-                <a href="about.html" class="btn btn-outline-light btn-lg">Join Adventure</a>
-            </div>
-        </div>
-    </header>
+  <header>
+    <a href="home.html" class="logo">Xcapeak</a>
 
-    <!-- Top 10 Favorite Mountains -->
-    <section class="favorite-mountains py-5">
-        <div class="container">
-            <h2 class="text-center mb-4">Top 10 Favorite Mountains</h2>
-            <div class="row">
-                <!-- Example Mountain Card -->
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <img src="images/mountain1.jpg" class="card-img-top" alt="Mountain">
-                        <div class="card-body">
-                            <h5 class="card-title">Mount Rinjani</h5>
-                            <p class="card-text">Elevation: 3,726m<br>Region: Lombok, West Nusa Tenggara</p>
-                            <a href="detail.html" class="btn btn-primary">View Details</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- More cards go here -->
-            </div>
-        </div>
-    </section>
+        <!-- Search Bar -->
+    <div class="search-bar">
+      <input type="text" placeholder="Search..." id="searchInput">
+    </div>
+    
+    <!-- Login Button -->
+    <div class="login-menu">
+      <button id="loginButton">Login</button>
+      <div class="login-dropdown" id="loginDropdown">
+        <button>Login with Google</button>
+        <button>Login with Email</button>
+        <button>Login with Web3 Wallet</button>
+        <button>Sign Up</button>
+      </div>
+    </div>
+    
+    <div class="hamburger-menu" id="menuToggle">☰</div>
+    <div class="dropdown-menu" id="dropdownMenu">
+      <div class="language-select">
+        <label for="language">Language</label>
+        <select id="language">
+          <option value="en">English</option>
+          <option value="id">Bahasa Indonesia</option>
+          <option value="zh">中文 (Chinese)</option>
+          <option value="hi">हिन्दी (Hindi)</option>
+          <option value="ru">Русский (Russian)</option>
+        </select>
+      </div>
+
+      <button id="themeSwitch">Theme: Light Mode</button>
+    </div>
+  </header>
+
+<!-- Banner Ads -->
+<div class="banner-ads">
+  <p>Display Ads: hello@xcapeax.com</p>
+</div>
+
+<!-- Tagline Section -->
+<div class="tagline-section">
+  <h1 class="tagline">Your Gateway to Global Mountain Trails</h1>
+  <p class="sub-tagline">
+    Discover, Connect, Conquer Hiking Trails Worldwide with the Most Comprehensive Adventure Platform
+  </p>
+</div>
+
+  <!-- Tab Navigation Horizontal -->
+<div class="horizontal-tab-container">
+  <button class="tab active" onclick="openTab(event, 'Mountain')">Mountain</button>
+  <button class="tab" onclick="openTab(event, 'Favorite')">Favorite</button>
+  <button class="tab" onclick="openTab(event, 'Community')">Community</button>
+  <button class="tab" onclick="openTab(event, 'News')">News</button>
+  <button class="tab" onclick="openTab(event, 'Gear')">Gear</button>
+</div>
+
+
+    <!-- Tab Content -->
+<div id="Mountain" class="tab-content">
+    <!-- Sort by Currency -->
+    <div class="sort-options">
+        <select id="currency-sort">
+            <option value="usd">USD ($)</option>
+            <option value="btc">BTC (₿)</option>
+            <option value="idr">IDR (Rp)</option>
+            <option value="rub">RUB (₽)</option>
+            <option value="cny">CNY (¥)</option>
+            <option value="inr">INR (₹)</option>
+            <option value="npr">NPR (रू)</option>
+            <option value="aud">AUD (A$)</option>
+            <option value="global">All Currencies</option>
+        </select>
+
+        <select id="country-sort">
+            <option value="global">All Countries</option>
+            <option value="indonesia">Indonesia</option>
+            <option value="india">India</option>
+            <option value="uk">United Kingdom</option>
+            <option value="usa">United States</option>
+            <option value="australia">Australia</option>
+            <option value="nepal">Nepal</option>
+        </select>
+
+        <select id="destination-sort">
+            <option value="top-global">Top Global</option>
+            <option value="top-7-summit">Top 7 Summit</option>
+            <option value="trending">Trending🔥</option>
+            <option value="most-visited">Most Visited</option>
+            <option value="volcano">Volcano</option>
+            <option value="himalayas">Himalaya's</option>
+            <option value="hidden-gems">Hidden Gems</option>
+        </select>
+    </div>
+
+    <!-- Sticky Header -->
+    <div class="sticky-header">
+        <div class="header-item wide">Mountain</div>
+        <div class="header-item">Status</div>
+        <div class="header-item">Region</div>
+        <div class="header-item">Altitude</div>
+        <div class="header-item">Temperature</div>
+        <div class="header-item">Quota/Left</div>
+    </div>
+
+<div id="Mountain" class="tab-content" style="display: none;">
+    <p>Conten items will appear here.</p>
+</div>
+
+
+
+  
+
+
+
+  
+
+
+  
+
+
+
+
+
+<!-- Favorite Tab -->
+<div id="Favorite" class="tab-content" style="display: none;">
+    <p>Your favorite items will appear here.</p>
+</div>
+
+<!-- Community Tab -->
+<div id="Community" class="tab-content" style="display: none;">
+    <p>Connect with hikers and adventure lovers worldwide.</p>
+</div>
+
+<!-- News Tab -->
+<div id="News" class="tab-content" style="display: none;">
+    <h2>Latest News</h2>
+    <p>Stay updated with the latest hiking and adventure news.</p>
+</div>
+
+<!-- Gear Tab -->
+<div id="Gear" class="tab-content" style="display: none;">
+    <h2>Recommended Gear</h2>
+    <p>Discover the best hiking gear for your adventures.</p>
+</div>
+
+
+
+
+
+
+  
+  
+  <main>
+    <h1>Xcapeak.com</h1>
+    <p>By @ademiando.</p>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <!-- Footer -->
     <footer class="text-center py-3 bg-dark text-light">
