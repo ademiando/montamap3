@@ -26,29 +26,22 @@ header {
   position: relative;
 }
 
-/* Gaya untuk logo */
+/* Logo Styling */
 .left-logo {
-  width: 60px; /* Atur ukuran logo */
-  height: auto; /* Jaga proporsi logo */
-  margin-right: 10px; /* Jarak antara logo dan teks */
-  vertical-align: middle; /* Sejajarkan logo dengan teks */
+  width: 60px;
+  height: auto;
+  margin-right: 10px;
+  vertical-align: middle;
 }
 
 .logo {
   display: flex;
-  align-items: center; /* Sejajarkan logo dan teks secara vertikal */
+  align-items: center;
   text-decoration: none;
-  color: #e3ddcd; /* Warna teks */
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.logo {
-  text-decoration: none;
+  color: #e3ddcd;
   font-size: 26px;
   font-weight: bold;
-  color: #e3ddcd; /* Putih gelap */
-  text-shadow: 2px 2px 4px #000; /* Bayangan teks */
+  text-shadow: 2px 2px 4px #000;
   cursor: pointer;
 }
 
@@ -67,27 +60,7 @@ header {
   font-size: 14px;
 }
 
-    body {
-      font-family: sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
-      transition: background-color 0.3s ease;
-    }
-
-    .header {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .menu-container {
-      position: relative;
-      margin-right: 10px;
-    }
-    
-
+/* Hamburger Menu */
 #hamburger {
   font-size: 26px;
   background: none;
@@ -106,7 +79,6 @@ header {
   padding: 16px;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
   z-index: 999;
-
   opacity: 0;
   transform: translateX(30px);
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -137,6 +109,7 @@ header {
   background-color: #89ae95;
 }
 
+/* Select Dropdown */
 select {
   width: 100%;
   padding: 12px;
@@ -147,6 +120,7 @@ select {
   font-size: 14px;
 }
 
+/* Theme Switcher */
 .theme-switch {
   display: flex;
   gap: 10px;
@@ -165,79 +139,66 @@ select {
   transition: background 0.3s, color 0.3s;
 }
 
-/* Light Theme (Default) */
-body {
-  background-color: #f5f5f5;
-  color: #333;
-}
-
-/* Dark Theme */
 body.dark {
   background-color: #333;
   color: #f5f5f5;
 }
 
-/* Active Theme Buttons */
 .theme-btn.active {
   background-color: #89ae95;
   color: #333;
   border-color: #4a90e2;
 }
 
-/* Banner Ads Styling */
+/* Banner Ads */
 .banner-ads {
   background-color: #89ae95;
   color: #333;
   text-align: center;
-  padding: 15px 0; /* Spasi vertikal */
+  padding: 15px 0;
   font-size: 12px;
   font-weight: bold;
-  margin: 10px 0; /* Jarak antara banner dan elemen di atas/bawahnya */
-  width: 100%; /* Membentang dari kiri ke kanan */
-  margin: 0 auto; /* Posisi horizontal di tengah */
-  border-radius: none; /* Sudut melengkung dengan radius 10px */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Tambahkan bayangan untuk tampilan lebih profesional */
+  margin: 10px auto;
+  width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Tagline Section Styling */
+/* Tagline Section */
 .tagline-section {
-  text-align: center; /* Pusatkan teks */
-  margin: 20px 0; /* Jarak atas dan bawah */
+  text-align: center;
+  margin: 20px 0;
   padding: 10px;
 }
 
 .tagline {
-  font-size: 27px; /* Ukuran font besar untuk tagline */
-  font-weight: bold; /* Tebalkan tulisan */
-  margin-bottom: 10px; /* Jarak antara tagline dan sub-tagline */
+  font-size: 27px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .sub-tagline {
-  font-size: 14px; /* Ukuran font lebih kecil untuk sub-tagline */
-  line-height: 1.5; /* Spasi antar baris yang nyaman */
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-/* Container untuk Tab Horizontal */
+/* Horizontal Tabs */
 .horizontal-tab-container {
   display: flex;
-  overflow-x: auto; /* Aktifkan scroll horizontal */
-  white-space: nowrap; /* Hindari tab berpindah ke baris baru */
-  border-bottom: 1px solid #ccc; /* Tambahkan garis bawah untuk estetika */
-  justify-content: space-around; /* Tab tersebar merata */
-  background-color: none;
+  overflow-x: auto;
+  white-space: nowrap;
+  border-bottom: 1px solid #ccc;
+  justify-content: space-around;
   padding: 10px;
 }
 
-/* Gaya untuk Tab */
 .tab {
-  display: inline-block; /* Pastikan tab tetap sejajar horizontal */
-  background-color: none;
+  display: inline-block;
   padding: 10px 20px;
   border: none;
   font-size: 16px;
   cursor: pointer;
-  border-radius: 10px; /* Sudut melengkung dengan radius 10px */
-  margin: 0 10px
+  border-radius: 10px;
+  margin: 0 10px;
   transition: background-color 0.2s;
 }
 
@@ -246,74 +207,20 @@ body.dark {
 }
 
 .tab-content {
-  display: none; /* Sembunyikan semua tab secara default */
+  display: none;
 }
 
 .tab.active {
-  background-color: #ccc; /* Warna putih untuk tab aktif */
-  font-weight: none;
+  background-color: #ccc;
 }
 
 .tab-content.active {
-  display: block; /* Tampilkan hanya konten tab yang aktif */
-}
-
-/* Konten Tab */
-.tab-content {
+  display: block;
   padding: 20px;
-  background-color: none;
   border: 1px solid #ccc;
-  margin-top: none; /* tadinya 10px */
-  display: none; /* Semua tab disembunyikan secara default */
 }
 
-/* Container untuk tombol dropdown dengan scroll horizontal */
-.sort-options-container {
-    display: flex;
-    flex-wrap: nowrap;                   /* Jangan pindah ke baris baru */
-    overflow-x: auto;                    /* Scroll horizontal kalau penuh */
-    -webkit-overflow-scrolling: touch;  /* Scroll halus di iOS */
-    scrollbar-width: none;              /* Sembunyikan scrollbar (Firefox) */
-    gap: 8px;
-    padding: 8px;
-    margin-right: 0;
-}
-
-.sort-options-container::-webkit-scrollbar {
-    display: none;                      /* Sembunyikan scrollbar (Chrome/Safari) */
-}
-
-/* Styling untuk semua tombol dropdown */
-.sort-options-container select {
-    width: 110px;
-    height: 25px;
-    font-size: 10px;
-    padding: 5px 8px;
-    border: 1px solid #ccc;
-    border-radius: 7px;
-    cursor: pointer;
-    flex-shrink: 0;                     /* Biar nggak mengecil saat overflow */
-}
-
-
-
-
-
-
-
-
-
-
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f0f4f8;
-  margin: 0;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
+/* Mountain Card Styling */
 .mountain-container {
   display: flex;
   flex-direction: column;
@@ -377,31 +284,6 @@ body {
   line-height: 1.4;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
-
-.status-open {
-  color: #8cffb3;
-}
-
-.status-closed {
-  color: #ff7f7f;
-}
-
-#loadMoreBtn {
-  margin-top: 24px;
-  padding: 12px 20px;
-  font-size: 1rem;
-  border-radius: 10px;
-  border: none;
-  background-color: #3742fa;
-  color: white;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-#loadMoreBtn:hover {
-  background-color: #2f35c7;
-}
-
 
 
 
