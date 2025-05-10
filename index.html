@@ -1,144 +1,311 @@
-// script.js
-const mountainData = [
-  {
-    name: "Everest",
-    region: "Nepal / Tibet",
-    status: "Closed",
-    elevation: "8,848 m",
-    weather: "-35°C Windy",
-    image: "mountain-image/everest.jpg",
-    link: "everest"
-  },
-  {
-    name: "K2",
-    region: "Pakistan / China",
-    status: "Closed",
-    elevation: "8,611 m",
-    weather: "-40°C Snow",
-    image: "mountain-image/k2.jpg",
-    link: "k2"
-  },
-  {
-    name: "Kangchenjunga",
-    region: "Nepal / India",
-    status: "Closed",
-    elevation: "8,586 m",
-    weather: "-30°C Cloudy",
-    image: "mountain-image/kangchenjunga.jpg",
-    link: "kangchenjunga"
-  },
-  {
-    name: "Lhotse",
-    region: "Nepal / Tibet",
-    status: "Open",
-    elevation: "8,516 m",
-    weather: "-28°C Sunny",
-    image: "mountain-image/lhotse.jpg",
-    link: "lhotse"
-  },
-  {
-    name: "Makalu",
-    region: "Nepal / Tibet",
-    status: "Closed",
-    elevation: "8,485 m",
-    weather: "-31°C Foggy",
-    image: "mountain-image/makalu.jpg",
-    link: "makalu"
-  },
-  {
-    name: "Cho Oyu",
-    region: "Nepal / Tibet",
-    status: "Open",
-    elevation: "8,188 m",
-    weather: "-25°C Clear",
-    image: "mountain-image/cho-oyu.jpg",
-    link: "cho-oyu"
-  },
-  {
-    name: "Dhaulagiri I",
-    region: "Nepal",
-    status: "Open",
-    elevation: "8,167 m",
-    weather: "-23°C Sunny",
-    image: "mountain-image/dhaulagiri.jpg",
-    link: "dhaulagiri"
-  },
-  {
-    name: "Manaslu",
-    region: "Nepal",
-    status: "Closed",
-    elevation: "8,163 m",
-    weather: "-26°C Snow",
-    image: "mountain-image/manaslu.jpg",
-    link: "manaslu"
-  },
-  {
-    name: "Nanga Parbat",
-    region: "Pakistan",
-    status: "Open",
-    elevation: "8,126 m",
-    weather: "-22°C Cloudy",
-    image: "mountain-image/nanga-parbat.jpg",
-    link: "nanga-parbat"
-  },
-  {
-    name: "Annapurna I",
-    region: "Nepal",
-    status: "Closed",
-    elevation: "8,091 m",
-    weather: "-29°C Windy",
-    image: "mountain-image/annapurna.jpg",
-    link: "annapurna"
-  }
-];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Montamap</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
 
-let loaded = 0;
-const batch = 4;
+ <!-- Tambahkan logo -->
+    <a href="/" class="logo">
+      <img src="logo.jpg" alt="Logo" class="left-logo"> <!-- Pastikan path sesuai lokasi file -->
+      Montamap
+    </a>
 
-function renderMountains(filter = 'all') {
-  const container = document.getElementById("mountainContainer");
-  const slice = mountainData.slice(loaded, loaded + batch);
 
-  slice.forEach((m) => {
-    if (filter === 'open' && m.status !== 'Open') return;
-    if (filter === 'closed' && m.status !== 'Closed') return;
-    if (filter === 'favorite') return; // Placeholder for future logic
+        <!-- Search Bar -->
+    <div class="search-bar">
+      <input type="text" placeholder="Search..." id="searchInput">
+    </div>
+    
+  
 
-    const card = document.createElement("div");
-    card.className = "mountain-card";
-    card.onclick = () => window.location.href = `https://montamap.com/${m.link}`;
-    card.innerHTML = `
-      <img src="${m.image}" alt="${m.name}" class="mountain-image" />
-      <div class="gradient-overlay"></div>
-      <div class="mountain-info">
-        <div class="mountain-name">${m.name}</div>
-        <div class="mountain-details">
-          ${m.region}<br />
-          <span class="${m.status === 'Open' ? 'status-open' : 'status-closed'}">Status: ${m.status}</span><br />
-          Elevation: ${m.elevation}<br />
-          Weather: ${m.weather}
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
-  });
 
-  loaded += batch;
 
-  if (loaded >= mountainData.length) {
-    document.getElementById("loadMoreBtn").style.display = "none";
-  }
-}
+<!-- ini menu hamburger -->
+    <div class="menu-container" id="menuContainer">
+      <button id="hamburger">&#9776;</button>
 
-document.getElementById("loadMoreBtn").addEventListener("click", () => renderMountains());
+  <div id="menu" class="menu">
+    <!-- Menu Button -->
+    <button class="menu-button">Login</button>
 
-document.querySelectorAll(".filter-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.getElementById("mountainContainer").innerHTML = "";
-    loaded = 0;
-    renderMountains(btn.dataset.filter);
-  });
-});
+    <!-- Language Selector -->
+    <select id="language">
+      <option value="en">English (US)</option>
+      <option value="id">Bahasa (Indonesia)</option>
+      <option value="zh">中文 (Chinese)</option>
+      <option value="hi">हिन्दी (Hindi)</option>
+      <option value="ru">Русский (Russian)</option>
+    </select>
 
-// Initial render
-renderMountains();
+    <!-- Currency Selector -->
+    <select id="currency">
+      <option value="usd">USD ($)</option>
+      <option value="btc">BTC (₿)</option>
+      <option value="idr">IDR (Rp)</option>
+      <option value="rub">RUB (₽)</option>
+      <option value="cny">CNY (¥)</option>
+      <option value="inr">INR (₹)</option>
+      <option value="npr">NPR (रू)</option>
+      <option value="aud">AUD (A$)</option>
+      <option value="global">others</option>
+    </select>
+
+    <!-- Theme Switch -->
+    <div class="theme-switch">
+      <div class="theme-btn active" id="lightBtn">Light</div>
+      <div class="theme-btn" id="darkBtn">Dark</div>
+    </div>
+  </div>
+
+</header>
+
+
+
+
+<!-- Banner Ads -->
+<div class="banner-ads">
+  <p>Display Ads: hello@montamap.com</p>
+</div>
+
+<!-- Tagline Section -->
+<div class="tagline-section">
+  <h1 class="tagline">Your Gateway to Global Mountain Trails</h1>
+  <p class="sub-tagline">
+    Discover, Connect, Conquer Hiking Trails Worldwide –  Powered by Smart Maps, Live Weather Alert, One-Touch SOS, and Real-Time Support.
+  </p>
+</div>
+
+
+
+  <!-- Tab Navigation Horizontal -->
+  <div class="horizontal-tab-container">
+    <button class="tab active" onclick="openTab(event, 'Mountain')">Mountain</button>
+    <button class="tab" onclick="openTab(event, 'Favorite')">Favorite</button>
+    <button class="tab" onclick="openTab(event, 'Community')">Community</button>
+    <button class="tab" onclick="openTab(event, 'News')">News</button>
+    <button class="tab" onclick="openTab(event, 'Gear')">Gear</button>
+  </div>
+
+
+<div id="Mountain" class="tab-content active">
+
+
+
+  <!-- Sort Options -->
+  <div class="sort-options-container">
+      <select id="type-sort">
+          <option value="type">Mountain Type</option>
+          <option value="volcano">Volcano</option>
+          <option value="snowpeak">Snow Peak</option>
+          <option value="jungle/forest">Jungle/Forest</option>
+          <option value="sacred/mystical">Sacred/Mystical</option>
+          <option value="coastal">Coastal Mountain</option>
+          <option value="karst">Karst/Limestone</option>
+          <option value="plateau">Plateau/Mesa</option>
+          <option value="himalaya's">Himalaya's</option>
+      </select>
+
+      <select id="country-sort">
+          <option value="global">All Countries</option>
+          <option value="indonesia">Indonesia</option>
+          <option value="india">India</option>
+          <option value="uk">United Kingdom</option>
+          <option value="usa">United States</option>
+          <option value="australia">Australia</option>
+          <option value="nepal">Nepal</option>
+          <option value="peru">Peru</option>
+      </select>
+
+      <select id="destination-sort">
+          <option value="trending">Trending🔥</option>
+          <option value="top-7-summit">Top Seven Summit</option>
+          <option value="trending">Trending Now</option>
+          <option value="most-visited">Most Visited</option>
+          <option value="hidden-gems">Hidden Gems</option>
+          <option value="unesco">UNESCO Heritage Sites</option>
+          <option value="bucket">Bucket List Mountain</option>
+      </select>
+
+
+<select id="difficulty-sort">
+  <option value="level">All Levels</option>
+  <option value="beginner">Beginner (&lt;1D1N, &lt;2.000m)</option>
+  <option value="moderate">Moderate (&lt;3D2N, &lt;3.000m)</option>
+  <option value="hard">Hard (3D2N+, &lt;4.000m)</option>
+  <option value="expedition">Expedition (5D+, &gt;4.000m)</option>
+</select>
+
+
+<select id="season-sort">
+  <option value="any">All Seasons</option>
+  <option value="spring">Spring (Mar–May)</option>
+  <option value="summer">Summer (Jun–Aug)</option>
+  <option value="fall">Fall (Sep–Nov)</option>
+  <option value="winter">Winter (Dec–Feb)</option>
+</select>
+</div>
+
+
+ <div class="mountain-container" id="mountainContainer"></div>
+  <button id="loadMoreBtn">Load More Mountains</button>
+  <script src="script.js"></script>
+
+  
+
+
+
+</header>
+  
+
+
+
+
+
+
+
+
+  <!-- About Section -->
+  <section class="about">
+    <h2>About Montamap</h2>
+    <p>Montamap is a smart adventure ecosystem for today’s explorers.</p>
+    <p>We connect hikers, adventurers, local guides, and eco-conscious travelers through a digital platform that makes every journey more meaningful.</p>
+    <p>From misty forests to snow-covered ridges, Montamap unites smart technology, authentic communities, and transformational travel.</p>
+  </section>
+
+  <!-- Vision Section -->
+  <section class="vision">
+    <h2>Vision</h2>
+    <p>To become the world’s most trusted nature exploration platform—connecting adventurers and local communities through advanced tools, ethical practices, and impactful experiences.</p>
+  </section>
+
+  <!-- Mission Section -->
+  <section class="mission">
+    <h2>Mission</h2>
+    <ol>
+      <li>Provide seamless access to trekking experiences through an integrated platform.</li>
+      <li>Empower local economies by digitizing the services of porters, guides, and micro-tourism providers.</li>
+      <li>Educate explorers on safety, trekking ethics, and nature conservation.</li>
+      <li>Offer smart navigation, offline maps, and real-time SOS systems for maximum safety.</li>
+      <li>Build a global community that supports each other, shares knowledge, and upholds responsible exploration.</li>
+    </ol>
+  </section>
+
+  <!-- Our Values Section -->
+  <section class="core-values">
+    <h2>Our Values</h2>
+    <ul>
+      <li><strong>Meaningful Adventure:</strong> Every step should transform—not just yourself, but also the world around you.</li>
+      <li><strong>Technology for Justice:</strong> Innovation isn’t just about convenience, it’s a tool for access and equality.</li>
+      <li><strong>Trust as Our Compass:</strong> All services are verified, transparent, and designed with safety at their core.</li>
+      <li><strong>Impactful Footprints:</strong> Every journey should leave something constructive, not destructive.</li>
+      <li><strong>Community is Everything:</strong> Adventures go deeper when experienced together with mutual support.</li>
+    </ul>
+  </section>
+
+  <!-- Key Features Section -->
+  <section class="key-features">
+    <h2>Montamap’s Key Features</h2>
+    <ol>
+      <li><strong>Integrated Trekking Booking System:</strong> From Rinjani to Kilimanjaro: permits, guides, transport, and gear—all bookable in one app.</li>
+      <li><strong>Mountain & Trail Directory:</strong> Curated trails and summits with complete data: difficulty levels, best seasons, ethics guides, and hiker reviews.</li>
+      <li><strong>Porter & Guide Marketplace:</strong> View profiles, certifications, transparent pricing, and reviews to choose the best travel companions.</li>
+      <li><strong>Gear Hub & Rental Access:</strong> Gear recommendations by location and season, plus access to trusted rental services.</li>
+      <li><strong>Offline Maps & Smart Navigation:</strong> Detailed trail maps with water points, shelters, elevation—and offline navigation features.</li>
+      <li><strong>Real-Time Trail Updates & SOS Button:</strong> Weather alerts, trail conditions, and emergency features linked directly to local SAR teams.</li>
+      <li><strong>Adventurer Community & Forum:</strong> Share photos, trail discussions, create hiking groups, and swap stories by destination forums.</li>
+      <li><strong>Smart Hike Planner (AI):</strong> Trail and route recommendations based on fitness level, available time, preferences, and hiking season.</li>
+    </ol>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works">
+    <h2>How Montamap Works</h2>
+    <ol>
+      <li><strong>Explore Trails:</strong> Browse thousands of curated treks from around the world.</li>
+      <li><strong>Connect Locally:</strong> Book guides, porters, gear rentals, and transport directly.</li>
+      <li><strong>Prepare Smart:</strong> Use smart checklists, offline maps, and real-time updates.</li>
+      <li><strong>Share the Journey:</strong> Upload photos, reviews, and insights to help other explorers.</li>
+      <li><strong>Support the Community:</strong> Report broken trails, give honest ratings, and support local businesses.</li>
+    </ol>
+  </section>
+
+  <!-- Commitment Section -->
+  <section class="commitment">
+    <h2>Our Commitment</h2>
+    <p>Montamap is more than just a hiking app.</p>
+    <p>We are a movement:</p>
+    <p>A bridge between curiosity and responsibility. Between adrenaline and empathy. Between explorers and guardians of nature.</p>
+    <p>Our mission is not to conquer mountains, but to respect them.</p>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="cta">
+    <h2>Ready to Redefine the Way You Explore?</h2>
+    <ul>
+      <li>Discover authentic treks</li>
+      <li>Empower local communities</li>
+      <li>Join the new exploration movement</li>
+    </ul>
+  </section>
+
+
+  
+
+
+  <footer>
+    <h3>Montamap</h3>
+    <p>hello@montamap.com  |  IG: @montamap  |  X: @montamap</p>
+    <p>&copy; 2025 Montamap. All rights reserved.</p>
+  </footer>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- Favorite Tab -->
+<div id="Favorite" class="tab-content" style="display: none;">
+    <h2>My Favorite</h2>
+    <p>Your favorite items will appear here.</p>
+</div>
+
+<!-- Community Tab -->
+<div id="Community" class="tab-content" style="display: none;">
+    <h2>Comunity</h2>
+    <p>Connect with hikers and adventure lovers worldwide.</p>
+</div>
+
+<!-- News Tab -->
+<div id="News" class="tab-content" style="display: none;">
+    <h2>Latest News</h2>
+    <p>Stay updated with the latest hiking and adventure news.</p>
+</div>
+
+<!-- Gear Tab -->
+<div id="Gear" class="tab-content" style="display: none;">
+    <h2>Recommended Gear</h2>
+    <p>Discover the best hiking gear for your adventures.</p>
+</div>
+
+
+
+
+
+
+
+
+  
+
+  <script src="script.js"></script>
+</body>
+</html>
