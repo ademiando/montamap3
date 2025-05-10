@@ -1,15 +1,19 @@
-
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f0f4f8;
+/* General Reset */
+body, h1, p, button {
   margin: 0;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-
+/* Body Styling */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  color: #333;
+  transition: background-color 0.3s, color 0.3s;
+}
 
 /* Header Styling */
 header {
@@ -21,6 +25,9 @@ header {
   color: #e3ddcd;
   position: relative;
 }
+
+
+
 
 /* Gaya untuk logo */
 .left-logo {
@@ -39,6 +46,7 @@ header {
   font-weight: bold;
 }
 
+
 .logo {
   text-decoration: none;
   font-size: 26px;
@@ -47,6 +55,9 @@ header {
   text-shadow: 2px 2px 4px #000; /* Bayangan teks */
   cursor: pointer;
 }
+
+
+
 
 /* Search Bar Styling */
 .search-bar {
@@ -63,25 +74,33 @@ header {
   font-size: 14px;
 }
 
-.body {
-  font-family: sans-serif;
-  background-color: #f5f5f5;
-  margin: 0;
-  padding: 0;
-  transition: background-color 0.3s ease;
-}
 
-.header {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 20px;
-}
 
-.menu-container {
-  position: relative;
-}
+
+
+
+
+
+    body {
+      font-family: sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.3s ease;
+    }
+
+    .header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .menu-container {
+      position: relative;
+    }
     
+
 #hamburger {
   font-size: 26px;
   background: none;
@@ -159,6 +178,7 @@ select {
   transition: background 0.3s, color 0.3s;
 }
 
+
 /* Light Theme (Default) */
 body {
   background-color: #f5f5f5;
@@ -177,6 +197,15 @@ body.dark {
   color: #333;
   border-color: #4a90e2;
 }
+
+
+
+
+
+
+
+
+
 
 /* Banner Ads Styling */
 .banner-ads {
@@ -210,6 +239,8 @@ body.dark {
   font-size: 14px; /* Ukuran font lebih kecil untuk sub-tagline */
   line-height: 1.5; /* Spasi antar baris yang nyaman */
 }
+
+
 
 /* Container untuk Tab Horizontal */
 .horizontal-tab-container {
@@ -261,6 +292,14 @@ body.dark {
   display: none; /* Semua tab disembunyikan secara default */
 }
 
+
+
+
+
+
+
+
+
 /* Container untuk tombol dropdown dengan scroll horizontal */
 .sort-options-container {
     display: flex;
@@ -298,96 +337,117 @@ body.dark {
 
 
 
-.mountain-container {
+
+
+
+
+
+
+/* Styling untuk Sticky Header */
+.sticky-header {
+  margin-top: 10px;
+  position: sticky;
+  top: 5px;
   display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
-  max-width: 700px;
+  background-color: #f2f2f2;
+  padding: 10px 20px;
+  border-bottom: 1px solid #333;
+  font-weight: bold;
+  color: #333;
+  z-index: 100;
 }
 
-.mountain-card {
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.header-item {
+  flex: 1;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.mountain-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.2);
+.header-item.wide {
+  flex: 2; /* Kolom Gunung lebih lebar */
+  justify-content: flex-start;
+  text-align: left;
+  /* Hapus margin-right agar sejajar */
+}
+
+/* Styling untuk Baris Konten */
+.mountain-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.mountain-col {
+  flex: 1;
+  padding: 5px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mountain-col.wide {
+  flex: 2; /* Kolom lebih lebar untuk Gunung */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 12px; /* Jarak antara elemen (nomor, gambar, dan detail) */
+}
+
+
+
+
+
+
+
+
+
+.mountain-number {
+    font-weight: bold;
+    font-size: 16px; /* Ukuran font untuk nomor */
+    margin-right: 5px; /* Jarak antara nomor dan gambar */
 }
 
 .mountain-image {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  display: block;
-  transition: filter 0.3s ease;
-}
-
-.mountain-card:hover .mountain-image {
-  filter: brightness(0.85);
-}
-
-.gradient-overlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: linear-gradient(to left, rgba(0, 0, 0, 0.5), transparent);
-}
-
-.mountain-info {
-  position: absolute;
-  bottom: 16px;
-  left: 20px;
-  color: white;
-  z-index: 2;
-}
-
-.mountain-name {
-  font-size: 1.6rem;
-  font-weight: bold;
-  margin-bottom: 4px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    width: 70px; /* Lebar gambar */
+    height: auto;
+    border-radius: 7px; /* Sudut gambar melengkung */
+    margin-right: 10px; /* Jarak antara gambar dan nama gunung*/
 }
 
 .mountain-details {
-  font-size: 0.95rem;
-  line-height: 1.4;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column; /* Susunan vertikal untuk nama dan harga */
+    justify-content: center;
+    font-size: 18px; /* Ukuran font untuk nama gunung */
 }
 
-.status-open {
-  color: #8cffb3;
+.mountain-name {
+    font-weight: bold;
+    font-size: 18px; /* Ukuran font untuk nama gunung */
+    color: inherit; /* Warna teks tetap mengikuti konteks */
 }
 
-.status-closed {
-  color: #ff7f7f;
+.status .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
 }
 
-#loadMoreBtn {
-  margin-top: 24px;
-  padding: 12px 20px;
-  font-size: 1rem;
-  border-radius: 10px;
-  border: none;
-  background-color: #3742fa;
-  color: white;
-  cursor: pointer;
-  transition: 0.3s;
+.status .dot.open {
+    background-color: #ace1af;
 }
 
-#loadMoreBtn:hover {
-  background-color: #2f35c7;
+.status .dot.closed {
+    background-color: #c08081;
 }
-
-
-
 
 
 
@@ -521,6 +581,69 @@ footer p {
 }
 
 
+
+
+/* Styling untuk Sticky Header */
+.sticky-header {
+  margin-top: 10px;
+  position: sticky;
+  top: 5px;
+  display: flex;
+  background-color: #f2f2f2;
+  padding: 10px 20px;
+  border-bottom: 1px solid #333;
+  font-weight: bold;
+  color: #333;
+  z-index: 100;
+  width: 100%; /* Pastikan header memenuhi layar */
+}
+
+.sticky-header, .mountain-row {
+  display: grid;
+  font-size: 10px;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr; /* Header dan konten tetap sejajar */
+  gap: 5px; /* Jarak antar elemen lebih kecil di layar kecil */
+  width: 100%; /* Pastikan elemen memenuhi layar */
+  margin: 0; /* Hapus margin kiri dan kanan */
+  box-sizing: border-box; /* Hitung padding dalam lebar */
+}
+
+.header-item, .mountain-col {
+  font-size: 8px; /* Perkecil ukuran font di layar kecil */
+  text-align: center; /* Tetap rata tengah di layar kecil */
+}
+
+.mountain-col.wide {
+  flex-direction: row; /* Pastikan gambar dan detail tetap horizontal */
+  align-items: center;
+  gap: 8px; /* Jarak lebih kecil antar elemen */
+  width: 100%; /* Pastikan elemen ini juga memenuhi layar */
+}
+
+.mountain-number {
+  font-size: 8px; /* Sesuaikan ukuran font nomor di layar kecil */
+  margin-right: 2px; /* Geser nomor lebih ke kiri */
+  text-align: left; /* Rata kiri nomor untuk tampilan lebih rapi */
+}
+
+.mountain-image {
+  width: 50px; /* Perkecil gambar di layar kecil */
+  height: auto;
+  border-radius: 3px; /* Sudut gambar melengkung */
+  margin-right: 5px; /* Jarak antara gambar dan nama gunung */
+}
+
+.mountain-name {
+  font-size: 8px; /* Ukuran font untuk nama gunung di layar kecil */
+}
+
+.status .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
 
 
 
