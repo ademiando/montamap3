@@ -1,105 +1,144 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dynamic Background Parallax</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+// script.js
+const mountainData = [
+  {
+    name: "Everest",
+    region: "Nepal / Tibet",
+    status: "Closed",
+    elevation: "8,848 m",
+    weather: "-35°C Windy",
+    image: "mountain-image/everest.jpg",
+    link: "everest"
+  },
+  {
+    name: "K2",
+    region: "Pakistan / China",
+    status: "Closed",
+    elevation: "8,611 m",
+    weather: "-40°C Snow",
+    image: "mountain-image/k2.jpg",
+    link: "k2"
+  },
+  {
+    name: "Kangchenjunga",
+    region: "Nepal / India",
+    status: "Closed",
+    elevation: "8,586 m",
+    weather: "-30°C Cloudy",
+    image: "mountain-image/kangchenjunga.jpg",
+    link: "kangchenjunga"
+  },
+  {
+    name: "Lhotse",
+    region: "Nepal / Tibet",
+    status: "Open",
+    elevation: "8,516 m",
+    weather: "-28°C Sunny",
+    image: "mountain-image/lhotse.jpg",
+    link: "lhotse"
+  },
+  {
+    name: "Makalu",
+    region: "Nepal / Tibet",
+    status: "Closed",
+    elevation: "8,485 m",
+    weather: "-31°C Foggy",
+    image: "mountain-image/makalu.jpg",
+    link: "makalu"
+  },
+  {
+    name: "Cho Oyu",
+    region: "Nepal / Tibet",
+    status: "Open",
+    elevation: "8,188 m",
+    weather: "-25°C Clear",
+    image: "mountain-image/cho-oyu.jpg",
+    link: "cho-oyu"
+  },
+  {
+    name: "Dhaulagiri I",
+    region: "Nepal",
+    status: "Open",
+    elevation: "8,167 m",
+    weather: "-23°C Sunny",
+    image: "mountain-image/dhaulagiri.jpg",
+    link: "dhaulagiri"
+  },
+  {
+    name: "Manaslu",
+    region: "Nepal",
+    status: "Closed",
+    elevation: "8,163 m",
+    weather: "-26°C Snow",
+    image: "mountain-image/manaslu.jpg",
+    link: "manaslu"
+  },
+  {
+    name: "Nanga Parbat",
+    region: "Pakistan",
+    status: "Open",
+    elevation: "8,126 m",
+    weather: "-22°C Cloudy",
+    image: "mountain-image/nanga-parbat.jpg",
+    link: "nanga-parbat"
+  },
+  {
+    name: "Annapurna I",
+    region: "Nepal",
+    status: "Closed",
+    elevation: "8,091 m",
+    weather: "-29°C Windy",
+    image: "mountain-image/annapurna.jpg",
+    link: "annapurna"
+  }
+];
 
-    body {
-      height: 100vh;
-      font-family: 'Segoe UI', sans-serif;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      transition: background-image 1s ease-in-out, filter 0.5s;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      overflow: hidden;
-      position: relative;
-    }
+let loaded = 0;
+const batch = 4;
 
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-image: inherit;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      filter: blur(8px) brightness(0.7);
-      z-index: -1;
-      transform: scale(1.05);
-      transition: background-image 1s ease-in-out;
-    }
+function renderMountains(filter = 'all') {
+  const container = document.getElementById("mountainContainer");
+  const slice = mountainData.slice(loaded, loaded + batch);
 
-    h1 {
-      font-size: 3rem;
-      text-shadow: 2px 2px 10px rgba(0,0,0,0.6);
-      margin-bottom: 1rem;
-    }
+  slice.forEach((m) => {
+    if (filter === 'open' && m.status !== 'Open') return;
+    if (filter === 'closed' && m.status !== 'Closed') return;
+    if (filter === 'favorite') return; // Placeholder for future logic
 
-    button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: rgba(255, 255, 255, 0.2);
-      color: white;
-      backdrop-filter: blur(4px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      transition: all 0.3s ease;
-    }
+    const card = document.createElement("div");
+    card.className = "mountain-card";
+    card.onclick = () => window.location.href = `https://montamap.com/${m.link}`;
+    card.innerHTML = `
+      <img src="${m.image}" alt="${m.name}" class="mountain-image" />
+      <div class="gradient-overlay"></div>
+      <div class="mountain-info">
+        <div class="mountain-name">${m.name}</div>
+        <div class="mountain-details">
+          ${m.region}<br />
+          <span class="${m.status === 'Open' ? 'status-open' : 'status-closed'}">Status: ${m.status}</span><br />
+          Elevation: ${m.elevation}<br />
+          Weather: ${m.weather}
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
 
-    button:hover {
-      transform: scale(1.05);
-      background-color: rgba(255, 255, 255, 0.35);
-    }
-  </style>
-</head>
-<body>
-  <h1>Explore the Visuals</h1>
-  <button onclick="changeBackground()">Next Visual</button>
+  loaded += batch;
 
-  <script>
-    const images = [
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-      'https://images.unsplash.com/photo-1501785888041-af3ef285b470',
-      'https://images.unsplash.com/photo-1470770841072-f978cf4d019e',
-      'https://images.unsplash.com/photo-1549887534-4b9376c9e0f8'
-    ];
+  if (loaded >= mountainData.length) {
+    document.getElementById("loadMoreBtn").style.display = "none";
+  }
+}
 
-    let index = 0;
+document.getElementById("loadMoreBtn").addEventListener("click", () => renderMountains());
 
-    function updateBackground(url) {
-      document.body.style.backgroundImage = `url(${url})`;
-      document.body.style.setProperty('--background-url', `url(${url})`);
-      document.body.setAttribute('data-bg', url);
-      document.querySelector('body::before')?.style?.setProperty('background-image', `url(${url})`);
-    }
+document.querySelectorAll(".filter-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.getElementById("mountainContainer").innerHTML = "";
+    loaded = 0;
+    renderMountains(btn.dataset.filter);
+  });
+});
 
-    function changeBackground() {
-      index = (index + 1) % images.length;
-      const nextImage = images[index];
-      document.body.style.backgroundImage = `url(${nextImage})`;
-      document.body.style.setProperty('--background-url', `url(${nextImage})`);
-    }
-
-    // Initial background
-    window.onload = () => {
-      document.body.style.backgroundImage = `url(${images[0]})`;
-    };
-  </script>
-</body>
-</html>
+// Initial render
+renderMountains();
