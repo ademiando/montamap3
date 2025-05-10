@@ -1,174 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Xcapeak</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamic Background Parallax</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: background-image 1s ease-in-out, filter 0.5s;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: inherit;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: blur(8px) brightness(0.7);
+      z-index: -1;
+      transform: scale(1.05);
+      transition: background-image 1s ease-in-out;
+    }
+
+    h1 {
+      font-size: 3rem;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.6);
+      margin-bottom: 1rem;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background-color: rgba(255, 255, 255, 0.35);
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <a href="home.html" class="logo">Xcapeak</a>
+  <h1>Explore the Visuals</h1>
+  <button onclick="changeBackground()">Next Visual</button>
 
-        <!-- Search Bar -->
-    <div class="search-bar">
-      <input type="text" placeholder="Search..." id="searchInput">
-    </div>
-    
-    <!-- Login Button -->
-    <div class="login-menu">
-      <button id="loginButton">Login</button>
-      <div class="login-dropdown" id="loginDropdown">
-        <button>Login with Google</button>
-        <button>Login with Email</button>
-        <button>Login with Web3 Wallet</button>
-        <button>Sign Up</button>
-      </div>
-    </div>
-    
-    <div class="hamburger-menu" id="menuToggle">☰</div>
-    <div class="dropdown-menu" id="dropdownMenu">
-      <div class="language-select">
-        <label for="language">Language</label>
-        <select id="language">
-          <option value="en">English</option>
-          <option value="id">Bahasa Indonesia</option>
-          <option value="zh">中文 (Chinese)</option>
-          <option value="hi">हिन्दी (Hindi)</option>
-          <option value="ru">Русский (Russian)</option>
-        </select>
-      </div>
+  <script>
+    const images = [
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470',
+      'https://images.unsplash.com/photo-1470770841072-f978cf4d019e',
+      'https://images.unsplash.com/photo-1549887534-4b9376c9e0f8'
+    ];
 
-      <button id="themeSwitch">Theme: Light Mode</button>
-    </div>
-  </header>
+    let index = 0;
 
-<!-- Banner Ads -->
-<div class="banner-ads">
-  <p>Display Ads: hello@xcapeax.com</p>
-</div>
+    function updateBackground(url) {
+      document.body.style.backgroundImage = `url(${url})`;
+      document.body.style.setProperty('--background-url', `url(${url})`);
+      document.body.setAttribute('data-bg', url);
+      document.querySelector('body::before')?.style?.setProperty('background-image', `url(${url})`);
+    }
 
-<!-- Tagline Section -->
-<div class="tagline-section">
-  <h1 class="tagline">Your Gateway to Global Mountain Trails</h1>
-  <p class="sub-tagline">
-    Discover, Connect, Conquer Hiking Trails Worldwide with the Most Comprehensive Adventure Platform
-  </p>
-</div>
+    function changeBackground() {
+      index = (index + 1) % images.length;
+      const nextImage = images[index];
+      document.body.style.backgroundImage = `url(${nextImage})`;
+      document.body.style.setProperty('--background-url', `url(${nextImage})`);
+    }
 
-  <!-- Tab Navigation Horizontal -->
-<div class="horizontal-tab-container">
-  <button class="tab active" onclick="openTab(event, 'Mountain')">Mountain</button>
-  <button class="tab" onclick="openTab(event, 'Favorite')">Favorite</button>
-  <button class="tab" onclick="openTab(event, 'Community')">Community</button>
-  <button class="tab" onclick="openTab(event, 'News')">News</button>
-  <button class="tab" onclick="openTab(event, 'Gear')">Gear</button>
-</div>
-
-
-    <!-- Tab Content -->
-<div id="Mountain" class="tab-content">
-    <!-- Sort by Currency -->
-    <div class="sort-options">
-        <select id="currency-sort">
-            <option value="usd">USD ($)</option>
-            <option value="btc">BTC (₿)</option>
-            <option value="idr">IDR (Rp)</option>
-            <option value="rub">RUB (₽)</option>
-            <option value="cny">CNY (¥)</option>
-            <option value="inr">INR (₹)</option>
-            <option value="npr">NPR (रू)</option>
-            <option value="aud">AUD (A$)</option>
-            <option value="global">All Currencies</option>
-        </select>
-
-        <select id="country-sort">
-            <option value="global">All Countries</option>
-            <option value="indonesia">Indonesia</option>
-            <option value="india">India</option>
-            <option value="uk">United Kingdom</option>
-            <option value="usa">United States</option>
-            <option value="australia">Australia</option>
-            <option value="nepal">Nepal</option>
-        </select>
-
-        <select id="destination-sort">
-            <option value="top-global">Top Global</option>
-            <option value="top-7-summit">Top 7 Summit</option>
-            <option value="trending">Trending🔥</option>
-            <option value="most-visited">Most Visited</option>
-            <option value="volcano">Volcano</option>
-            <option value="himalayas">Himalaya's</option>
-            <option value="hidden-gems">Hidden Gems</option>
-        </select>
-
-  
-<!-- Mountain Tab -->
-  <div class="mountain-container">
-    <img src="gunung-rinjani.jpg" alt="Mount Rinjani" class="mountain-image" />
-    <div class="mountain-overlay">
-      <div class="mountain-info-left">
-        <h1>Mount Rinjani</h1>
-        <p class="elevation">3,675 meters</p>
-        <p class="price">1000 USD</p>
-      </div>
-      <div class="mountain-info-right">
-        <div class="weather-info">
-          <p class="temperature">5°C</p>
-          <p class="weather">🌤 Sunny</p>
-        </div>
-        <div class="region-info">
-          <p class="region">Region: Indonesia, NTB</p>
-          <p class="duration">Duration: 3-4 days</p>
-          <p class="trail-type">Trail Type: Loop</p>
-          <p class="best-season">Best Season: April - October</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-</div>
-
-
-
-<!-- Favorite Tab -->
-<div id="Favorite" class="tab-content" style="display: none;">
-    <p>Your favorite items will appear here soon.</p>
-</div>
-
-<!-- Community Tab -->
-<div id="Community" class="tab-content" style="display: none;">
-    <p>Connect with hikers and adventure lovers worldwide.</p>
-</div>
-
-<!-- News Tab -->
-<div id="News" class="tab-content" style="display: none;">
-    <h2>Latest News</h2>
-    <p>Stay updated with the latest hiking and adventure news.</p>
-</div>
-
-<!-- Gear Tab -->
-<div id="Gear" class="tab-content" style="display: none;">
-    <h2>Recommended Gear</h2>
-    <p>Discover the best hiking gear for your adventures.</p>
-</div>
-</div>
-
-
-
-
-
-
-
-
-  
-  
-  
-  <main>
-    <h1>Xcapeak.com</h1>
-    <p>By @ademiando.</p>
-  </main>
-    <script src="app.js"></script>
+    // Initial background
+    window.onload = () => {
+      document.body.style.backgroundImage = `url(${images[0]})`;
+    };
+  </script>
 </body>
 </html>
