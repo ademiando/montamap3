@@ -60,26 +60,6 @@ header {
   font-size: 14px;
 }
 
-/* Dropdown Sorting Buttons */
-.sort-options-container {
-  display: flex;
-  justify-content: center; /* Pusatkan dropdown secara horizontal */
-  gap: 10px; /* Tambahkan jarak antar dropdown */
-  margin: 20px 0; /* Jarak atas dan bawah */
-  padding: 10px;
-}
-
-.sort-options-container select {
-  width: 150px; /* Atur lebar dropdown */
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: #fafafa;
-  text-align: center;
-}
-
 /* Hamburger Menu */
 #hamburger {
   font-size: 26px;
@@ -127,6 +107,17 @@ header {
 
 .menu-button:hover {
   background-color: #89ae95;
+}
+
+/* Select Dropdown */
+select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #fafafa;
+  font-size: 14px;
 }
 
 /* Theme Switcher */
@@ -190,38 +181,61 @@ body.dark {
   line-height: 1.5;
 }
 
+/* Horizontal Tabs */
+.horizontal-tab-container {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  border-bottom: 1px solid #ccc;
+  justify-content: space-around;
+  padding: 10px;
+}
+
+.tab {
+  display: inline-block;
+  padding: 10px 20px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 10px;
+  margin: 0 10px;
+  transition: background-color 0.2s;
+}
+
+.tab:hover {
+  background-color: #ccc;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab.active {
+  background-color: #ccc;
+}
+
+.tab-content.active {
+  display: block;
+  padding: 20px;
+  border: 1px solid #ccc;
+}
+
 /* Mountain Card Styling */
 .mountain-container {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Pusatkan kontainer gunung secara horizontal */
   gap: 24px;
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto; /* Pusatkan secara horizontal */
+  max-width: 700px;
 }
 
 .mountain-card {
-  width: 100%; /* Agak fleksibel */
-  max-width: 600px; /* Batasi lebar maksimal */
   position: relative;
   border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  text-align: center; /* Pusatkan konten di dalam kartu */
-}
-
-.mountain-card h2 {
-  margin: 10px 0;
-  font-size: 1.6rem;
-  font-weight: bold;
-}
-
-.mountain-card p {
-  margin: 5px 0;
-  font-size: 1rem;
 }
 
 .mountain-card:hover {
