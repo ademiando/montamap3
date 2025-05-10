@@ -241,15 +241,11 @@ body.dark {
   flex-shrink: 0; /* Jangan mengecilkan tombol */
 }
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f0f4f8;
-  margin: 0;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+
+
+
+
+
 
 .mountain-container {
   display: flex;
