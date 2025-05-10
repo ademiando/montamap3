@@ -5,15 +5,22 @@ body, h1, p, button {
   box-sizing: border-box;
 }
 
-/* Body Styling */
+
+
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f0f4f8;
   margin: 0;
-  padding: 0;
-  background-color: #f5f5f5;
-  color: #333;
-  transition: background-color 0.3s, color 0.3s;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
+
+
+
+
 
 /* Header Styling */
 header {
@@ -25,9 +32,6 @@ header {
   color: #e3ddcd;
   position: relative;
 }
-
-
-
 
 /* Gaya untuk logo */
 .left-logo {
@@ -46,7 +50,6 @@ header {
   font-weight: bold;
 }
 
-
 .logo {
   text-decoration: none;
   font-size: 26px;
@@ -55,9 +58,6 @@ header {
   text-shadow: 2px 2px 4px #000; /* Bayangan teks */
   cursor: pointer;
 }
-
-
-
 
 /* Search Bar Styling */
 .search-bar {
@@ -74,33 +74,25 @@ header {
   font-size: 14px;
 }
 
+.body {
+  font-family: sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease;
+}
 
+.header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 20px;
+}
 
-
-
-
-
-
-    body {
-      font-family: sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
-      transition: background-color 0.3s ease;
-    }
-
-    .header {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .menu-container {
-      position: relative;
-    }
+.menu-container {
+  position: relative;
+}
     
-
 #hamburger {
   font-size: 26px;
   background: none;
@@ -178,7 +170,6 @@ select {
   transition: background 0.3s, color 0.3s;
 }
 
-
 /* Light Theme (Default) */
 body {
   background-color: #f5f5f5;
@@ -197,15 +188,6 @@ body.dark {
   color: #333;
   border-color: #4a90e2;
 }
-
-
-
-
-
-
-
-
-
 
 /* Banner Ads Styling */
 .banner-ads {
@@ -239,8 +221,6 @@ body.dark {
   font-size: 14px; /* Ukuran font lebih kecil untuk sub-tagline */
   line-height: 1.5; /* Spasi antar baris yang nyaman */
 }
-
-
 
 /* Container untuk Tab Horizontal */
 .horizontal-tab-container {
@@ -292,14 +272,6 @@ body.dark {
   display: none; /* Semua tab disembunyikan secara default */
 }
 
-
-
-
-
-
-
-
-
 /* Container untuk tombol dropdown dengan scroll horizontal */
 .sort-options-container {
     display: flex;
@@ -336,19 +308,6 @@ body.dark {
 
 
 
-
-
-
-
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f0f4f8;
-  margin: 0;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 
 .mountain-container {
   display: flex;
