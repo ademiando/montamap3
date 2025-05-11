@@ -334,7 +334,13 @@ body.dark {
 
 
 
-
+.mountain-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* Tengah horizontal */
+  padding: 40px 16px;
+  box-sizing: border-box;
+}
 
 
 .mountain-container {
