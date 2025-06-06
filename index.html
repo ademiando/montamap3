@@ -1,29 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mountaineering Mini</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Montane Rush 2D</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #111;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+    }
+    #controls {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    .btn {
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      text-align: center;
+      line-height: 60px;
+      font-size: 30px;
+      color: #fff;
+      user-select: none;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
 </head>
 <body>
-  <div class="game-container">
-    <h1>🏔️ Mountaineering Mini</h1>
-    <div class="status">
-      <div>Stamina: <span id="stamina">100</span>%</div>
-      <div>Weather: <span id="weather">Clear</span></div>
-    </div>
-    <div id="grid" class="grid"></div>
-    <div class="controls">
-      <button onclick="move('up')">⬆️</button>
-      <div>
-        <button onclick="move('left')">⬅️</button>
-        <button onclick="move('down')">⬇️</button>
-        <button onclick="move('right')">➡️</button>
-      </div>
-    </div>
-    <div id="message" class="message"></div>
-  </div>
-  <script src="game.js"></script>
+<div id="controls">
+  <div class="btn" id="left">⬅</div>
+  <div class="btn" id="jump">⬆</div>
+  <div class="btn" id="right">➡</div>
+</div>
+<script>
+  const config = {
+    type: Phaser.AUTO,
+    width: 400,
+    height: 700,
+    backgroundColor: '#1a1a1a',
+    physics: {
+      default: 'arcade',
+      arcade: {
+        gravity: { y: 600 },
+        debug: false,
+      },
+    },
+    scene: {
+      preload,
+      create,
+      update,
+    },
+  };let player, cursors, platforms, obstacles, items, score = 0, scoreText, gameOver = false; const game = new Phaser.Game(config);
+
+function preload() { this.load.image('ground', 'https://dummyimage.com/400x32/444/fff&text='); this.load.image('player', 'https://dummyimage.com/32x32/0f0/000&text=^'); this.load.image('obstacle', 'https://dummyimage.com/32x32/f00/000&text=X'); this.load.image('item', 'https://dummyimage.com/24x24/0ff/000&text=+'); }
+
+function create() { platforms = this.physics.add.staticGroup(); for (let i = 0; i < 10; i++) { platforms.create(Phaser.Math.Between(50, 350), 700 - i * 80, 'ground'); }
+
+player = this.physics.add.sprite(200, 650, 'player');
+player.setCollideWorldBounds(true);
+
+this.physics.add.collider(player, platforms);
+
+obstacles = this.physics.add.group();
+items = this.physics.add.group();
+
+this.physics.add.collider(obstacles, platforms);
+this.physics.add.collider(items, platforms);
+this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
+this.physics.add.overlap(player, items, collectItem, null, this);
+
+cursors = this.input.keyboard.createCursorKeys();
+
+scoreText = this.add.text(10, 10, 'Height: 0m', {
+  fontSize: '20px',
+  fill: '#fff'
+});
+
+// Touch Controls
+document.getElementById('left').addEventListener('touchstart', () => player.setVelocityX(-200));
+document.getElementById('right').addEventListener('touchstart', () => player.setVelocityX(200));
+document.getElementById('jump').addEventListener('touchstart', () => {
+  if (player.body.touching.down) player.setVelocityY(-350);
+});
+
+document.getElementById('left').addEventListener('touchend', () => player.setVelocityX(0));
+document.getElementById('right').addEventListener('touchend', () => player.setVelocityX(0));
+
+}
+
+function update() { if (gameOver) return;
+
+if (cursors.left.isDown) player.setVelocityX(-200);
+else if (cursors.right.isDown) player.setVelocityX(200);
+else player.setVelocityX(0);
+
+if (cursors.up.isDown && player.body.touching.down) {
+  player.setVelocityY(-350);
+}
+
+if (Phaser.Math.Between(0, 100) < 2) {
+  const obs = obstacles.create(Phaser.Math.Between(50, 350), -50, 'obstacle');
+  obs.setVelocityY(100);
+}
+
+if (Phaser.Math.Between(0, 100) < 1) {
+  const itm = items.create(Phaser.Math.Between(50, 350), -30, 'item');
+  itm.setVelocityY(100);
+}
+
+score++;
+scoreText.setText('Height: ' + Math.floor(score / 10) + 'm');
+
+}
+
+function hitObstacle(player, obstacle) { this.physics.pause(); player.setTint(0xff0000); gameOver = true; scoreText.setText('GAME OVER\nHeight: ' + Math.floor(score / 10) + 'm'); }
+
+function collectItem(player, item) { item.destroy(); score += 100; } </script>
+
 </body>
 </html>
