@@ -1,19 +1,31 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Montane Rush: Vertical Escape</title>
+  <title>Montane Rush: Vertical Escape (Full 2D Game)</title>
   <style>
-    body {
+    /* ==========================================================================
+       Montane Rush: Vertical Escape
+       - Pure Phaser 3, no external images
+       - Uses Graphics API to draw shapes (player, platforms, obstacles, items)
+       - ~500 lines of code for full game logic, comments included
+       ========================================================================== */
+
+    html, body {
       margin: 0;
+      padding: 0;
       overflow: hidden;
       background: #1e1e1e;
       font-family: Arial, sans-serif;
     }
+
     #game-container {
       width: 100vw;
       height: 100vh;
     }
+
+    /* UI Buttons (Start, Pause, Restart) */
     .ui-button {
       position: absolute;
       background: rgba(255, 255, 255, 0.2);
@@ -24,306 +36,480 @@
       font-size: 18px;
       cursor: pointer;
       user-select: none;
+      z-index: 2;
     }
-    #start-button { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-    #restart-button { top: 60%; left: 50%; transform: translate(-50%, -50%); display: none; }
-    #pause-button { top: 10px; right: 10px; }
+    #start-button {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    #pause-button {
+      top: 10px;
+      right: 10px;
+      display: none;
+    }
+    #restart-button {
+      top: 60%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+    /* Overlay for Game Over text */
+    #game-over-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      color: #ff4d4d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      z-index: 1;
+      display: none;
+    }
+    #game-over-overlay span {
+      margin-top: 20px;
+      font-size: 24px;
+      color: #fff;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
 </head>
 <body>
   <div id="game-container"></div>
+
+  <!-- UI Buttons -->
   <div id="start-button" class="ui-button">Start Game</div>
-  <div id="restart-button" class="ui-button">Restart</div>
   <div id="pause-button" class="ui-button">Pause</div>
+  <div id="restart-button" class="ui-button">Restart</div>
+
+  <!-- Game Over Overlay -->
+  <div id="game-over-overlay">
+    GAME OVER
+    <span id="final-score-text">Height: 0m</span>
+    <span id="high-score-text">High Score: 0m</span>
+  </div>
+
   <script>
-    // ---------------------------------------------------------------------------
+    // ==========================================================================
     // Montane Rush: Vertical Escape
-    // A more comprehensive Phaser 3 vertical climbing game without external assets.
-    // At least ~500 lines of code for a richer experience.
-    // ---------------------------------------------------------------------------// 1. Global variables and config
-const GAME_WIDTH = window.innerWidth;
-const GAME_HEIGHT = window.innerHeight;
-const PLAYER_SIZE = 40;
-const PLATFORM_WIDTH = 120;
-const PLATFORM_HEIGHT = 20;
-const OBSTACLE_SIZE = 30;
-const ITEM_SIZE = 20;
-const INITIAL_SCROLL_SPEED = 100;
-const DIFFICULTY_INCREMENT_INTERVAL = 10000; // ms
+    // Full 2D Phaser 3 Game with ~500 lines of code
+    // - Uses Graphics to draw shapes
+    // - Platforms, obstacles, items
+    // - Score, UI, difficulty ramp, mobile/keyboard input
+    // ==========================================================================
 
-let game;
-let mainScene;
-let score = 0;
-let highScore = 0;
-let scrollSpeed = INITIAL_SCROLL_SPEED;
-let isPaused = false;
+    // 1. Global Constants and Variables
+    const GAME_WIDTH = window.innerWidth;
+    const GAME_HEIGHT = window.innerHeight;
+    const PLAYER_SIZE = 40;                // Pixel size of player rectangle
+    const PLATFORM_WIDTH = 120;            // Platform width
+    const PLATFORM_HEIGHT = 20;            // Platform height
+    const OBSTACLE_SIZE = 30;              // Obstacle (rock) size
+    const ITEM_SIZE = 20;                  // Item (water) size
+    const INITIAL_SCROLL_SPEED = 100;      // Initial obstacle/item scroll speed
+    const DIFFICULTY_INCREMENT_INTERVAL = 10000; // Interval (ms) to increase difficulty
 
-// 2. Booting Phaser game
-window.onload = () => {
-  const config = {
-    type: Phaser.AUTO,
-    width: GAME_WIDTH,
-    height: GAME_HEIGHT,
-    parent: 'game-container',
-    backgroundColor: '#1e1e1e',
-    physics: {
-      default: 'arcade',
-      arcade: { gravity: { y: 1000 }, debug: false }
-    },
-    scene: [BootScene, MainScene, UIScene]
-  };
-  game = new Phaser.Game(config);
-  window.focus();
-};
+    let game;                       // Phaser.Game instance
+    let score = 0;                  // Current run score (height)
+    let highScore = 0;              // Recorded high score (session)
+    let scrollSpeed = INITIAL_SCROLL_SPEED; // Current scroll speed
+    let isPaused = false;           // Pause state
 
-// 3. BootScene: load any assets or set up game
-class BootScene extends Phaser.Scene {
-  constructor() {
-    super({ key: 'BootScene' });
-  }
+    // 2. Phaser Game Configuration
+    window.onload = () => {
+      const config = {
+        type: Phaser.AUTO,
+        width: GAME_WIDTH,
+        height: GAME_HEIGHT,
+        parent: 'game-container',
+        backgroundColor: '#1e1e1e',
+        physics: {
+          default: 'arcade',
+          arcade: {
+            gravity: { y: 1000 },
+            debug: false
+          }
+        },
+        scene: [BootScene, MainScene, UIScene]
+      };
+      game = new Phaser.Game(config);
+      window.focus();
+    };
 
-  preload() {
-    // No external assets; just define shapes in code
-  }
-
-  create() {
-    this.scene.start('MainScene');
-    this.scene.launch('UIScene');
-  }
-}
-
-// 4. MainScene: core gameplay
-class MainScene extends Phaser.Scene {
-  constructor() {
-    super({ key: 'MainScene' });
-  }
-
-  create() {
-    // Initialize variables
-    score = 0;
-    scrollSpeed = INITIAL_SCROLL_SPEED;
-    this.isGameOver = false;
-
-    // Create platforms group
-    this.platforms = this.physics.add.staticGroup();
-    this.createInitialPlatforms();
-
-    // Create player as a colored rectangle
-    this.player = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT - 100, PLAYER_SIZE, PLAYER_SIZE, 0x00ff00);
-    this.physics.add.existing(this.player);
-    this.player.body.setCollideWorldBounds(true);
-    this.physics.add.collider(this.player, this.platforms);
-
-    // Input
-    this.cursors = this.input.keyboard.createCursorKeys();
-    this.setupTouchControls();
-
-    // Groups: obstacles and items
-    this.obstacles = this.physics.add.group();
-    this.items = this.physics.add.group();
-    this.physics.add.collider(this.obstacles, this.platforms, this.handleObstaclePlatformCollision, null, this);
-    this.physics.add.collider(this.items, this.platforms, this.handleItemPlatformCollision, null, this);
-    this.physics.add.overlap(this.player, this.obstacles, this.onHitObstacle, null, this);
-    this.physics.add.overlap(this.player, this.items, this.onCollectItem, null, this);
-
-    // Score text
-    this.scoreText = this.add.text(10, 10, 'Height: 0m', { fontSize: '24px', fill: '#ffffff' }).setScrollFactor(0);
-
-    // Timers
-    this.obstacleTimer = this.time.addEvent({ delay: 1500, callback: this.spawnObstacle, callbackScope: this, loop: true });
-    this.itemTimer = this.time.addEvent({ delay: 5000, callback: this.spawnItem, callbackScope: this, loop: true });
-    this.difficultyTimer = this.time.addEvent({ delay: DIFFICULTY_INCREMENT_INTERVAL, callback: this.increaseDifficulty, callbackScope: this, loop: true });
-
-    // Camera follows player
-    this.cameras.main.startFollow(this.player, false, 0.5, 0.5);
-    this.cameras.main.setDeadzone(GAME_WIDTH * 0.2, GAME_HEIGHT * 0.2);
-  }
-
-  update(time, delta) {
-    if (this.isGameOver || isPaused) return;
-
-    // Player movement
-    if (this.cursors.left.isDown) {
-      this.player.body.setVelocityX(-200);
-    } else if (this.cursors.right.isDown) {
-      this.player.body.setVelocityX(200);
-    } else if (!this.input.activePointer.isDown) {
-      this.player.body.setVelocityX(0);
-    }
-    if ((this.cursors.up.isDown || this.input.activePointer.isDown && this.input.activePointer.y < GAME_HEIGHT / 2) && this.player.body.touching.down) {
-      this.player.body.setVelocityY(-500);
-    }
-
-    // Update camera scroll to simulate climbing
-    const cameraY = this.cameras.main.scrollY;
-    this.cameras.main.scrollY = Math.max(0, this.player.y - GAME_HEIGHT / 2);
-
-    // Update score
-    score = Math.max(score, Math.floor(this.player.y * -1 + GAME_HEIGHT));
-    this.scoreText.setText('Height: ' + score + 'm');
-
-    // Recycle platforms, obstacles, items that are off-screen
-    this.recycleOffscreenObjects();
-
-    // Game over if player falls below bottom
-    if (this.player.y > this.cameras.main.scrollY + GAME_HEIGHT + 100) {
-      this.gameOver();
-    }
-  }
-
-  createInitialPlatforms() {
-    // Create a series of platforms spaced vertically
-    for (let i = 0; i < 10; i++) {
-      const x = Phaser.Math.Between(PLATFORM_WIDTH / 2, GAME_WIDTH - PLATFORM_WIDTH / 2);
-      const y = GAME_HEIGHT - i * 150;
-      const platform = this.add.rectangle(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT, 0x888888);
-      this.physics.add.existing(platform, true);
-      this.platforms.add(platform);
-    }
-  }
-
-  spawnPlatformAbove() {
-    const highestPlatform = this.getHighestPlatformY();
-    const newY = highestPlatform - 150;
-    const x = Phaser.Math.Between(PLATFORM_WIDTH / 2, GAME_WIDTH - PLATFORM_WIDTH / 2);
-    const platform = this.add.rectangle(x, newY, PLATFORM_WIDTH, PLATFORM_HEIGHT, 0x888888);
-    this.physics.add.existing(platform, true);
-    this.platforms.add(platform);
-  }
-
-  getHighestPlatformY() {
-    let minY = Infinity;
-    this.platforms.children.iterate((plat) => { if (plat.y < minY) minY = plat.y; });
-    return minY;
-  }
-
-  spawnObstacle() {
-    const x = Phaser.Math.Between(OBSTACLE_SIZE / 2, GAME_WIDTH - OBSTACLE_SIZE / 2);
-    const y = this.cameras.main.scrollY - 50;
-    const obstacle = this.add.rectangle(x, y, OBSTACLE_SIZE, OBSTACLE_SIZE, 0xff0000);
-    this.physics.add.existing(obstacle);
-    obstacle.body.setVelocityY(scrollSpeed);
-    obstacle.body.setImmovable(true);
-    this.obstacles.add(obstacle);
-  }
-
-  spawnItem() {
-    const x = Phaser.Math.Between(ITEM_SIZE / 2, GAME_WIDTH - ITEM_SIZE / 2);
-    const y = this.cameras.main.scrollY - 50;
-    const item = this.add.rectangle(x, y, ITEM_SIZE, ITEM_SIZE, 0x00ffff);
-    this.physics.add.existing(item);
-    item.body.setVelocityY(scrollSpeed);
-    item.body.setImmovable(true);
-    this.items.add(item);
-  }
-
-  handleObstaclePlatformCollision(obs, plat) {
-    // Stop obstacle on platform
-    obs.body.setVelocityY(0);
-  }
-
-  handleItemPlatformCollision(itm, plat) {
-    itm.body.setVelocityY(0);
-  }
-
-  onHitObstacle(playerRect, obstacleRect) {
-    this.physics.pause();
-    this.player.setFillStyle(0xff0000);
-    this.isGameOver = true;
-    this.scene.pause();
-    this.scene.get('UIScene').showGameOver();
-  }
-
-  onCollectItem(playerRect, itemRect) {
-    itemRect.destroy();
-    score += 100;
-  }
-
-  increaseDifficulty() {
-    scrollSpeed += 20;
-  }
-
-  recycleOffscreenObjects() {
-    // Recycle platforms
-    this.platforms.children.iterate((plat) => {
-      if (plat.y > this.cameras.main.scrollY + GAME_HEIGHT + 50) {
-        plat.destroy();
-        this.spawnPlatformAbove();
+    // 3. BootScene: Preload and start MainScene
+    class BootScene extends Phaser.Scene {
+      constructor() {
+        super({ key: 'BootScene' });
       }
-    });
-    // Destroy obstacles below
-    this.obstacles.children.iterate((obs) => {
-      if (obs.y > this.cameras.main.scrollY + GAME_HEIGHT + 50) {
-        obs.destroy();
+
+      preload() {
+        // No external assets: all drawn via Graphics
       }
-    });
-    // Destroy items below
-    this.items.children.iterate((itm) => {
-      if (itm.y > this.cameras.main.scrollY + GAME_HEIGHT + 50) {
-        itm.destroy();
+
+      create() {
+        this.scene.start('MainScene');
+        this.scene.launch('UIScene'); // Launch UI overlay scene
       }
-    });
-  }
+    }
 
-  gameOver() {
-    this.physics.pause();
-    this.isGameOver = true;
-    this.player.setFillStyle(0xff0000);
-    this.scene.get('UIScene').showGameOver();
-  }
-}
+    // 4. MainScene: Core Gameplay
+    class MainScene extends Phaser.Scene {
+      constructor() {
+        super({ key: 'MainScene' });
+      }
 
-// 5. UIScene: Start/Pause/Restart UI
-class UIScene extends Phaser.Scene {
-  constructor() {
-    super({ key: 'UIScene', active: true });
-  }
+      create() {
+        // Reset run-specific variables
+        score = 0;
+        scrollSpeed = INITIAL_SCROLL_SPEED;
+        this.isGameOver = false;
 
-  create() {
-    const startBtn = document.getElementById('start-button');
-    const restartBtn = document.getElementById('restart-button');
-    const pauseBtn = document.getElementById('pause-button');
+        // Create platforms group (static physics)
+        this.platforms = this.physics.add.staticGroup();
+        this.createInitialPlatforms();
 
-    startBtn.addEventListener('click', () => {
-      startBtn.style.display = 'none';
-      pauseBtn.style.display = 'block';
-      this.scene.get('MainScene').scene.resume();
-    });
+        // Create player as a Graphics rectangle
+        // Using Phaser.GameObjects.Graphics then create a sprite from texture
+        const gfx = this.add.graphics();
+        gfx.fillStyle(0x00ff00, 1);
+        gfx.fillRect(0, 0, PLAYER_SIZE, PLAYER_SIZE);
+        gfx.generateTexture('playerTexture', PLAYER_SIZE, PLAYER_SIZE);
+        gfx.destroy();
+        this.player = this.physics.add.sprite(GAME_WIDTH / 2, GAME_HEIGHT - 100, 'playerTexture');
+        this.player.setCollideWorldBounds(true);
+        this.physics.add.collider(this.player, this.platforms);
 
-    restartBtn.addEventListener('click', () => {
-      restartBtn.style.display = 'none';
-      this.scene.get('MainScene').scene.restart();
-    });
+        // Input handlers
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.setupTouchControls();
 
-    pauseBtn.addEventListener('click', () => {
-      if (!isPaused) {
-        isPaused = true;
+        // Obstacles and Items groups
+        this.obstacles = this.physics.add.group();
+        this.items = this.physics.add.group();
+
+        // Colliders
+        this.physics.add.collider(this.obstacles, this.platforms, this.stopObstacleOnPlatform, null, this);
+        this.physics.add.collider(this.items, this.platforms, this.stopItemOnPlatform, null, this);
+        this.physics.add.overlap(this.player, this.obstacles, this.onHitObstacle, null, this);
+        this.physics.add.overlap(this.player, this.items, this.onCollectItem, null, this);
+
+        // Score display (fixed to camera)
+        this.scoreText = this.add.text(10, 10, 'Height: 0m', {
+          fontSize: '24px',
+          fill: '#ffffff'
+        }).setScrollFactor(0);
+
+        // Timers for spawning obstacles, items, and difficulty ramp
+        this.obstacleTimer = this.time.addEvent({
+          delay: 1500,
+          callback: this.spawnObstacle,
+          callbackScope: this,
+          loop: true
+        });
+        this.itemTimer = this.time.addEvent({
+          delay: 5000,
+          callback: this.spawnItem,
+          callbackScope: this,
+          loop: true
+        });
+        this.difficultyTimer = this.time.addEvent({
+          delay: DIFFICULTY_INCREMENT_INTERVAL,
+          callback: this.increaseDifficulty,
+          callbackScope: this,
+          loop: true
+        });
+
+        // Camera follows player for vertical scrolling
+        this.cameras.main.startFollow(this.player, false, 0.5, 0.5);
+        this.cameras.main.setDeadzone(GAME_WIDTH * 0.2, GAME_HEIGHT * 0.2);
+      }
+
+      update(time, delta) {
+        if (this.isGameOver || isPaused) return;
+
+        // Player horizontal movement
+        if (this.cursors.left.isDown) {
+          this.player.setVelocityX(-200);
+        } else if (this.cursors.right.isDown) {
+          this.player.setVelocityX(200);
+        } else if (!this.input.activePointer.isDown) {
+          this.player.setVelocityX(0);
+        }
+
+        // Jump if touching down
+        const pointer = this.input.activePointer;
+        if ((this.cursors.up.isDown ||
+             (pointer.isDown && pointer.y < GAME_HEIGHT / 2)) &&
+            this.player.body.blocked.down) {
+          this.player.setVelocityY(-500);
+        }
+
+        // Camera vertical scroll: keep player ~centered
+        const cam = this.cameras.main;
+        cam.scrollY = Math.max(0, this.player.y - GAME_HEIGHT / 2);
+
+        // Update score based on how high player has climbed
+        score = Math.max(score, Math.floor((GAME_HEIGHT - this.player.y)));
+        this.scoreText.setText('Height: ' + score + 'm');
+
+        // Recycle off-screen platforms and objects
+        this.recyclePlatforms();
+        this.recycleObstacles();
+        this.recycleItems();
+
+        // Check if player falls below visible area (game over)
+        if (this.player.y > cam.scrollY + GAME_HEIGHT + 100) {
+          this.gameOver();
+        }
+      }
+
+      // Create initial batch of platforms
+      createInitialPlatforms() {
+        for (let i = 0; i < 12; i++) {
+          const x = Phaser.Math.Between(PLATFORM_WIDTH / 2, GAME_WIDTH - PLATFORM_WIDTH / 2);
+          const y = GAME_HEIGHT - i * 150;
+          this.createPlatform(x, y);
+        }
+      }
+
+      // Helper to create one platform
+      createPlatform(x, y) {
+        // Draw platform as rectangle via Graphics, then generate texture
+        const g = this.add.graphics();
+        g.fillStyle(0x888888, 1);
+        g.fillRect(0, 0, PLATFORM_WIDTH, PLATFORM_HEIGHT);
+        g.generateTexture('plat_' + x + '_' + y, PLATFORM_WIDTH, PLATFORM_HEIGHT);
+        g.destroy();
+        const plat = this.physics.add.staticImage(x, y, 'plat_' + x + '_' + y);
+        this.platforms.add(plat);
+      }
+
+      // Get the highest (minimal y) platform on screen
+      getHighestPlatformY() {
+        let minY = Infinity;
+        this.platforms.getChildren().forEach((p) => {
+          if (p.y < minY) {
+            minY = p.y;
+          }
+        });
+        return minY;
+      }
+
+      // Spawn one new platform above current highest
+      spawnPlatformAbove() {
+        const highestY = this.getHighestPlatformY();
+        const newY = highestY - 150;
+        const newX = Phaser.Math.Between(PLATFORM_WIDTH / 2, GAME_WIDTH - PLATFORM_WIDTH / 2);
+        this.createPlatform(newX, newY);
+      }
+
+      // Recycle platforms: if they go below camera view, destroy and spawn above
+      recyclePlatforms() {
+        const camBottom = this.cameras.main.scrollY + GAME_HEIGHT + 50;
+        this.platforms.getChildren().forEach((plat) => {
+          if (plat.y > camBottom) {
+            plat.destroy();
+            this.spawnPlatformAbove();
+          }
+        });
+      }
+
+      // Spawn obstacles (rocks) falling downward
+      spawnObstacle() {
+        const spawnX = Phaser.Math.Between(OBSTACLE_SIZE / 2, GAME_WIDTH - OBSTACLE_SIZE / 2);
+        const spawnY = this.cameras.main.scrollY - 50;
+        // Draw obstacle with Graphics
+        const og = this.add.graphics();
+        og.fillStyle(0xff0000, 1);
+        og.fillCircle(0, 0, OBSTACLE_SIZE / 2);
+        og.generateTexture('obs_' + spawnX + '_' + spawnY, OBSTACLE_SIZE, OBSTACLE_SIZE);
+        og.destroy();
+        const obs = this.physics.add.sprite(spawnX, spawnY, 'obs_' + spawnX + '_' + spawnY);
+        obs.body.setVelocityY(scrollSpeed);
+        obs.body.setCircle(OBSTACLE_SIZE / 2);
+        obs.body.setImmovable(true);
+        this.obstacles.add(obs);
+      }
+
+      // Stop obstacle when it hits a platform (static body)
+      stopObstacleOnPlatform(obs, plat) {
+        if (obs.body) {
+          obs.body.setVelocityY(0);
+        }
+      }
+
+      // Recycle obstacles: destroy those far below camera
+      recycleObstacles() {
+        const camBottom = this.cameras.main.scrollY + GAME_HEIGHT + 100;
+        this.obstacles.getChildren().forEach((obs) => {
+          if (obs.y > camBottom) {
+            obs.destroy();
+          }
+        });
+      }
+
+      // Spawn items (water) falling downward
+      spawnItem() {
+        const spawnX = Phaser.Math.Between(ITEM_SIZE / 2, GAME_WIDTH - ITEM_SIZE / 2);
+        const spawnY = this.cameras.main.scrollY - 30;
+        // Draw item as rectangle or small circle
+        const ig = this.add.graphics();
+        ig.fillStyle(0x00ffff, 1);
+        ig.fillCircle(ITEM_SIZE / 2, ITEM_SIZE / 2, ITEM_SIZE / 2);
+        ig.generateTexture('itm_' + spawnX + '_' + spawnY, ITEM_SIZE, ITEM_SIZE);
+        ig.destroy();
+        const itm = this.physics.add.sprite(spawnX, spawnY, 'itm_' + spawnX + '_' + spawnY);
+        itm.body.setVelocityY(scrollSpeed);
+        itm.body.setCircle(ITEM_SIZE / 2);
+        itm.body.setImmovable(true);
+        this.items.add(itm);
+      }
+
+      // Stop item when colliding with platform
+      stopItemOnPlatform(itm, plat) {
+        if (itm.body) {
+          itm.body.setVelocityY(0);
+        }
+      }
+
+      // Recycle items: destroy those far below camera
+      recycleItems() {
+        const camBottom = this.cameras.main.scrollY + GAME_HEIGHT + 100;
+        this.items.getChildren().forEach((itm) => {
+          if (itm.y > camBottom) {
+            itm.destroy();
+          }
+        });
+      }
+
+      // Handler when player hits an obstacle → Game Over
+      onHitObstacle(playerSprite, obstacleSprite) {
+        if (this.isGameOver) return;
+        this.physics.pause();
+        this.player.setTint(0xff0000);
+        this.isGameOver = true;
+        this.scene.pause();
+        this.scene.get('UIScene').showGameOver();
+      }
+
+      // Handler when player collects an item → increase score
+      onCollectItem(playerSprite, itemSprite) {
+        itemSprite.destroy();
+        score += 100; // Bonus height
+      }
+
+      // Increase difficulty by raising scroll speed
+      increaseDifficulty() {
+        scrollSpeed += 20;
+      }
+
+      // Called when player falls below screen → Game Over
+      gameOver() {
+        if (this.isGameOver) return;
+        this.physics.pause();
+        this.player.setTint(0xff0000);
+        this.isGameOver = true;
+        this.scene.pause();
+        this.scene.get('UIScene').showGameOver();
+      }
+
+      // Touch control setup for mobile devices
+      setupTouchControls() {
+        // Left/right half-screen tap
+        this.input.on('pointerdown', (pointer) => {
+          if (pointer.x < GAME_WIDTH / 3) {
+            this.player.setVelocityX(-200);
+          } else if (pointer.x > GAME_WIDTH * 2 / 3) {
+            this.player.setVelocityX(200);
+          } else {
+            // Middle region: jump
+            if (this.player.body.blocked.down) {
+              this.player.setVelocityY(-500);
+            }
+          }
+        });
+
+        this.input.on('pointerup', () => {
+          this.player.setVelocityX(0);
+        });
+      }
+    }
+
+    // 5. UIScene: Handles Start, Pause, Restart, Game Over UI
+    class UIScene extends Phaser.Scene {
+      constructor() {
+        super({ key: 'UIScene', active: true });
+      }
+
+      create() {
+        // Retrieve DOM elements
+        const startBtn = document.getElementById('start-button');
+        const pauseBtn = document.getElementById('pause-button');
+        const restartBtn = document.getElementById('restart-button');
+        this.gameOverOverlay = document.getElementById('game-over-overlay');
+        this.finalScoreText = document.getElementById('final-score-text');
+        this.highScoreText = document.getElementById('high-score-text');
+
+        // Start button logic
+        startBtn.addEventListener('click', () => {
+          startBtn.style.display = 'none';
+          pauseBtn.style.display = 'block';
+          this.scene.get('MainScene').scene.resume(); // Resume MainScene
+        });
+
+        // Pause button logic
+        pauseBtn.addEventListener('click', () => {
+          if (!isPaused) {
+            isPaused = true;
+            this.scene.get('MainScene').scene.pause();
+            pauseBtn.textContent = 'Resume';
+          } else {
+            isPaused = false;
+            this.scene.get('MainScene').scene.resume();
+            pauseBtn.textContent = 'Pause';
+          }
+        });
+
+        // Restart button logic
+        restartBtn.addEventListener('click', () => {
+          restartBtn.style.display = 'none';
+          this.gameOverOverlay.style.display = 'none';
+          this.scene.get('MainScene').scene.restart();
+          isPaused = false;
+          pauseBtn.textContent = 'Pause';
+          pauseBtn.style.display = 'block';
+        });
+
+        // Initially, pause MainScene until Start is clicked
         this.scene.get('MainScene').scene.pause();
-        pauseBtn.textContent = 'Resume';
-      } else {
-        isPaused = false;
-        this.scene.get('MainScene').scene.resume();
-        pauseBtn.textContent = 'Pause';
       }
-    });
 
-    // Initially pause main scene
-    this.scene.get('MainScene').scene.pause();
-  }
-
-  showGameOver() {
-    const restartBtn = document.getElementById('restart-button');
-    restartBtn.style.display = 'block';
-    const finalScoreText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 50, 'GAME OVER', { fontSize: '48px', fill: '#ff4d4d' }).setOrigin(0.5);
-    const scoreDisplay = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 10, 'Height: ' + score + 'm', { fontSize: '32px', fill: '#ffffff' }).setOrigin(0.5);
-    if (score > highScore) {
-      highScore = score;
+      // Show Game Over overlay with scores
+      showGameOver() {
+        // Display overlay
+        this.gameOverOverlay.style.display = 'flex';
+        // Update final score
+        this.finalScoreText.textContent = 'Height: ' + score + 'm';
+        // Update high score if needed
+        if (score > highScore) {
+          highScore = score;
+        }
+        this.highScoreText.textContent = 'High Score: ' + highScore + 'm';
+        // Show Restart button
+        document.getElementById('restart-button').style.display = 'block';
+        // Hide Pause button
+        document.getElementById('pause-button').style.display = 'none';
+      }
     }
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 60, 'High Score: ' + highScore + 'm', { fontSize: '24px', fill: '#ffd700' }).setOrigin(0.5);
-  }
-}
 
+    // --------------------------------------------------------------------------
+    // END OF GAME CODE (roughly 500+ lines including comments)
+    // --------------------------------------------------------------------------
   </script>
 </body>
 </html>
