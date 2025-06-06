@@ -1,360 +1,395 @@
-// Montane Mapbox Climbing Game – game.js
-// Ganti dengan token Mapbox Anda
-mapboxgl.accessToken = 'pk.eyJ1IjoiYWRlbWlhbmRvIiwiYSI6ImNtYXF1YWx6NjAzdncya3B0MDc5cjhnOTkifQ.RhVpan3rfXY0fiix3HMszg';
+// game.js - bagian 1/2
 
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-(() => {
-  // Variabel global
-  const MOVE_SPEED = 0.0005;        // Kecepatan pindah (derajat per frame)
-  const OBI_COUNT = 50;             // Jumlah obstacle di awal
-  const ITEM_COUNT = 30;            // Jumlah item air di awal
-  const COLLIDE_DIST = 0.0008;      // Jarak threshold (deg) untuk deteksi tabrakan
-  const INIT_STAMINA = 100;
-  const STAMINA_DEC = 0.05;         // per frame saat bergerak
-  const STAMINA_INC = 0.02;         // per frame saat diam
-  const SLOPE_PENALTY = 0.1;        // tambahan stamina hilang saat slope curam
-  const UPDATE_INTERVAL = 16;       // sekitar 60fps
+let width, height;
+function resizeCanvas() {
+  width = canvas.width = canvas.clientWidth;
+  height = canvas.height = canvas.clientHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
-  let map, player, playerLngLat, playerAltitude = 0;
-  let stamina = INIT_STAMINA, distance = 0;
-  let obstacles = [], items = [];
-  let paused = false;
+// Game constants
+const GRAVITY = 0.6;
+const FLOOR_Y = height - 50;
+const PLAYER_WIDTH = 50;
+const PLAYER_HEIGHT = 80;
+const PLAYER_SPEED = 5;
+const JUMP_POWER = 15;
+const MAX_FALL_SPEED = 20;
 
-  // Inisialisasi peta
-  function initMap() {
-    map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/outdoors-v12',    // style dengan terrain
-      center: [86.9250, 27.9881], // Koordinat Everest (sebagai contoh)
-      zoom: 12,
-      pitch: 60,
-      bearing: -20,
-      antialias: true
-    });
+// Input state
+const keys = {
+  left: false,
+  right: false,
+  up: false
+};
 
-    // Aktifkan terrain
-    map.on('load', () => {
-      map.addSource('mapbox-dem', {
-        'type': 'raster-dem',
-        'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-        'tileSize': 512,
-        'maxzoom': 14
-      });
-      map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-      map.addLayer({
-        'id': 'sky',
-        'type': 'sky',
-        'paint': {
-          'sky-type': 'atmosphere',
-          'sky-atmosphere-sun': [0.0, 0.0],
-          'sky-atmosphere-sun-intensity': 15
-        }
-      });
+window.addEventListener('keydown', e => {
+  if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+  if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+  if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') keys.up = true;
+});
 
-      placePlayer();
-      generateObstacles();
-      generateItems();
-      startGameLoop();
-    });
+window.addEventListener('keyup', e => {
+  if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+  if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+  if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') keys.up = false;
+});
+
+// Player object
+class Player {
+  constructor() {
+    this.x = width / 4;
+    this.y = FLOOR_Y - PLAYER_HEIGHT;
+    this.vx = 0;
+    this.vy = 0;
+    this.width = PLAYER_WIDTH;
+    this.height = PLAYER_HEIGHT;
+    this.onGround = false;
+    this.jumpCooldown = 0;
+    this.invincibleTimer = 0;
+    this.sprite = new Image();
+    this.sprite.src = 'https://i.imgur.com/JPZ8VqM.png'; // hiking girl silhouette
   }
 
-  // Tempatkan marker pemain di posisi awal
-  function placePlayer() {
-    const el = document.createElement('div');
-    el.className = 'player-marker';
-    playerLngLat = map.getCenter(); // mulai di center Everest
-    player = new mapboxgl.Marker(el)
-      .setLngLat(playerLngLat)
-      .addTo(map);
+  update() {
+    // Horizontal movement
+    if (keys.left) this.vx = -PLAYER_SPEED;
+    else if (keys.right) this.vx = PLAYER_SPEED;
+    else this.vx = 0;
 
-    // Dapatkan altitude awal
-    playerAltitude = getAltitude(playerLngLat);
-    updateHUD();
+    // Jumping
+    if (keys.up && this.onGround && this.jumpCooldown <= 0) {
+      this.vy = -JUMP_POWER;
+      this.onGround = false;
+      this.jumpCooldown = 15; // cooldown frames
+    }
+    if (this.jumpCooldown > 0) this.jumpCooldown--;
+
+    // Apply gravity
+    this.vy += GRAVITY;
+    if (this.vy > MAX_FALL_SPEED) this.vy = MAX_FALL_SPEED;
+
+    // Apply velocity
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Floor collision
+    if (this.y + this.height > FLOOR_Y) {
+      this.y = FLOOR_Y - this.height;
+      this.vy = 0;
+      this.onGround = true;
+    }
+
+    // Keep player inside canvas horizontally
+    if (this.x < 0) this.x = 0;
+    if (this.x + this.width > width) this.x = width - this.width;
+
+    // Invincible timer decrease
+    if (this.invincibleTimer > 0) this.invincibleTimer--;
   }
 
-  // Ambil ketinggian (altitude) di koordinat tertentu (dengan sampling DEM)
-  function getAltitude(lnglat) {
-    const canvas = map.getCanvas();
-    const context = canvas.getContext('webgl');
-    // Kita bisa menggunakan API terrain-rgb, tapi untuk kesederhanaan:
-    // Mapbox GL JS tidak menyediakan API langsung untuk baca DEM di JS, 
-    // maka kita ambil approximate dari API Mapbox Terrain-RGB:
-    // contoh: https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}@2x.pngraw
-    // Karena implementasinya kompleks, kita akan set altitude = 0 sebagai placeholder,
-    // dan hanya gunakan zoom-based estimation untuk slope.
-    return 0;
+  draw() {
+    if (this.invincibleTimer > 0) {
+      // flicker effect when invincible
+      if (Math.floor(this.invincibleTimer / 5) % 2 === 0) return;
+    }
+    ctx.drawImage(this.sprite, this.x, this.y, this.width, this.height);
   }
 
-  // Hasilkan obstacles (titik‐titik merah) secara acak di area lereng
-  function generateObstacles() {
-    for (let i = 0; i < OBI_COUNT; i++) {
-      const coord = randomPointAround(map.getCenter(), 0.02); 
-      const el = document.createElement('div');
-      el.className = 'obstacle-marker';
-      el.style.width = '16px';
-      el.style.height = '16px';
-      el.style.backgroundColor = 'red';
-      el.style.borderRadius = '50%';
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(coord)
-        .addTo(map);
-      obstacles.push({ coord, marker, active: true });
+  setInvincible(frames) {
+    this.invincibleTimer = frames;
+  }
+
+  isInvincible() {
+    return this.invincibleTimer > 0;
+  }
+}
+
+const player = new Player();
+
+// Rintangan class
+class Obstacle {
+  constructor(x, y, width, height, type) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.type = type; // 'tree', 'rock', 'water'
+    this.speed = 4;
+    this.sprite = new Image();
+    switch (type) {
+      case 'tree':
+        this.sprite.src = 'https://i.imgur.com/gKPZltU.png';
+        break;
+      case 'rock':
+        this.sprite.src = 'https://i.imgur.com/BdoQGzw.png';
+        break;
+      case 'water':
+        this.sprite.src = 'https://i.imgur.com/0qTu5Bv.png';
+        break;
+      default:
+        this.sprite.src = '';
     }
   }
 
-  // Hasilkan items (titik‐titik biru) secara acak
-  function generateItems() {
-    for (let i = 0; i < ITEM_COUNT; i++) {
-      const coord = randomPointAround(map.getCenter(), 0.02);
-      const el = document.createElement('div');
-      el.className = 'item-marker';
-      el.style.width = '16px';
-      el.style.height = '16px';
-      el.style.backgroundColor = 'blue';
-      el.style.borderRadius = '50%';
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(coord)
-        .addTo(map);
-      items.push({ coord, marker, active: true });
+  update() {
+    this.x -= this.speed;
+  }
+
+  draw() {
+    ctx.drawImage(this.sprite, this.x, this.y, this.width, this.height);
+  }
+
+  isOffScreen() {
+    return this.x + this.width < 0;
+  }
+
+  collidesWith(player) {
+    if (player.isInvincible()) return false;
+    return !(player.x > this.x + this.width ||
+      player.x + player.width < this.x ||
+      player.y > this.y + this.height ||
+      player.y + player.height < this.y);
+  }
+}
+
+// Game variables
+let obstacles = [];
+let obstacleTimer = 0;
+let obstacleInterval = 90; // frames
+let score = 0;
+let highScore = 0;
+let gameOver = false;
+let cheatActive = false;
+let cheatTimer = 0;
+
+// Main game loop
+function gameLoop() {
+  ctx.clearRect(0, 0, width, height);
+
+  if (!gameOver) {
+    // Spawn obstacles
+    obstacleTimer++;
+    if (obstacleTimer >= obstacleInterval) {
+      obstacleTimer = 0;
+      spawnObstacle();
+      if (obstacleInterval > 45) obstacleInterval -= 0.5; // speed up game gradually
     }
-  }
 
-  // Fungsi bantu: generate titik acak di radius (derajat)
-  function randomPointAround(center, radius) {
-    const lng = center.lng + (Math.random() - 0.5) * radius;
-    const lat = center.lat + (Math.random() - 0.5) * radius;
-    return [lng, lat];
-  }
+    // Update obstacles
+    obstacles.forEach(ob => ob.update());
+    obstacles = obstacles.filter(ob => !ob.isOffScreen());
 
-  // Mulai game loop (sekitar 60fps)
-  function startGameLoop() {
-    setInterval(() => {
-      if (!paused) {
-        handleMovement();
-        handleCollisions();
-        updateHUD();
-      }
-    }, UPDATE_INTERVAL);
-  }
+    // Update player
+    player.update();
 
-  // Handle Input & Pergerakan pemain
-  let move = { left: false, right: false, up: false, down: false };
-
-  function setupControls() {
-    // Desktop: panah
-    window.addEventListener('keydown', e => {
-      switch (e.key) {
-        case 'ArrowLeft': move.left = true; break;
-        case 'ArrowRight': move.right = true; break;
-        case 'ArrowUp': move.up = true; break;
-        case 'ArrowDown': move.down = true; break;
-        case 'p':
-        case 'P':
-          togglePause();
-          break;
-        default: break;
-      }
-    });
-    window.addEventListener('keyup', e => {
-      switch (e.key) {
-        case 'ArrowLeft': move.left = false; break;
-        case 'ArrowRight': move.right = false; break;
-        case 'ArrowUp': move.up = false; break;
-        case 'ArrowDown': move.down = false; break;
-        default: break;
-      }
-    });
-    // Tombol Pause
-    document.getElementById('btn-pause').addEventListener('click', () => togglePause());
-    // Mobile: touch events
-    document.getElementById('btn-left').addEventListener('touchstart', e => { e.preventDefault(); move.left = true; });
-    document.getElementById('btn-left').addEventListener('touchend', e => { e.preventDefault(); move.left = false; });
-    document.getElementById('btn-right').addEventListener('touchstart', e => { e.preventDefault(); move.right = true; });
-    document.getElementById('btn-right').addEventListener('touchend', e => { e.preventDefault(); move.right = false; });
-    document.getElementById('btn-up').addEventListener('touchstart', e => { e.preventDefault(); move.up = true; });
-    document.getElementById('btn-up').addEventListener('touchend', e => { e.preventDefault(); move.up = false; });
-    document.getElementById('btn-down').addEventListener('touchstart', e => { e.preventDefault(); move.down = true; });
-    document.getElementById('btn-down').addEventListener('touchend', e => { e.preventDefault(); move.down = false; });
-  }
-
-  // Toggle Pause / Resume
-  function togglePause() {
-    paused = !paused;
-    document.getElementById('hud-status').textContent = paused ? 'Status: Paused' : 'Status: Running';
-  }
-
-  // Gerakkan pemain sesuai input
-  function handleMovement() {
-    let changed = false;
-    let lng = playerLngLat[0];
-    let lat = playerLngLat[1];
-    if (move.left) { lng -= MOVE_SPEED; changed = true; }
-    if (move.right) { lng += MOVE_SPEED; changed = true; }
-    if (move.up) { lat += MOVE_SPEED; changed = true; }
-    if (move.down) { lat -= MOVE_SPEED; changed = true; }
-
-    if (changed) {
-      const newLngLat = [lng, lat];
-      playerLngLat = newLngLat;
-      player.setLngLat(newLngLat);
-      map.easeTo({ center: newLngLat, duration: 200, easing: t => t });
-
-      // Perbarui jarak tempuh
-      distance += MOVE_SPEED * 111000; // konversi derajat ke meter kira‐kira (1° ≈ 111 km)
-      // Kurangi stamina
-      let slopePenalty = computeSlopePenalty(newLngLat);
-      stamina = Math.max(0, stamina - (STAM_DEC + slopePenalty));
-    } else {
-      // Jika diam, stamina pulih perlahan
-      stamina = Math.min(MAX_STAMINA, stamina + STAM_REC);
-    }
-  }
-
-  // Hitung tambahan penalti stamina berdasarkan kemiringan di sekitar titik
-  function computeSlopePenalty(lnglat) {
-    // Ambil dua titik kecil di utara/selatan untuk approximasi kemiringan
-    const delta = 0.0001;
-    const north = [lnglat[0], lnglat[1] + delta];
-    const south = [lnglat[0], lnglat[1] - delta];
-    // Karena getAltitude() hanya placeholder (0), kita tidak punya DEM raw.
-    // Sebagai workaround, kita gunakan zoom‐based estimation:
-    // Pada zoom besar (lereng curam), paksa sedikit penalty.
-    const zoom = map.getZoom();
-    return zoom > 14 ? SLOPE_PENALTY : 0;
-  }
-
-  // Periksa tabrakan dengan obstacle dan item
-  function handleCollisions() {
-    obstacles.forEach(obj => {
-      if (obj.active) {
-        const d = distanceDeg(playerLngLat, obj.coord);
-        if (d < COLLIDE_DIST) {
-          obj.active = false;
-          obj.marker.remove();
-          stamina = Math.max(0, stamina - 15);
+    // Check collisions
+    obstacles.forEach(ob => {
+      if (ob.collidesWith(player)) {
+        if (!player.isInvincible()) {
+          gameOver = true;
+          if (score > highScore) highScore = score;
         }
       }
     });
-    items.forEach(it => {
-      if (it.active) {
-        const d = distanceDeg(playerLngLat, it.coord);
-        if (d < COLLIDE_DIST) {
-          it.active = false;
-          it.marker.remove();
-          stamina = Math.min(MAX_STAMINA, stamina + ITEM_REC);
+
+    // Update score
+    score++;
+    drawScore();
+
+    // Draw everything
+    obstacles.forEach(ob => ob.draw());
+    player.draw();
+
+    // Cheat timer countdown
+    if (cheatActive) {
+      cheatTimer--;
+      if (cheatTimer <= 0) {
+        cheatActive = false;
+        player.invincibleTimer = 0;
+      }
+      drawCheatTimer();
+    }
+
+  } else {
+    drawGameOver();
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+function spawnObstacle() {
+  const types = ['tree', 'rock', 'water'];
+  const type = types[Math.floor(Math.random() * types.length)];
+  let height, yPos;
+
+  switch (type) {
+    case 'tree':
+      height = 100;
+      yPos = FLOOR_Y - height;
+      break;
+    case 'rock':
+      height = 60;
+      yPos = FLOOR_Y - height;
+      break;
+    case 'water':
+      height = 50;
+      yPos = FLOOR_Y - height + 10;
+      break;
+  }
+
+  const width = height * 0.7;
+  const x = width + width + width + width + canvas.width + Math.random() * 200;
+
+  obstacles.push(new Obstacle(x, yPos, width, height, type));
+}
+
+function drawScore() {
+  ctx.fillStyle = '#1b4332';
+  ctx.font = '24px Segoe UI';
+  ctx.textAlign = 'left';
+  ctx.fillText('Score: ' + score, 15, 30);
+
+  ctx.textAlign = 'right';
+  ctx.fillText('Highscore: ' + highScore, width - 15, 30);
+}
+
+function drawCheatTimer() {
+  ctx.fillStyle = 'rgba(82, 183, 136, 0.8)';
+  ctx.font = '20px Segoe UI';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Invincible: ${(cheatTimer / 60).toFixed(1)}s`, width / 2, 60);
+}
+
+function drawGameOver() {
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.fillStyle = '#d8f3dc';
+  ctx.font = '48px Segoe UI';
+  ctx.textAlign = 'center';
+  ctx.fillText('Game Over', width / 2, height / 2 - 30);
+  ctx.font = '28px Segoe UI';
+  ctx.fillText(`Score: ${score}`, width / 2, height / 2 + 10);
+  ctx.fillText(`Highscore: ${highScore}`, width / 2, height / 2 + 50);
+
+  ctx.font = '22px Segoe UI';
+  ctx.fillText('Press R to Restart', width / 2, height / 2 + 100);
+}
+
+// Restart function
+function restartGame() {
+  obstacles = [];
+  score = 0;
+  obstacleInterval = 90;
+  gameOver = false;
+  player.x = width / 4;
+  player.y = FLOOR_Y - PLAYER_HEIGHT;
+  player.vx = 0;
+  player.vy = 0;
+  cheatActive
+
+
+
+cheatActive = false;
+  cheatTimer = 0;
+  player.setInvincible(0);
+}
+
+// Keyboard controls for restart and cheat activation
+window.addEventListener('keydown', e => {
+  if (e.code === 'KeyR' && gameOver) {
+    restartGame();
+  }
+  if (e.code === 'KeyC' && !gameOver) {
+    activateCheat();
+  }
+});
+
+function activateCheat() {
+  cheatActive = true;
+  cheatTimer = 600; // 10 seconds invincibility
+  player.setInvincible(600);
+}
+
+// Background & ground rendering
+function drawBackground() {
+  // Sky gradient
+  const skyGradient = ctx.createLinearGradient(0, 0, 0, height);
+  skyGradient.addColorStop(0, '#a0d8f7');
+  skyGradient.addColorStop(1, '#2874a6');
+  ctx.fillStyle = skyGradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // Ground
+  ctx.fillStyle = '#4a6f28';
+  ctx.fillRect(0, FLOOR_Y, width, height - FLOOR_Y);
+}
+
+// Main draw wrapper
+function drawAll() {
+  drawBackground();
+  obstacles.forEach(ob => ob.draw());
+  player.draw();
+  drawScore();
+  if (cheatActive) drawCheatTimer();
+  if (gameOver) drawGameOver();
+}
+
+// Overriding gameLoop to include background and modular draw
+function gameLoop() {
+  ctx.clearRect(0, 0, width, height);
+
+  drawBackground();
+
+  if (!gameOver) {
+    obstacleTimer++;
+    if (obstacleTimer >= obstacleInterval) {
+      obstacleTimer = 0;
+      spawnObstacle();
+      if (obstacleInterval > 45) obstacleInterval -= 0.3; // progressive difficulty
+    }
+
+    obstacles.forEach(ob => ob.update());
+    obstacles = obstacles.filter(ob => !ob.isOffScreen());
+
+    player.update();
+
+    // Collision detection
+    obstacles.forEach(ob => {
+      if (ob.collidesWith(player)) {
+        if (!player.isInvincible()) {
+          gameOver = true;
+          if (score > highScore) highScore = score;
         }
       }
     });
-  }
 
-  // Hitung jarak (dalam derajat) antar dua koordinat [lng,lat]
-  function distanceDeg(a, b) {
-    const dx = a[0] - b[0];
-    const dy = a[1] - b[1];
-    return Math.sqrt(dx * dx + dy * dy);
-  }
+    score++;
+    drawScore();
 
-  // Perbarui HUD (Altitude, Stamina, Distance)
-  function updateHUD() {
-    document.getElementById('hud-altitude').textContent =
-      'Altitude: ' + Math.floor(playerAltitude) + ' m';
+    obstacles.forEach(ob => ob.draw());
+    player.draw();
 
-    document.getElementById('hud-stamina').textContent =
-      'Stamina: ' + Math.floor(stamina) + '%';
-
-    document.getElementById('hud-distance').textContent =
-      'Distance: ' + Math.floor(distance) + ' m';
-  }
-
-  // Tampilkan overlay Game Over
-  function showGameOver() {
-    document.getElementById('final-height').textContent =
-      'Your Height: ' + Math.floor(playerAltitude) + ' m';
-    document.getElementById('best-height').textContent =
-      'Best Height: ' + best + ' m';
-    document.getElementById('overlay-gameover').classList.remove('hidden');
-  }
-
-  // Dapatkan titik koordinat acak di radius tertentu
-  function randomPointAround(center, radius) {
-    const lng = center.lng + (Math.random() - 0.5) * radius;
-    const lat = center.lat + (Math.random() - 0.5) * radius;
-    return [lng, lat];
-  }
-
-  // Generate obstacle (merah) di koordinat acak dekat basecamp
-  function generateObstacles() {
-    const center = map.getCenter();
-    for (let i = 0; i < OBI_COUNT; i++) {
-      const coord = randomPointAround(center, 0.02);
-      const el = document.createElement('div');
-      el.style.width = '16px';
-      el.style.height = '16px';
-      el.style.backgroundColor = 'red';
-      el.style.borderRadius = '50%';
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(coord)
-        .addTo(map);
-      obstacles.push({ coord, marker, active: true });
-    }
-  }
-
-  // Generate items (biru) di koordinat acak
-  function generateItems() {
-    const center = map.getCenter();
-    for (let i = 0; i < ITEM_COUNT; i++) {
-      const coord = randomPointAround(center, 0.02);
-      const el = document.createElement('div');
-      el.style.width = '16px';
-      el.style.height = '16px';
-      el.style.backgroundColor = 'blue';
-      el.style.borderRadius = '50%';
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(coord)
-        .addTo(map);
-      items.push({ coord, marker, active: true });
-    }
-  }
-
-  // Mulai game begitu peta muat
-  map && map.on('load', () => {
-    placePlayer();
-    generateObstacles();
-    generateItems();
-    setupControls();
-    startGameLoop();
-  });
-
-  // Tempatkan pemain menggunakan marker, dapatkan altitude awal
-  function placePlayer() {
-    const el = document.createElement('div');
-    el.className = 'player-marker';
-    playerLngLat = map.getCenter();
-    player = new mapboxgl.Marker(el)
-      .setLngLat(playerLngLat)
-      .addTo(map);
-    // Ambil altitude (sambil placeholder = 0)
-    playerAltitude = getAltitude(playerLngLat);
-    updateHUD();
-  }
-
-  // Pendekatan: altitude tetap 0 (untuk contoh ini)
-  function getAltitude(lnglat) {
-    return 0;
-  }
-
-  // Variabel untuk menampung obstacle/item
-  let obstacles = [];
-  let items = [];
-
-  // Inisialisasi posisi dan update setiap frame
-  function startGameLoop() {
-    setInterval(() => {
-      if (!paused) {
-        handleMovement();
-        handleCollisions();
-        updateHUD();
+    if (cheatActive) {
+      cheatTimer--;
+      if (cheatTimer <= 0) {
+        cheatActive = false;
+        player.setInvincible(0);
       }
-    }, UPDATE_INTERVAL);
+      drawCheatTimer();
+    }
+
+  } else {
+    drawGameOver();
   }
-})();
+
+  requestAnimationFrame(gameLoop);
+}
+
+// Initialize game loop
+gameLoop();
