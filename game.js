@@ -393,3 +393,215 @@ function gameLoop() {
 
 // Initialize game loop
 gameLoop();
+
+
+
+
+// Load highscore dari localStorage
+let storedHighScore = localStorage.getItem('mountaineerHighScore');
+if (storedHighScore) highScore = parseInt(storedHighScore);
+
+// Save highscore ke localStorage jika ada skor baru
+function saveHighScore() {
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('mountaineerHighScore', highScore);
+  }
+}
+
+// UI pause/resume handling
+window.addEventListener('keydown', e => {
+  if (e.code === 'KeyP') {
+    if (gameOver) return;
+    isPaused = !isPaused;
+    if (!isPaused) gameLoop();
+    else drawPauseScreen();
+  }
+});
+
+function drawPauseScreen() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = '#fff';
+  ctx.font = '48px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('Paused', width / 2, height / 2);
+  ctx.font = '20px Arial';
+  ctx.fillText('Press P to Resume', width / 2, height / 2 + 40);
+}
+
+// Update gameLoop to handle pause
+function gameLoop() {
+  if (isPaused) return;
+  
+  ctx.clearRect(0, 0, width, height);
+  drawBackground();
+
+  if (!gameOver) {
+    obstacleTimer++;
+    if (obstacleTimer >= obstacleInterval) {
+      obstacleTimer = 0;
+      spawnObstacle();
+      if (obstacleInterval > 45) obstacleInterval -= 0.3;
+    }
+
+    obstacles.forEach(ob => ob.update());
+    obstacles = obstacles.filter(ob => !ob.isOffScreen());
+
+    player.update();
+
+    obstacles.forEach(ob => {
+      if (ob.collidesWith(player)) {
+        if (!player.isInvincible()) {
+          gameOver = true;
+          saveHighScore();
+        }
+      }
+    });
+
+    score++;
+    drawScore();
+
+    obstacles.forEach(ob => ob.draw());
+    player.draw();
+
+    if (cheatActive) {
+      cheatTimer--;
+      if (cheatTimer <= 0) {
+        cheatActive = false;
+        player.setInvincible(0);
+      }
+      drawCheatTimer();
+    }
+
+  } else {
+    drawGameOver();
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+
+
+
+
+// Power-up object
+class PowerUp {
+  constructor() {
+    this.width = 40;
+    this.height = 40;
+    this.x = Math.random() * (width - this.width);
+    this.y = -this.height;
+    this.speed = 4;
+    this.type = 'invincible'; // cuma satu tipe cheat untuk sekarang
+    this.active = true;
+  }
+
+  update() {
+    this.y += this.speed;
+    if (this.y > height) this.active = false;
+  }
+
+  draw() {
+    ctx.fillStyle = '#FFD700'; // warna emas
+    ctx.beginPath();
+    ctx.arc(this.x + this.width/2, this.y + this.height/2, this.width/2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.font = '20px Arial';
+    ctx.fillText('C', this.x + this.width/4, this.y + this.height * 0.7);
+  }
+
+  collidesWith(player) {
+    return !(player.x > this.x + this.width ||
+             player.x + player.width < this.x ||
+             player.y > this.y + this.height ||
+             player.y + player.height < this.y);
+  }
+}
+
+// Array power-ups
+let powerUps = [];
+let powerUpTimer = 0;
+let powerUpInterval = 900; // kemunculan tiap 900 frame (15 detik kira2)
+
+// Update spawn power-up
+function spawnPowerUp() {
+  powerUps.push(new PowerUp());
+}
+
+// Update gameLoop bagian power-up
+function gameLoop() {
+  if (isPaused) return;
+  ctx.clearRect(0, 0, width, height);
+  drawBackground();
+
+  if (!gameOver) {
+    obstacleTimer++;
+    powerUpTimer++;
+
+    if (obstacleTimer >= obstacleInterval) {
+      obstacleTimer = 0;
+      spawnObstacle();
+      if (obstacleInterval > 45) obstacleInterval -= 0.3;
+    }
+
+    if (powerUpTimer >= powerUpInterval) {
+      powerUpTimer = 0;
+      spawnPowerUp();
+    }
+
+    obstacles.forEach(ob => ob.update());
+    obstacles = obstacles.filter(ob => !ob.isOffScreen());
+
+    powerUps.forEach(pu => pu.update());
+    powerUps = powerUps.filter(pu => pu.active);
+
+    player.update();
+
+    obstacles.forEach(ob => {
+      if (ob.collidesWith(player)) {
+        if (!player.isInvincible()) {
+          gameOver = true;
+          saveHighScore();
+        }
+      }
+    });
+
+    powerUps.forEach((pu, index) => {
+      if (pu.collidesWith(player)) {
+        cheatActive = true;
+        cheatTimer = 300; // 5 detik dengan 60fps
+        player.setInvincible(cheatTimer);
+        pu.active = false;
+      }
+    });
+
+    score++;
+    drawScore();
+
+    obstacles.forEach(ob => ob.draw());
+    powerUps.forEach(pu => pu.draw());
+    player.draw();
+
+    if (cheatActive) {
+      cheatTimer--;
+      if (cheatTimer <= 0) {
+        cheatActive = false;
+        player.setInvincible(0);
+      }
+      drawCheatTimer();
+    }
+
+  } else {
+    drawGameOver();
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+function drawCheatTimer() {
+  ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
+  ctx.font = '24px Arial';
+  ctx.fillText(`Invincible: ${(cheatTimer/60).toFixed(1)}s`, width - 170, 50);
+}
