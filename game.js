@@ -310,11 +310,24 @@ window.addEventListener('keydown', e => {
   }
 });
 
+
+
+
+
+
+
+
+
+// game.js - bagian 2/2
+
 function activateCheat() {
   cheatActive = true;
-  cheatTimer = 600; // 10 seconds invincibility
-  player.setInvincible(600);
+  cheatTimer = 600; // 10 detik (60 FPS x 10)
+  player.setInvincible(cheatTimer);
 }
+
+// Jalankan game loop pertama kali
+gameLoop();
 
 // Background & ground rendering
 function drawBackground() {
