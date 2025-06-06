@@ -605,3 +605,263 @@ function drawCheatTimer() {
   ctx.font = '24px Arial';
   ctx.fillText(`Invincible: ${(cheatTimer/60).toFixed(1)}s`, width - 170, 50);
 }
+
+
+class ParallaxLayer {
+  constructor(image, speed) {
+    this.image = image;
+    this.speed = speed;
+    this.x = 0;
+  }
+  update() {
+    this.x -= this.speed;
+    if (this.x <= -width) this.x = 0;
+  }
+  draw() {
+    ctx.drawImage(this.image, this.x, 0, width, height);
+    ctx.drawImage(this.image, this.x + width, 0, width, height);
+  }
+}
+
+// Load gambar background
+const bgLayer1 = new Image();
+const bgLayer2 = new Image();
+const bgLayer3 = new Image();
+
+bgLayer1.src = 'https://i.ibb.co/3mP1y8W/layer1.png'; // background jauh (gunung)
+bgLayer2.src = 'https://i.ibb.co/4Whh1XG/layer2.png'; // background tengah (hutan)
+bgLayer3.src = 'https://i.ibb.co/YT7cW1L/layer3.png'; // foreground (pohon dekat)
+
+// Buat layer paralaks
+const layers = [
+  new ParallaxLayer(bgLayer1, 0.3),
+  new ParallaxLayer(bgLayer2, 0.6),
+  new ParallaxLayer(bgLayer3, 1.2),
+];
+
+// Update dan draw background di gameLoop:
+function drawBackground() {
+  layers.forEach(layer => {
+    layer.update();
+    layer.draw();
+  });
+}
+
+
+
+// Inisialisasi audio
+const soundJump = new Audio('https://freesound.org/data/previews/331/331912_3248244-lq.mp3');
+const soundHit = new Audio('https://freesound.org/data/previews/353/353927_5121236-lq.mp3');
+const soundPowerUp = new Audio('https://freesound.org/data/previews/82/82556_1022652-lq.mp3');
+const bgMusic = new Audio('https://freesound.org/data/previews/348/348796_6247143-lq.mp3');
+
+bgMusic.loop = true;
+bgMusic.volume = 0.15;
+bgMusic.play();
+
+// Contoh trigger suara di game event
+function playerJump() {
+  // logika lompat di sini ...
+  soundJump.currentTime = 0;
+  soundJump.play();
+}
+
+function playerHitObstacle() {
+  // logika tabrakan di sini ...
+  soundHit.currentTime = 0;
+  soundHit.play();
+  bgMusic.pause();
+}
+
+function activatePowerUp() {
+  // logika power-up ...
+  soundPowerUp.currentTime = 0;
+  soundPowerUp.play();
+}
+
+
+
+
+
+
+
+// Game state dasar
+let isJumping = false;
+let powerUpActive = false;
+let powerUpTimer = 0;
+let gameOver = false;
+let score = 0;
+
+// Kontrol keyboard
+document.addEventListener('keydown', e => {
+  if (gameOver) return;
+  if (e.code === 'Space' && !isJumping) {
+    isJumping = true;
+    playerJump();
+    jumpStartTime = performance.now();
+  }
+  if (e.code === 'KeyC' && !powerUpActive) {
+    activatePowerUp();
+    powerUpActive = true;
+    powerUpTimer = 5000; // aktif 5 detik
+  }
+});
+
+// Fungsi loncat
+function playerJump() {
+  soundJump.currentTime = 0;
+  soundJump.play();
+  // logika lompat animasi karakter di game loop nanti
+}
+
+// Fungsi power-up
+function activatePowerUp() {
+  soundPowerUp.currentTime = 0;
+  soundPowerUp.play();
+  // mungkin set efek visual cheat mode di game loop nanti
+}
+
+// Fungsi tabrakan
+function playerHitObstacle() {
+  soundHit.currentTime = 0;
+  soundHit.play();
+  bgMusic.pause();
+  gameOver = true;
+  alert('Game Over! Skor: ' + score);
+}
+
+// Update game loop - contoh sederhana
+function gameLoop(timestamp) {
+  if (gameOver) return;
+
+  // Update skor
+  score += 1;
+  document.getElementById('score').textContent = 'Score: ' + score;
+
+  // Update power-up timer
+  if (powerUpActive) {
+    powerUpTimer -= 16; // asumsikan 60fps ~16ms
+    if (powerUpTimer <= 0) {
+      powerUpActive = false;
+    }
+  }
+
+  // Update animasi lompat (simplified)
+  if (isJumping) {
+    // contoh animasi lompat 1 detik
+    if (performance.now() - jumpStartTime > 1000) {
+      isJumping = false;
+    }
+  }
+
+  // Deteksi tabrakan (contoh sederhana, pakai koordinat & rintangan)
+  if (!powerUpActive && detectCollision()) {
+    playerHitObstacle();
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+function detectCollision() {
+  // dummy collision, nanti diganti logic nyata
+  // contoh: rintangan jatuh berada di posisi player saat ini
+  // return true jika collision detected
+  return false;
+}
+
+// Mulai game loop
+let jumpStartTime = 0;
+requestAnimationFrame(gameLoop);
+
+
+
+// Game state dasar
+let isJumping = false;
+let powerUpActive = false;
+let powerUpTimer = 0;
+let gameOver = false;
+let score = 0;
+
+// Kontrol keyboard
+document.addEventListener('keydown', e => {
+  if (gameOver) return;
+  if (e.code === 'Space' && !isJumping) {
+    isJumping = true;
+    playerJump();
+    jumpStartTime = performance.now();
+  }
+  if (e.code === 'KeyC' && !powerUpActive) {
+    activatePowerUp();
+    powerUpActive = true;
+    powerUpTimer = 5000; // aktif 5 detik
+  }
+});
+
+// Fungsi loncat
+function playerJump() {
+  soundJump.currentTime = 0;
+  soundJump.play();
+  // logika lompat animasi karakter di game loop nanti
+}
+
+// Fungsi power-up
+function activatePowerUp() {
+  soundPowerUp.currentTime = 0;
+  soundPowerUp.play();
+  // mungkin set efek visual cheat mode di game loop nanti
+}
+
+// Fungsi tabrakan
+function playerHitObstacle() {
+  soundHit.currentTime = 0;
+  soundHit.play();
+  bgMusic.pause();
+  gameOver = true;
+  alert('Game Over! Skor: ' + score);
+}
+
+// Update game loop - contoh sederhana
+function gameLoop(timestamp) {
+  if (gameOver) return;
+
+  // Update skor
+  score += 1;
+  document.getElementById('score').textContent = 'Score: ' + score;
+
+  // Update power-up timer
+  if (powerUpActive) {
+    powerUpTimer -= 16; // asumsikan 60fps ~16ms
+    if (powerUpTimer <= 0) {
+      powerUpActive = false;
+    }
+  }
+
+  // Update animasi lompat (simplified)
+  if (isJumping) {
+    // contoh animasi lompat 1 detik
+    if (performance.now() - jumpStartTime > 1000) {
+      isJumping = false;
+    }
+  }
+
+  // Deteksi tabrakan (contoh sederhana, pakai koordinat & rintangan)
+  if (!powerUpActive && detectCollision()) {
+    playerHitObstacle();
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+function detectCollision() {
+  // dummy collision, nanti diganti logic nyata
+  // contoh: rintangan jatuh berada di posisi player saat ini
+  // return true jika collision detected
+  return false;
+}
+
+// Mulai game loop
+let jumpStartTime = 0;
+requestAnimationFrame(gameLoop);
+
+
+document.getElementById('powerup-status').textContent = 'Power-Up: ' + (powerUpActive ? 'ON' : 'OFF');
