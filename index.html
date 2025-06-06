@@ -2,79 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Montane Ascent – 2D Mountaineering Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Montane Mapbox Climbing Game</title>
 
-  <!-- CSS terpisah -->
+  <!-- Mapbox GL JS -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+
+  <!-- CSS khusus -->
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- Phaser 3 -->
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
-
-  <!-- Game Logika (JS) -->
+  <!-- Game logic -->
   <script defer src="game.js"></script>
 </head>
 <body>
-  <!-- Tempat canvas Phaser akan ditanam -->
-  <div id="game-container"></div>
+  <!-- Container peta -->
+  <div id="map"></div>
 
-  <!-- HUD: Height, High Score, Stamina -->
-  <div id="hud" class="hidden">
-    <div id="hud-height" class="hud-line">Height: 0 m</div>
-    <div id="hud-best" class="hud-line">High Score: 0 m</div>
-    <div id="stamina-bar-bg">
-      <div id="stamina-bar-fill"></div>
-    </div>
-    <div id="hud-stamina" class="hud-line">Stamina: 100%</div>
+  <!-- HUD: Stamina, Ketinggian, Jarak -->
+  <div id="hud">
+    <div id="hud-altitude">Altitude: 0 m</div>
+    <div id="hud-stamina">Stamina: 100%</div>
+    <div id="hud-distance">Distance: 0 m</div>
+    <div id="hud-status">Status: Running</div>
   </div>
 
   <!-- Tombol Pause -->
-  <div id="btn-pause" class="hidden">Pause</div>
+  <button id="btn-pause">Pause</button>
 
-  <!-- Kontrol Mobile: Kiri, Lompat, Kanan -->
-  <div id="mobile-controls" class="hidden">
-    <div id="btn-left" class="mobile-btn">◀</div>
-    <div id="btn-jump" class="mobile-btn">▲</div>
-    <div id="btn-right" class="mobile-btn">▶</div>
-  </div>
-
-  <!-- Overlay Menu Utama -->
-  <div id="overlay-menu" class="overlay">
-    <h1>Montane Ascent</h1>
-    <button id="btn-start">Start</button>
-    <button id="btn-settings">Settings</button>
-    <button id="btn-credits">Credits</button>
-    <p>2D Mountaineering Simulator</p>
-  </div>
-
-  <!-- Overlay Settings (sementara kosong) -->
-  <div id="overlay-settings" class="overlay hidden">
-    <h1>Settings</h1>
-    <button id="btn-back-settings">Back</button>
-    <p>No configurable options yet.</p>
-  </div>
-
-  <!-- Overlay Credits -->
-  <div id="overlay-credits" class="overlay hidden">
-    <h1>Credits</h1>
-    <p>Created by Montamap Team<br>Powered by Phaser 3</p>
-    <button id="btn-back-credits">Back</button>
-  </div>
-
-  <!-- Overlay Pause -->
-  <div id="overlay-pause" class="overlay hidden">
-    <h1>PAUSED</h1>
-    <button id="btn-resume">Resume</button>
-    <button id="btn-mainmenu">Main Menu</button>
-  </div>
-
-  <!-- Overlay Game Over -->
-  <div id="overlay-gameover" class="overlay hidden">
-    <h1>GAME OVER</h1>
-    <p id="final-height">Your Height: 0 m</p>
-    <p id="best-height">Best Height: 0 m</p>
-    <button id="btn-restart">Restart</button>
-    <button id="btn-mainmenu-2">Main Menu</button>
+  <!-- Kontrol Mobile -->
+  <div id="mobile-controls">
+    <div id="m-left" class="m-btn">◀</div>
+    <div id="m-up" class="m-btn">▲</div>
+    <div id="m-down" class="m-btn">▼</div>
+    <div id="m-right" class="m-btn">▶</div>
   </div>
 </body>
 </html>
