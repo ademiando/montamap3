@@ -2,498 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Montane Ascent – Playable 2D Game</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background: #87ceeb;
-      font-family: sans-serif;
-      user-select: none;
-    }
-    #game-container {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-    }
-    #hud {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 10;
-      color: #000;
-    }
-    #hud .line {
-      font-size: 18px;
-      margin-bottom: 4px;
-      text-shadow: 1px 1px 2px #fff;
-    }
-    #stamina-bg {
-      width: 200px;
-      height: 20px;
-      background: #444;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    #stamina-fill {
-      width: 200px;
-      height: 20px;
-      background: #0f0;
-    }
-    #pause-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 10;
-      background: rgba(0,0,0,0.2);
-      border: 2px solid #000;
-      border-radius: 4px;
-      color: #000;
-      padding: 6px 10px;
-      font-size: 16px;
-      cursor: pointer;
-      user-select: none;
-      display: none;
-    }
-    #mobile-controls {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      display: none;
-      gap: 20px;
-    }
-    .mobile-btn {
-      width: 60px;
-      height: 60px;
-      background: rgba(0,0,0,0.2);
-      border: 2px solid #000;
-      border-radius: 50%;
-      color: #000;
-      font-size: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      cursor: pointer;
-    }
-    .overlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      z-index: 20;
-    }
-    .overlay h1 {
-      font-size: 48px;
-      margin: 0;
-      text-shadow: 2px 2px 4px #000;
-    }
-    .overlay button {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 20px;
-      border: 2px solid #fff;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      border-radius: 5px;
-      cursor: pointer;
-      min-width: 160px;
-    }
-    .overlay p {
-      font-size: 24px;
-      margin: 10px 0;
-      text-align: center;
-      max-width: 80%;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Montane Ascent – 2D Mountaineering Game</title>
+
+  <!-- CSS terpisah -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Phaser 3 -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+
+  <!-- Game Logika (JS) -->
+  <script defer src="game.js"></script>
 </head>
 <body>
+  <!-- Tempat canvas Phaser akan ditanam -->
   <div id="game-container"></div>
 
-  <div id="hud" style="display: none;">
-    <div class="line" id="hud-height">Height: 0 m</div>
-    <div class="line" id="hud-highest">High Score: 0 m</div>
-    <div id="stamina-bg"><div id="stamina-fill"></div></div>
-    <div class="line" id="hud-stamina">Stamina: 100%</div>
+  <!-- HUD: Height, High Score, Stamina -->
+  <div id="hud" class="hidden">
+    <div id="hud-height" class="hud-line">Height: 0 m</div>
+    <div id="hud-best" class="hud-line">High Score: 0 m</div>
+    <div id="stamina-bar-bg">
+      <div id="stamina-bar-fill"></div>
+    </div>
+    <div id="hud-stamina" class="hud-line">Stamina: 100%</div>
   </div>
 
-  <div id="pause-btn">Pause</div>
+  <!-- Tombol Pause -->
+  <div id="btn-pause" class="hidden">Pause</div>
 
-  <div id="mobile-controls" style="display: none;">
-    <div class="mobile-btn" id="btn-left">◀</div>
-    <div class="mobile-btn" id="btn-jump">▲</div>
-    <div class="mobile-btn" id="btn-right">▶</div>
+  <!-- Kontrol Mobile: Kiri, Lompat, Kanan -->
+  <div id="mobile-controls" class="hidden">
+    <div id="btn-left" class="mobile-btn">◀</div>
+    <div id="btn-jump" class="mobile-btn">▲</div>
+    <div id="btn-right" class="mobile-btn">▶</div>
   </div>
 
+  <!-- Overlay Menu Utama -->
   <div id="overlay-menu" class="overlay">
     <h1>Montane Ascent</h1>
     <button id="btn-start">Start</button>
+    <button id="btn-settings">Settings</button>
+    <button id="btn-credits">Credits</button>
+    <p>2D Mountaineering Simulator</p>
   </div>
 
-  <div id="overlay-pause" class="overlay" style="display: none;">
+  <!-- Overlay Settings (sementara kosong) -->
+  <div id="overlay-settings" class="overlay hidden">
+    <h1>Settings</h1>
+    <button id="btn-back-settings">Back</button>
+    <p>No configurable options yet.</p>
+  </div>
+
+  <!-- Overlay Credits -->
+  <div id="overlay-credits" class="overlay hidden">
+    <h1>Credits</h1>
+    <p>Created by Montamap Team<br>Powered by Phaser 3</p>
+    <button id="btn-back-credits">Back</button>
+  </div>
+
+  <!-- Overlay Pause -->
+  <div id="overlay-pause" class="overlay hidden">
     <h1>PAUSED</h1>
     <button id="btn-resume">Resume</button>
-    <button id="btn-menu">Main Menu</button>
+    <button id="btn-mainmenu">Main Menu</button>
   </div>
 
-  <div id="overlay-gameover" class="overlay" style="display: none;">
+  <!-- Overlay Game Over -->
+  <div id="overlay-gameover" class="overlay hidden">
     <h1>GAME OVER</h1>
     <p id="final-height">Your Height: 0 m</p>
     <p id="best-height">Best Height: 0 m</p>
     <button id="btn-restart">Restart</button>
-    <button id="btn-menu-2">Main Menu</button>
+    <button id="btn-mainmenu-2">Main Menu</button>
   </div>
-
-  <script>
-    (() => {
-      const W = window.innerWidth;
-      const H = window.innerHeight;
-      const PLAYER_W = 32;
-      const PLAYER_H = 48;
-      const GRAVITY_Y = 1000;
-      const MAX_STAMINA = 100;
-      const STAMINA_DEC = 10;
-      const STAMINA_REC = 5;
-      const ITEM_REC = 30;
-      const OBSTACLE_INTERVAL = 1500;
-      const OBSTACLE_SIZE = 24;
-      const ITEM_SIZE = 20;
-      const SEG_H = 120;
-      const INIT_SEGS = 10;
-      let game;
-      let best = 0;
-
-      window.onload = () => {
-        const config = {
-          type: Phaser.AUTO,
-          width: W,
-          height: H,
-          parent: 'game-container',
-          backgroundColor: '#87ceeb',
-          physics: { default: 'arcade', arcade: { gravity: { y: GRAVITY_Y }, debug: false } },
-          scene: [MenuScene, PlayScene]
-        };
-        game = new Phaser.Game(config);
-        window.focus();
-      };
-
-      class MenuScene extends Phaser.Scene {
-        constructor() { super({ key: 'MenuScene' }); }
-        create() {
-          document.getElementById('hud').style.display = 'none';
-          document.getElementById('pause-btn').style.display = 'none';
-          document.getElementById('mobile-controls').style.display = 'none';
-          const overlay = document.getElementById('overlay-menu');
-          overlay.style.display = 'flex';
-          document.getElementById('btn-start').onclick = () => {
-            overlay.style.display = 'none';
-            this.scene.start('PlayScene');
-          };
-        }
-      }
-
-      class PlayScene extends Phaser.Scene {
-        constructor() { super({ key: 'PlayScene' }); }
-        create() {
-          document.getElementById('hud').style.display = 'block';
-          document.getElementById('pause-btn').style.display = 'block';
-          document.getElementById('mobile-controls').style.display = 'flex';
-
-          this.hudHeight = document.getElementById('hud-height');
-          this.hudBest = document.getElementById('hud-highest');
-          this.hudStam = document.getElementById('hud-stamina');
-          this.stamFill = document.getElementById('stamina-fill');
-
-          const pauseO = document.getElementById('overlay-pause');
-          const gameO = document.getElementById('overlay-gameover');
-          pauseO.style.display = 'none';
-          gameO.style.display = 'none';
-
-          document.getElementById('pause-btn').onclick = () => {
-            if (!this.paused) {
-              this.paused = true;
-              pauseO.style.display = 'flex';
-              this.physics.world.pause();
-            }
-          };
-          document.getElementById('btn-resume').onclick = () => {
-            this.paused = false;
-            pauseO.style.display = 'none';
-            this.physics.world.resume();
-          };
-          document.getElementById('btn-menu').onclick = () => {
-            pauseO.style.display = 'none';
-            this.scene.start('MenuScene');
-          };
-          document.getElementById('btn-restart').onclick = () => {
-            gameO.style.display = 'none';
-            this.scene.restart();
-          };
-          document.getElementById('btn-menu-2').onclick = () => {
-            gameO.style.display = 'none';
-            this.scene.start('MenuScene');
-          };
-
-          this.paused = false;
-          this.stamina = MAX_STAMINA;
-          this.heightScore = 0;
-          this.gameOver = false;
-
-          this.segments = this.add.group();
-          this.obstacles = this.physics.add.group();
-          this.items = this.physics.add.group();
-
-          this.player = null;
-
-          this.physics.world.setBounds(0, -5000, W, 5000 + H);
-          this.cameras.main.setBounds(0, -5000, W, 5000 + H);
-
-          this.createBackground();
-          this.createSlope();
-          this.createPlayer();
-
-          this.physics.add.collider(this.player, this.segments);
-          this.physics.add.collider(this.obstacles, this.segments, (o) => o.body.setVelocityY(0));
-          this.physics.add.collider(this.items, this.segments, (i) => i.body.setVelocityY(0));
-          this.physics.add.overlap(this.player, this.obstacles, this.hitObstacle, null, this);
-          this.physics.add.overlap(this.player, this.items, this.collectItem, null, this);
-
-          this.cursors = this.input.keyboard.createCursorKeys();
-          this.setupMobile();
-
-          this.cameras.main.startFollow(this.player, true, 0.5, 0.5, 0, H * 0.3);
-
-          this.time.addEvent({ delay: OBSTACLE_INTERVAL, callback: this.spawnObstacle, callbackScope: this, loop: true });
-          this.time.addEvent({ delay: OBSTACLE_INTERVAL * 3, callback: this.spawnItem, callbackScope: this, loop: true });
-        }
-
-        update(time, delta) {
-          if (this.paused || this.gameOver) return;
-
-          let vx = 0;
-          if (this.cursors.left.isDown || this.moveLeft) vx = -200;
-          else if (this.cursors.right.isDown || this.moveRight) vx = 200;
-          this.player.setVelocityX(vx);
-
-          const p = this.input.activePointer;
-          if ((this.cursors.up.isDown || this.jumpDown) && this.player.body.blocked.down) {
-            this.player.setVelocityY(-400);
-          }
-
-          const vy = this.player.body.velocity.y;
-          if (!this.player.body.blocked.down && vy < 0) {
-            this.stamina = Math.max(0, this.stamina - STAMINA_DEC * (delta / 1000));
-          } else {
-            this.stamina = Math.min(MAX_STAMINA, this.stamina + STAMINA_REC * (delta / 1000));
-          }
-          this.updateStamina();
-
-          if (this.stamina <= 0) this.doGameOver();
-
-          this.recycleSlope();
-
-          this.obstacles.getChildren().forEach(o => {
-            if (o.y > this.cameras.main.scrollY + H + 50) o.destroy();
-          });
-          this.items.getChildren().forEach(i => {
-            if (i.y > this.cameras.main.scrollY + H + 50) i.destroy();
-          });
-
-          const camY = this.cameras.main.scrollY;
-          if (this.player.y > camY + H + 200) this.doGameOver();
-
-          const h = Math.max(0, Math.floor(-this.player.y + H));
-          this.heightScore = h;
-          this.hudHeight.textContent = 'Height: ' + h + ' m';
-          if (h > best) {
-            best = h;
-            this.hudBest.textContent = 'High Score: ' + best + ' m';
-          }
-        }
-
-        createBackground() {
-          const sky = this.add.rectangle(W/2, H/2, W, H, 0x87ceeb);
-          sky.setScrollFactor(0);
-        }
-
-        createSlope() {
-          let sx = W/2, sy = H - 50;
-          for (let i = 0; i < INIT_SEGS; i++) {
-            const nx = Phaser.Math.Between(100, W - 100);
-            const ny = sy - SEG_H;
-            this.createSegment(sx, sy, nx, ny);
-            sx = nx; sy = ny;
-          }
-        }
-
-        createSegment(x1, y1, x2, y2) {
-          const g = this.add.graphics();
-          g.fillStyle(0x8b4513, 1);
-          const angle = Phaser.Math.Angle.Between(x1, y1, x2, y2);
-          const perp = angle - Math.PI/2;
-          const halfW = 80;
-          const ax = x1 + halfW * Math.cos(perp);
-          const ay = y1 + halfW * Math.sin(perp);
-          const bx = x1 - halfW * Math.cos(perp);
-          const by = y1 - halfW * Math.sin(perp);
-          const cx = x2 - halfW * Math.cos(perp);
-          const cy = y2 - halfW * Math.sin(perp);
-          const dx = x2 + halfW * Math.cos(perp);
-          const dy = y2 + halfW * Math.sin(perp);
-          g.beginPath();
-          g.moveTo(ax, ay);
-          g.lineTo(bx, by);
-          g.lineTo(cx, cy);
-          g.lineTo(dx, dy);
-          g.closePath();
-          g.fillPath();
-          const seg = g;
-          this.physics.add.existing(seg, true);
-          seg.body.setFriction(1);
-          seg.body.setBounce(0);
-          const verts = [{x:ax,y:ay},{x:bx,y:by},{x:cx,y:cy},{x:dx,y:dy}];
-          seg.body.setPolygon(verts);
-          seg.lastPt = { x: x2, y: y2 };
-          this.segments.add(seg);
-        }
-
-        recycleSlope() {
-          const camY = this.cameras.main.scrollY;
-          let highest = Infinity, pt = { x: W/2, y: H - 50 };
-          this.segments.getChildren().forEach(seg => {
-            if (seg.y > camY + H + 100) seg.destroy();
-            if (seg.y < highest) {
-              highest = seg.y;
-              pt = seg.lastPt;
-            }
-          });
-          if (highest < camY - 200) {
-            const nx = Phaser.Math.Between(100, W - 100);
-            const ny = pt.y - SEG_H;
-            this.createSegment(pt.x, pt.y, nx, ny);
-          }
-        }
-
-        createPlayer() {
-          const g = this.add.graphics();
-          g.fillStyle(0x228b22, 1);
-          g.fillRect(0, 0, PLAYER_W, PLAYER_H);
-          g.generateTexture('ply', PLAYER_W, PLAYER_H);
-          g.destroy();
-          this.player = this.physics.add.sprite(W/2, H - 100, 'ply');
-          this.player.body.setSize(PLAYER_W, PLAYER_H);
-          this.player.body.setBounce(0);
-          this.player.body.setFrictionX(1);
-        }
-
-        spawnObstacle() {
-          const highestY = this.getHighest();
-          const ox = Phaser.Math.Between(50, W - 50);
-          const oy = highestY - 50;
-          const g = this.add.graphics();
-          g.fillStyle(0xff0000, 1);
-          g.fillCircle(0, 0, OBSTACLE_SIZE / 2);
-          g.generateTexture('obs' + ox + oy, OBSTACLE_SIZE, OBSTACLE_SIZE);
-          g.destroy();
-          const obs = this.physics.add.sprite(ox, oy, 'obs' + ox + oy);
-          obs.body.setVelocityY(this.scrollSpeed());
-          obs.body.setCircle(OBSTACLE_SIZE / 2);
-          obs.body.setImmovable(true);
-          this.obstacles.add(obs);
-        }
-
-        spawnItem() {
-          const highestY = this.getHighest();
-          const ix = Phaser.Math.Between(50, W - 50);
-          const iy = highestY - 50;
-          const g = this.add.graphics();
-          g.fillStyle(0x00ffff, 1);
-          g.fillCircle(0, 0, ITEM_SIZE / 2);
-          g.generateTexture('itm' + ix + iy, ITEM_SIZE, ITEM_SIZE);
-          g.destroy();
-          const itm = this.physics.add.sprite(ix, iy, 'itm' + ix + iy);
-          itm.body.setVelocityY(this.scrollSpeed() * 0.7);
-          itm.body.setCircle(ITEM_SIZE / 2);
-          itm.body.setImmovable(true);
-          this.items.add(itm);
-        }
-
-        getHighest() {
-          let minY = Infinity, pt = { x: W/2, y: H - 50 };
-          this.segments.getChildren().forEach(seg => {
-            if (seg.y < minY) {
-              minY = seg.y;
-              pt = seg.lastPt;
-            }
-          });
-          return pt.y;
-        }
-
-        scrollSpeed() {
-          return 100 + Math.floor(this.heightScore / 500) * 20;
-        }
-
-        hitObstacle() {
-          if (this.gameOver) return;
-          this.gameOver = true;
-          this.player.setTint(0xff0000);
-          this.physics.pause();
-          this.showGameOver();
-        }
-
-        collectItem(_, item) {
-          item.destroy();
-          this.stamina = Math.min(MAX_STAMINA, this.stamina + ITEM_REC);
-          this.updateStamina();
-        }
-
-        doGameOver() {
-          if (this.gameOver) return;
-          this.gameOver = true;
-          this.player.setTint(0xff0000);
-          this.physics.pause();
-          this.showGameOver();
-        }
-
-        showGameOver() {
-          const goO = document.getElementById('overlay-gameover');
-          document.getElementById('final-height').textContent = 'Your Height: ' + this.heightScore + ' m';
-          document.getElementById('best-height').textContent = 'Best Height: ' + best + ' m';
-          goO.style.display = 'flex';
-        }
-
-        setupMobile() {
-          this.moveLeft = false;
-          this.moveRight = false;
-          this.jumpDown = false;
-          document.getElementById('btn-left').addEventListener('touchstart', () => this.moveLeft = true);
-          document.getElementById('btn-left').addEventListener('touchend', () => this.moveLeft = false);
-          document.getElementById('btn-right').addEventListener('touchstart', () => this.moveRight = true);
-          document.getElementById('btn-right').addEventListener('touchend', () => this.moveRight = false);
-          document.getElementById('btn-jump').addEventListener('touchstart', () => this.jumpDown = true);
-          document.getElementById('btn-jump').addEventListener('touchend', () => this.jumpDown = false);
-        }
-
-        updateStamina() {
-          const pct = (this.stamina / MAX_STAMINA) * 100;
-          this.stamFill.style.width = (pct * 2) + 'px';
-          this.hudStam.textContent = 'Stamina: ' + Math.floor(pct) + '%';
-          if (pct > 50) this.stamFill.style.background = '#0f0';
-          else if (pct > 20) this.stamFill.style.background = '#ff0';
-          else this.stamFill.style.background = '#f00';
-        }
-      }
-    })();
-  </script>
 </body>
 </html>
