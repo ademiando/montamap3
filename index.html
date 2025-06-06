@@ -1,42 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Montane Mapbox Climbing Game</title>
-
-  <!-- Mapbox GL JS -->
-  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
-
-  <!-- CSS khusus -->
-  <link rel="stylesheet" href="styles.css" />
-
-
-  <!-- Game logic -->
-  <script defer src="game.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<title>Mountaineer Rush</title>
+<style>
+  html, body {
+    margin:0; padding:0; overflow:hidden; background: #2b3a42; font-family: Arial, sans-serif; color: #eee;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #gameCanvas {
+    display: block;
+    margin: 0 auto;
+    background: linear-gradient(to top, #6b8e23 0%, #a9dfbf 50%, #ffffff 100%);
+    touch-action: none;
+  }
+  #ui {
+    position: absolute;
+    top: 10px; left: 50%; transform: translateX(-50%);
+    font-size: 20px; font-weight: bold;
+    user-select: none;
+    z-index: 10;
+  }
+  #gameOver {
+    display: none;
+    position: absolute;
+    top: 40%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    padding: 20px 40px;
+    border-radius: 12px;
+    font-size: 28px;
+    text-align: center;
+    user-select: none;
+    z-index: 20;
+  }
+  #restartBtn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background: #4caf50;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+  }
+  #restartBtn:active {
+    background: #388e3c;
+  }
+</style>
 </head>
 <body>
-  <!-- Container peta -->
-  <div id="map"></div>
+<div id="ui">Height: 0 m</div>
+<div id="gameOver">
+  <div>Game Over!</div>
+  <div id="finalScore"></div>
+  <button id="restartBtn">Restart</button>
+</div>
+<canvas id="gameCanvas" width="400" height="700"></canvas>
 
-  <!-- HUD: Stamina, Ketinggian, Jarak -->
-  <div id="hud">
-    <div id="hud-altitude">Altitude: 0 m</div>
-    <div id="hud-stamina">Stamina: 100%</div>
-    <div id="hud-distance">Distance: 0 m</div>
-    <div id="hud-status">Status: Running</div>
-  </div>
+<script>
+(() => {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const ui = document.getElementById('ui');
+  const gameOverDiv = document.getElementById('gameOver');
+  const finalScoreDiv = document.getElementById('finalScore');
+  const restartBtn = document.getElementById('restartBtn');
 
-  <!-- Tombol Pause -->
-  <button id="btn-pause">Pause</button>
+  let width = canvas.width;
+  let height = canvas.height;
 
-  <!-- Kontrol Mobile -->
-  <div id="mobile-controls">
-    <div id="m-left" class="m-btn">◀</div>
-    <div id="m-up" class="m-btn">▲</div>
-    <div id="m-down" class="m-btn">▼</div>
-    <div id="m-right" class="m-btn">▶</div>
-  </div>
+  // Game state
+  let player = { x: width/2, y: height - 80, width: 40, height: 60, speed: 5 };
+  let obstacles = [];
+  let obstacleSpeed = 3;
+  let spawnTimer = 0;
+  let spawnInterval = 60; // frames
+  let keys = {};
+  let heightCount = 0;
+  let running = true;
+
+  function rectsIntersect(r1, r2) {
+    return !(r2.x > r1.x + r1.width ||
+             r2.x + r2.width < r1.x ||
+             r2.y > r1.y + r1.height ||
+             r2.y + r2.height < r1.y);
+  }
+
+  function spawnObstacle() {
+    let obsWidth = 40 + Math.random() * 30;
+    let obsHeight = 20 + Math.random() * 20;
+    let obsX = Math.random() * (width - obsWidth);
+    obstacles.push({ x: obsX, y: -obsHeight, width: obsWidth, height: obsHeight });
+  }
+
+  function update() {
+    if (!running) return;
+    // Move player
+    if (keys['ArrowLeft'] || keys['a']) {
+      player.x -= player.speed;
+    }
+    if (keys['ArrowRight'] || keys['d']) {
+      player.x += player.speed;
+    }
+    if(player.x < 0) player.x = 0;
+    if(player.x + player.width > width) player.x = width - player.width;
+
+    // Spawn obstacles
+    spawnTimer++;
+    if (spawnTimer >= spawnInterval) {
+      spawnObstacle();
+      spawnTimer = 0;
+      // Gradually increase difficulty
+      if(spawnInterval > 20) spawnInterval -= 0.2;
+      obstacleSpeed += 0.01;
+    }
+
+    // Move obstacles down
+    for(let i=obstacles.length-1; i>=0; i--) {
+      obstacles[i].y += obstacleSpeed;
+      if (obstacles[i].y > height) {
+        obstacles.splice(i,1);
+        heightCount++;
+      }
+    }
+
+    // Collision detection
+    for(let obs of obstacles) {
+      if(rectsIntersect(player, obs)) {
+        gameOver();
+        break;
+      }
+    }
+  }
+
+  function draw() {
+    // Clear
+    ctx.clearRect(0,0,width,height);
+
+    // Draw player (mountaineer)
+    ctx.fillStyle = '#ffb347';
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+    // Helmet
+    ctx.fillStyle = '#ff4500';
+    ctx.beginPath();
+    ctx.arc(player.x + player.width/2, player.y + 10, 12, 0, Math.PI*2);
+    ctx.fill();
+
+    // Draw obstacles (rocks/trees)
+    ctx.fillStyle = '#654321';
+    obstacles.forEach(obs => {
+      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+    });
+
+    // UI update
+    ui.textContent = `Height: ${heightCount} m`;
+  }
+
+  function gameOver() {
+    running = false;
+    finalScoreDiv.textContent = `You climbed ${heightCount} meters!`;
+    gameOverDiv.style.display = 'block';
+  }
+
+  function restart() {
+    obstacles = [];
+    heightCount = 0;
+    obstacleSpeed = 3;
+    spawnInterval = 60;
+    spawnTimer = 0;
+    running = true;
+    player.x = width/2;
+    player.y = height - 80;
+    gameOverDiv.style.display = 'none';
+  }
+
+  function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+
+  // Keyboard controls
+  window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+  });
+  window.addEventListener('keyup', e => {
+    keys[e.key.toLowerCase()] = false;
+  });
+
+  // Touch controls (left half / right half screen)
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    if(touch.clientX < window.innerWidth / 2) {
+      keys['arrowleft'] = true;
+    } else {
+      keys['arrowright'] = true;
+    }
+  });
+  canvas.addEventListener('touchend', e => {
+    e.preventDefault();
+    keys['arrowleft'] = false;
+    keys['arrowright'] = false;
+  });
+
+  restartBtn.onclick = restart;
+
+  // Start game loop
+  gameLoop();
+})();
+</script>
 </body>
 </html>
