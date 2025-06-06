@@ -1,127 +1,87 @@
-/* ==========================================================================
-   Montane Ascent – 2D Mountaineering Game Styles
-   (HUD, Overlay, Controls, Positioning)
-   ========================================================================== */
+/* ================================================================
+   Montane Mapbox Climbing Game Styles
+   ================================================================= */
 
 html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
   overflow: hidden;
-  background: #87ceeb;
-  font-family: sans-serif;
-  user-select: none;
+  font-family: Arial, sans-serif;
 }
 
-#game-container {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
 }
 
-.hidden {
-  display: none;
-}
-
-/* HUD: Height, High Score, Stamina */
+/* HUD di pojok kiri atas */
 #hud {
   position: absolute;
   top: 10px;
   left: 10px;
-  z-index: 10;
-  color: #000;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+  z-index: 2;
 }
-.hud-line {
-  font-size: 18px;
+#hud div {
+  font-size: 14px;
   margin-bottom: 4px;
-  text-shadow: 1px 1px 2px #fff;
+}
+#hud div:last-child {
+  margin-bottom: 0;
 }
 
-#stamina-bar-bg {
-  width: 200px;
-  height: 20px;
-  background: #444;
-  border-radius: 4px;
-  overflow: hidden;
-}
-#stamina-bar-fill {
-  width: 200px;
-  height: 20px;
-  background: #0f0;
-}
-
-/* Tombol Pause */
+/* Tombol Pause di pojok kanan atas */
 #btn-pause {
   position: absolute;
   top: 10px;
   right: 10px;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.2);
-  border: 2px solid #000;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
   border-radius: 4px;
-  color: #000;
-  padding: 6px 10px;
-  font-size: 16px;
+  padding: 6px 12px;
+  font-size: 14px;
   cursor: pointer;
-  user-select: none;
+  box-shadow: 0 0 6px rgba(0,0,0,0.3);
 }
 
-/* Kontrol Mobile (Kiri, Lompat, Kanan) */
+/* Kontrol Mobile di pojok bawah */
 #mobile-controls {
   position: absolute;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 10;
   display: flex;
-  gap: 20px;
+  gap: 12px;
+  z-index: 2;
 }
-.mobile-btn {
-  width: 60px;
-  height: 60px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 2px solid #000;
+.m-btn {
+  width: 48px;
+  height: 48px;
+  background: rgba(255,255,255,0.9);
   border-radius: 50%;
-  color: #000;
-  font-size: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.3);
   user-select: none;
-  cursor: pointer;
+  touch-action: none;
 }
 
-/* Overlay (Menu, Settings, Credits, Pause, Game Over) */
-.overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.7);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  z-index: 20;
-}
-.overlay h1 {
-  font-size: 48px;
-  margin: 0;
-  text-shadow: 2px 2px 4px #000;
-}
-.overlay button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 20px;
+/* Marker karakter (di‐override di JS) */
+.player-marker {
+  width: 32px;
+  height: 32px;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/149/149071.png');
+  background-size: cover;
+  border-radius: 50%;
   border: 2px solid #fff;
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
-  min-width: 160px;
-}
-.overlay p {
-  font-size: 24px;
-  margin: 10px 0;
-  text-align: center;
-  max-width: 80%;
+  box-shadow: 0 0 4px rgba(0,0,0,0.5);
 }
