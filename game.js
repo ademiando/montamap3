@@ -1,6 +1,7 @@
 // Montane Mapbox Climbing Game – game.js
 // Ganti dengan token Mapbox Anda
-mapboxgl.accessToken = 'YOUR_MAPBOX_TOKEN';
+mapboxgl.accessToken = 'pk.eyJ1IjoiYWRlbWlhbmRvIiwiYSI6ImNtYXF1YWx6NjAzdncya3B0MDc5cjhnOTkifQ.RhVpan3rfXY0fiix3HMszg';
+
 
 (() => {
   // Variabel global
