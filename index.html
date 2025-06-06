@@ -2,190 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Montamap</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mountaineering Mini</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-
- <!-- Tambahkan logo -->
-    <a href="/" class="logo">
-      <img src="logo.jpg" alt="Logo" class="left-logo"> <!-- Pastikan path sesuai lokasi file -->
-      Montamap
-    </a>
-    
-        <!-- Search Bar -->
-    <div class="search-bar">
-      <input type="text" placeholder="Search..." id="searchInput">
+  <div class="game-container">
+    <h1>🏔️ Mountaineering Mini</h1>
+    <div class="status">
+      <div>Stamina: <span id="stamina">100</span>%</div>
+      <div>Weather: <span id="weather">Clear</span></div>
     </div>
-
-<!-- ini menu hamburger -->
-    <div class="menu-container" id="menuContainer">
-      <button id="hamburger">&#9776;</button>
-
-  <div id="menu" class="menu">
-    <!-- Menu Button -->
-    <button class="menu-button">Login</button>
-
-    <!-- Language Selector -->
-    <select id="language">
-      <option value="en">English (US)</option>
-      <option value="id">Bahasa (Indonesia)</option>
-      <option value="zh">中文 (Chinese)</option>
-      <option value="hi">हिन्दी (Hindi)</option>
-      <option value="ru">Русский (Russian)</option>
-    </select>
-
-    <!-- Currency Selector -->
-    <select id="currency">
-      <option value="usd">USD ($)</option>
-      <option value="btc">BTC (₿)</option>
-      <option value="idr">IDR (Rp)</option>
-      <option value="rub">RUB (₽)</option>
-      <option value="cny">CNY (¥)</option>
-      <option value="inr">INR (₹)</option>
-      <option value="npr">NPR (रू)</option>
-      <option value="aud">AUD (A$)</option>
-      <option value="global">others</option>
-    </select>
-
-    <!-- Theme Switch -->
-    <div class="theme-switch">
-      <div class="theme-btn active" id="lightBtn">Light</div>
-      <div class="theme-btn" id="darkBtn">Dark</div>
+    <div id="grid" class="grid"></div>
+    <div class="controls">
+      <button onclick="move('up')">⬆️</button>
+      <div>
+        <button onclick="move('left')">⬅️</button>
+        <button onclick="move('down')">⬇️</button>
+        <button onclick="move('right')">➡️</button>
+      </div>
     </div>
+    <div id="message" class="message"></div>
   </div>
-</header>
-
-<!-- Banner Ads -->
-<div class="banner-ads">
-  <p>Display Ads: hello@montamap.com</p>
-</div>
-
-<!-- Tagline Section -->
-<div class="tagline-section">
-  <h1 class="tagline">Your Gateway to Global Mountain Trails</h1>
-  <p class="sub-tagline">
-    Discover, Connect, Conquer Hiking Trails Worldwide –  Powered by Smart Maps, Live Weather Alert, One-Touch SOS, and Real-Time Support.
-  </p>
-</div>
-
-  <!-- Tab Navigation Horizontal -->
-  <div class="horizontal-tab-container">
-    <button class="tab active" onclick="openTab(event, 'Mountain')">Mountain</button>
-    <button class="tab" onclick="openTab(event, 'Favorite')">Favorite</button>
-    <button class="tab" onclick="openTab(event, 'Community')">Community</button>
-    <button class="tab" onclick="openTab(event, 'News')">News</button>
-    <button class="tab" onclick="openTab(event, 'Gear')">Gear</button>
-  </div>
-
-<div id="Mountain" class="tab-content active">
-  <!-- Sort Options -->
-  <div class="sort-options-container">
-      <select id="type-sort">
-          <option value="type">Mountain Type</option>
-          <option value="volcano">Volcano</option>
-          <option value="snowpeak">Snow Peak</option>
-          <option value="jungle/forest">Jungle/Forest</option>
-          <option value="sacred/mystical">Sacred/Mystical</option>
-          <option value="coastal">Coastal Mountain</option>
-          <option value="karst">Karst/Limestone</option>
-          <option value="plateau">Plateau/Mesa</option>
-          <option value="himalaya's">Himalaya's</option>
-      </select>
-
-      <select id="country-sort">
-          <option value="global">All Countries</option>
-          <option value="indonesia">Indonesia</option>
-          <option value="india">India</option>
-          <option value="uk">United Kingdom</option>
-          <option value="usa">United States</option>
-          <option value="australia">Australia</option>
-          <option value="nepal">Nepal</option>
-          <option value="peru">Peru</option>
-      </select>
-
-      <select id="destination-sort">
-          <option value="trending">Trending🔥</option>
-          <option value="top-7-summit">Top Seven Summit</option>
-          <option value="trending">Trending Now</option>
-          <option value="most-visited">Most Visited</option>
-          <option value="hidden-gems">Hidden Gems</option>
-          <option value="unesco">UNESCO Heritage Sites</option>
-          <option value="bucket">Bucket List Mountain</option>
-      </select>
-
-
-<select id="difficulty-sort">
-  <option value="level">All Levels</option>
-  <option value="beginner">Beginner (&lt;1D1N, &lt;2.000m)</option>
-  <option value="moderate">Moderate (&lt;3D2N, &lt;3.000m)</option>
-  <option value="hard">Hard (3D2N+, &lt;4.000m)</option>
-  <option value="expedition">Expedition (5D+, &gt;4.000m)</option>
-</select>
-
-
-<select id="season-sort">
-  <option value="any">All Seasons</option>
-  <option value="spring">Spring (Mar–May)</option>
-  <option value="summer">Summer (Jun–Aug)</option>
-  <option value="fall">Fall (Sep–Nov)</option>
-  <option value="winter">Winter (Dec–Feb)</option>
-</select>
-</div>
-
-
-
-
-
-
-
-
-
-<div class="mountain-wrapper">
-<div class="mountain-container" id="mountainContainer"></div>
-  <button id="loadMoreBtn">Load More Mountains</button>
- 
-
-
-  
-
-
-
-<!-- Favorite Tab -->
-<div id="Favorite" class="tab-content" style="display: none;">
-    <h2>My Favorite</h2>
-    <p>Your favorite items will appear here.</p>
-</div>
-
-<!-- Community Tab -->
-<div id="Community" class="tab-content" style="display: none;">
-    <h2>Comunity</h2>
-    <p>Connect with hikers and adventure lovers worldwide.</p>
-</div>
-
-<!-- News Tab -->
-<div id="News" class="tab-content" style="display: none;">
-    <h2>Latest News</h2>
-    <p>Stay updated with the latest hiking and adventure news.</p>
-</div>
-
-<!-- Gear Tab -->
-<div id="Gear" class="tab-content" style="display: none;">
-    <h2>Recommended Gear</h2>
-    <p>Discover the best hiking gear for your adventures.</p>
-</div>
-
-
-
-
-
-
-
-
-  
-
-  <script src="script.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
