@@ -2,214 +2,265 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-<title>Mountaineer Rush</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mountaineering Rush</title>
 <style>
-  html, body {
-    margin:0; padding:0; overflow:hidden; background: #2b3a42; font-family: Arial, sans-serif; color: #eee;
-    -webkit-tap-highlight-color: transparent;
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+    user-select: none;
   }
-  #gameCanvas {
+  body, html {
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, #2c3e50, #3498db);
+    overflow: hidden;
+    font-family: 'Orbitron', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #gameContainer {
+    position: relative;
+    width: 400px;
+    height: 700px;
+    background: linear-gradient(to top, #006400 40%, #87ceeb 100%);
+    border-radius: 12px;
+    box-shadow: 0 0 30px #0f0;
+    overflow: hidden;
+  }
+  #bg1, #bg2 {
+    position: absolute;
+    width: 100%;
+    height: 400px;
+    background: url('https://i.ibb.co/gSThwsF/mountain-bg.png') repeat-x bottom;
+    background-size: contain;
+    animation: bgmove 10s linear infinite;
+  }
+  #bg2 {
+    top: -400px;
+    animation-delay: 5s;
+  }
+  @keyframes bgmove {
+    from {background-position-x: 0;}
+    to {background-position-x: -800px;}
+  }
+  canvas {
     display: block;
-    margin: 0 auto;
-    background: linear-gradient(to top, #6b8e23 0%, #a9dfbf 50%, #ffffff 100%);
-    touch-action: none;
+    margin: auto;
+    background: transparent;
+    position: relative;
+    z-index: 2;
   }
   #ui {
     position: absolute;
-    top: 10px; left: 50%; transform: translateX(-50%);
-    font-size: 20px; font-weight: bold;
-    user-select: none;
-    z-index: 10;
-  }
-  #gameOver {
-    display: none;
-    position: absolute;
-    top: 40%; left: 50%; transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.8);
-    padding: 20px 40px;
-    border-radius: 12px;
-    font-size: 28px;
-    text-align: center;
-    user-select: none;
-    z-index: 20;
-  }
-  #restartBtn {
-    margin-top: 15px;
-    padding: 10px 20px;
+    width: 100%;
+    top: 10px;
+    left: 0;
+    z-index: 3;
+    display: flex;
+    justify-content: space-around;
+    color: #e0e0e0;
     font-size: 18px;
-    background: #4caf50;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
+    text-shadow: 1px 1px 3px #000;
   }
-  #restartBtn:active {
-    background: #388e3c;
+  #gameOverScreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(20,20,20,0.8);
+    color: #fff;
+    font-size: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: none;
+  }
+  #gameOverScreen button {
+    margin-top: 20px;
+    background: #27ae60;
+    border: none;
+    padding: 12px 24px;
+    color: white;
+    font-size: 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  #gameOverScreen button:hover {
+    background: #2ecc71;
   }
 </style>
 </head>
 <body>
-<div id="ui">Height: 0 m</div>
-<div id="gameOver">
-  <div>Game Over!</div>
-  <div id="finalScore"></div>
-  <button id="restartBtn">Restart</button>
-</div>
-<canvas id="gameCanvas" width="400" height="700"></canvas>
+  <div id="gameContainer">
+    <div id="bg1"></div>
+    <div id="bg2"></div>
+    <canvas id="gameCanvas" width="400" height="700"></canvas>
+    <div id="ui">
+      <div>Score: <span id="score">0</span></div>
+      <div>Highscore: <span id="highscore">0</span></div>
+      <div>Power-Up: <span id="powerup">None</span></div>
+    </div>
+    <div id="gameOverScreen">
+      Game Over<br />
+      <div>Your Score: <span id="finalScore">0</span></div>
+      <button id="restartBtn">Restart</button>
+    </div>
+  </div>
 
 <script>
 (() => {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
-  const ui = document.getElementById('ui');
-  const gameOverDiv = document.getElementById('gameOver');
-  const finalScoreDiv = document.getElementById('finalScore');
+  const scoreEl = document.getElementById('score');
+  const highscoreEl = document.getElementById('highscore');
+  const powerupEl = document.getElementById('powerup');
+  const gameOverScreen = document.getElementById('gameOverScreen');
+  const finalScoreEl = document.getElementById('finalScore');
   const restartBtn = document.getElementById('restartBtn');
 
-  let width = canvas.width;
-  let height = canvas.height;
+  const WIDTH = canvas.width;
+  const HEIGHT = canvas.height;
 
-  // Game state
-  let player = { x: width/2, y: height - 80, width: 40, height: 60, speed: 5 };
+  const PLAYER_WIDTH = 40;
+  const PLAYER_HEIGHT = 60;
+  const OBSTACLE_WIDTH = 40;
+  const OBSTACLE_HEIGHT = 40;
+  const POWERUP_WIDTH = 40;
+  const POWERUP_HEIGHT = 40;
+
+  let playerX = WIDTH / 2 - PLAYER_WIDTH / 2;
+  const playerY = HEIGHT - PLAYER_HEIGHT - 30;
+  let playerSpeed = 7;
   let obstacles = [];
-  let obstacleSpeed = 3;
-  let spawnTimer = 0;
-  let spawnInterval = 60; // frames
+  let powerups = [];
   let keys = {};
-  let heightCount = 0;
-  let running = true;
+  let score = 0;
+  let highscore = localStorage.getItem('mountainHighscore') || 0;
+  let gameOver = false;
+  let powerUpActive = false;
+  let powerUpTimer = 0;
 
-  function rectsIntersect(r1, r2) {
-    return !(r2.x > r1.x + r1.width ||
-             r2.x + r2.width < r1.x ||
-             r2.y > r1.y + r1.height ||
-             r2.y + r2.height < r1.y);
+  highscoreEl.textContent = highscore;
+
+  class Obstacle {
+    constructor(x, y, type) {
+      this.x = x;
+      this.y = y;
+      this.type = type; // 'tree', 'rock', 'water'
+      this.speed = 4 + score/100;
+    }
+    update() {
+      this.y += this.speed;
+    }
+    draw() {
+      ctx.save();
+      if (this.type === 'tree') {
+        ctx.fillStyle = '#145214';
+        ctx.fillRect(this.x, this.y, OBSTACLE_WIDTH, OBSTACLE_HEIGHT);
+        ctx.fillStyle = '#0c3b0c';
+        ctx.beginPath();
+        ctx.moveTo(this.x + OBSTACLE_WIDTH/2, this.y - 20);
+        ctx.lineTo(this.x + OBSTACLE_WIDTH, this.y + 10);
+        ctx.lineTo(this.x, this.y + 10);
+        ctx.closePath();
+        ctx.fill();
+      } else if (this.type === 'rock') {
+        ctx.fillStyle = '#7a7a7a';
+        ctx.beginPath();
+        ctx.ellipse(this.x + OBSTACLE_WIDTH/2, this.y + OBSTACLE_HEIGHT/2, OBSTACLE_WIDTH/2, OBSTACLE_HEIGHT/2, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (this.type === 'water') {
+        ctx.fillStyle = '#1ca3ec';
+        ctx.fillRect(this.x, this.y, OBSTACLE_WIDTH, OBSTACLE_HEIGHT);
+        ctx.strokeStyle = '#0e76c9';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        for(let i=0; i < 5; i++){
+          ctx.moveTo(this.x + i*8, this.y + OBSTACLE_HEIGHT);
+          ctx.quadraticCurveTo(this.x + i*8 + 4, this.y + OBSTACLE_HEIGHT - 8, this.x + i*8 + 8, this.y + OBSTACLE_HEIGHT);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
   }
 
   function spawnObstacle() {
-    let obsWidth = 40 + Math.random() * 30;
-    let obsHeight = 20 + Math.random() * 20;
-    let obsX = Math.random() * (width - obsWidth);
-    obstacles.push({ x: obsX, y: -obsHeight, width: obsWidth, height: obsHeight });
+    const types = ['tree', 'rock', 'water'];
+    if(Math.random() < 0.04) {
+      const x = Math.random() * (WIDTH - OBSTACLE_WIDTH);
+      const type = types[Math.floor(Math.random() * types.length)];
+      obstacles.push(new Obstacle(x, -OBSTACLE_HEIGHT, type));
+    }
   }
 
-  function update() {
-    if (!running) return;
-    // Move player
-    if (keys['ArrowLeft'] || keys['a']) {
-      player.x -= player.speed;
+  class Player {
+    constructor() {
+      this.x = playerX;
+      this.y = playerY;
+      this.width = PLAYER_WIDTH;
+      this.height = PLAYER_HEIGHT;
+      this.color = '#ffd700';
+      this.speed = playerSpeed;
+      this.invincible = false;
     }
-    if (keys['ArrowRight'] || keys['d']) {
-      player.x += player.speed;
+    draw() {
+      ctx.fillStyle = this.invincible ? '#00ffff' : this.color;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+      // head
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.ellipse(this.x + this.width/2, this.y + 15, 12, 15, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // eyes
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.ellipse(this.x + this.width/3, this.y + 12, 3, 4, 0, 0, Math.PI * 2);
+      ctx.ellipse(this.x + 2*this.width/3, this.y + 12, 3, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // body stripes
+      ctx.strokeStyle = '#b8860b';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(this.x + 10, this.y + 35);
+      ctx.lineTo(this.x + this.width - 10, this.y + 35);
+      ctx.stroke();
     }
-    if(player.x < 0) player.x = 0;
-    if(player.x + player.width > width) player.x = width - player.width;
-
-    // Spawn obstacles
-    spawnTimer++;
-    if (spawnTimer >= spawnInterval) {
-      spawnObstacle();
-      spawnTimer = 0;
-      // Gradually increase difficulty
-      if(spawnInterval > 20) spawnInterval -= 0.2;
-      obstacleSpeed += 0.01;
-    }
-
-    // Move obstacles down
-    for(let i=obstacles.length-1; i>=0; i--) {
-      obstacles[i].y += obstacleSpeed;
-      if (obstacles[i].y > height) {
-        obstacles.splice(i,1);
-        heightCount++;
+    update() {
+      if(keys['ArrowLeft'] || keys['a']) {
+        this.x -= this.speed;
       }
-    }
-
-    // Collision detection
-    for(let obs of obstacles) {
-      if(rectsIntersect(player, obs)) {
-        gameOver();
-        break;
+      if(keys['ArrowRight'] || keys['d']) {
+        this.x += this.speed;
       }
+      if(this.x < 0) this.x = 0;
+      if(this.x + this.width > WIDTH) this.x = WIDTH - this.width;
     }
   }
 
-  function draw() {
-    // Clear
-    ctx.clearRect(0,0,width,height);
-
-    // Draw player (mountaineer)
-    ctx.fillStyle = '#ffb347';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-    // Helmet
-    ctx.fillStyle = '#ff4500';
-    ctx.beginPath();
-    ctx.arc(player.x + player.width/2, player.y + 10, 12, 0, Math.PI*2);
-    ctx.fill();
-
-    // Draw obstacles (rocks/trees)
-    ctx.fillStyle = '#654321';
-    obstacles.forEach(obs => {
-      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-    });
-
-    // UI update
-    ui.textContent = `Height: ${heightCount} m`;
-  }
-
-  function gameOver() {
-    running = false;
-    finalScoreDiv.textContent = `You climbed ${heightCount} meters!`;
-    gameOverDiv.style.display = 'block';
-  }
-
-  function restart() {
-    obstacles = [];
-    heightCount = 0;
-    obstacleSpeed = 3;
-    spawnInterval = 60;
-    spawnTimer = 0;
-    running = true;
-    player.x = width/2;
-    player.y = height - 80;
-    gameOverDiv.style.display = 'none';
-  }
-
-  function gameLoop() {
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
-  }
-
-  // Keyboard controls
-  window.addEventListener('keydown', e => {
-    keys[e.key.toLowerCase()] = true;
-  });
-  window.addEventListener('keyup', e => {
-    keys[e.key.toLowerCase()] = false;
-  });
-
-  // Touch controls (left half / right half screen)
-  canvas.addEventListener('touchstart', e => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    if(touch.clientX < window.innerWidth / 2) {
-      keys['arrowleft'] = true;
-    } else {
-      keys['arrowright'] = true;
+  class PowerUp {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y;
+      this.width = POWERUP_WIDTH;
+      this.height = POWERUP_HEIGHT;
+      this.speed = 4 + score/100;
+      this.type = 'water';
     }
-  });
-  canvas.addEventListener('touchend', e => {
-    e.preventDefault();
-    keys['arrowleft'] = false;
-    keys['arrowright'] = false;
-  });
-
-  restartBtn.onclick = restart;
-
-  // Start game loop
-  gameLoop();
-})();
-</script>
-</body>
-</html>
+    update() {
+      this.y += this.speed;
+    }
+    draw() {
+      ctx.fillStyle = '#1ca3ec';
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+      ctx.strokeStyle = '#0e76c9';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for(let i=0; i < 5; i++){
+        ctx.moveTo(this.x + i*8, this.y + this.height);
+        ctx.quadraticCurveTo(this.x + i*8 + 4, this.y + this.height - 8, this.x + i*
