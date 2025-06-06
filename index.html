@@ -3,320 +3,167 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mountaineering Rush - Game</title>
+<title>Mountaineer Rush - Game</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
-  * {
-    margin: 0; padding: 0; box-sizing: border-box; user-select: none;
-  }
-  body, html {
-    height: 100%; width: 100%;
-    background: linear-gradient(to top, #2e8b57, #87ceeb);
-    font-family: 'Orbitron', monospace;
-    display: flex; justify-content: center; align-items: center;
-  }
-  #gameContainer {
-    position: relative;
-    width: 400px; height: 700px;
-    background: linear-gradient(to top, #145214 60%, #87ceeb 100%);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 0 25px #0a470a;
-  }
-  canvas {
-    display: block;
-    background: transparent;
-  }
-  #ui {
-    position: absolute;
-    top: 10px; width: 100%;
-    display: flex; justify-content: space-around;
-    color: #fff;
-    font-size: 18px;
-    text-shadow: 1px 1px 3px #000;
-    z-index: 10;
-  }
-  #gameOverScreen {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(20,20,20,0.8);
-    color: white;
-    font-size: 32px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 20;
-    display: none;
-  }
-  #gameOverScreen button {
-    margin-top: 20px;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    background: #27ae60;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-  }
-  #gameOverScreen button:hover {
-    background: #2ecc71;
-  }
+  *{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent;}
+  html,body{width:100%;height:100%;overflow:hidden;background:#3a5a32;font-family:sans-serif;}
+  #gameContainer{position:relative;width:400px;height:700px;margin:20px auto;border-radius:15px;box-shadow:0 0 25px #122a08;overflow:hidden;background:#2c4a18;}
+  canvas{display:block;border-radius:15px;background:linear-gradient(to top,#4b7c41 0%,#a3c89d 60%,#d9f4d8 100%);}
+  #ui{position:absolute;top:15px;left:15px;color:#fff;font-size:20px;font-weight:700;text-shadow:1px 1px 3px rgba(0,0,0,0.7);z-index:20;}
+  #ui .power{margin-left:20px;color:#ffec3d;}
+  #gameOverScreen{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.85);padding:30px 40px;border-radius:12px;color:#fff;font-size:26px;font-weight:700;text-align:center;display:none;z-index:30;user-select:none;}
+  #gameOverScreen button{margin-top:20px;padding:12px 35px;font-size:18px;font-weight:600;border:none;border-radius:10px;background:#4caf50;color:#fff;cursor:pointer;transition:background-color 0.3s ease;}
+  #gameOverScreen button:active{background:#388e3c;}
+  #controls{position:absolute;bottom:20px;width:100%;display:flex;justify-content:center;gap:25px;z-index:25;user-select:none;}
+  .btn{background:rgba(255,255,255,0.3);border-radius:50%;width:70px;height:70px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,0.5);transition:background 0.25s ease;}
+  .btn:active{background:rgba(255,255,255,0.6);}
+  svg{width:35px;height:35px;fill:#204000;}
 </style>
 </head>
 <body>
-  <div id="gameContainer">
-    <canvas id="gameCanvas" width="400" height="700"></canvas>
-    <div id="ui">
-      <div>Score: <span id="score">0</span></div>
-      <div>Highscore: <span id="highscore">0</span></div>
-      <div>Power-Up: <span id="powerup">None</span></div>
+<div id="gameContainer" role="main" aria-label="Mountaineer Rush Game">
+  <canvas id="gameCanvas" width="400" height="700" aria-live="polite" aria-label="Game canvas"></canvas>
+  <div id="ui">Score: 0<span class="power"></span></div>
+  <div id="gameOverScreen" role="alertdialog" aria-modal="true" aria-labelledby="gameOverTitle" aria-describedby="finalScoreText">
+    <div id="gameOverTitle">Game Over!</div>
+    <div id="finalScoreText"></div>
+    <button id="restartBtn" aria-label="Restart Game">Restart</button>
+  </div>
+  <div id="controls" role="region" aria-label="Game controls">
+    <div class="btn" id="leftBtn" aria-label="Move Left" role="button" tabindex="0">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
     </div>
-    <div id="gameOverScreen">
-      Game Over
-      <div>Your Score: <span id="finalScore">0</span></div>
-      <button id="restartBtn">Restart</button>
+    <div class="btn" id="rightBtn" aria-label="Move Right" role="button" tabindex="0">
+      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
     </div>
   </div>
-
+</div>
 <script>
 (() => {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
-  const scoreEl = document.getElementById('score');
-  const highscoreEl = document.getElementById('highscore');
-  const powerupEl = document.getElementById('powerup');
+  const ui = document.getElementById('ui');
+  const powerSpan = ui.querySelector('.power');
   const gameOverScreen = document.getElementById('gameOverScreen');
-  const finalScoreEl = document.getElementById('finalScore');
+  const finalScoreText = document.getElementById('finalScoreText');
   const restartBtn = document.getElementById('restartBtn');
-
+  const leftBtn = document.getElementById('leftBtn');
+  const rightBtn = document.getElementById('rightBtn');
   const WIDTH = canvas.width;
   const HEIGHT = canvas.height;
 
-  // Player config
-  const PLAYER_WIDTH = 40;
-  const PLAYER_HEIGHT = 60;
-  const PLAYER_Y = HEIGHT - PLAYER_HEIGHT - 20;
-  let playerX = WIDTH/2 - PLAYER_WIDTH/2;
-  const PLAYER_SPEED = 7;
+  const playerImg = new Image();
+  playerImg.src = 'https://i.imgur.com/3lDZUjq.png';
+  const treeImg = new Image();
+  treeImg.src = 'https://i.imgur.com/jT4cNsc.png';
+  const rockImg = new Image();
+  rockImg.src = 'https://i.imgur.com/FpOh7Pi.png';
+  const waterImg = new Image();
+  waterImg.src = 'https://i.imgur.com/NvZ5xtE.png';
 
-  // Obstacles
-  const OBSTACLE_WIDTH = 40;
-  const OBSTACLE_HEIGHT = 40;
+  let player = {
+    x: WIDTH/2 - 25,
+    y: HEIGHT - 110,
+    width: 50,
+    height: 80,
+    speed: 7,
+    invincible: false,
+    invincibleTimer: 0
+  };
 
-  // Powerup
-  const POWERUP_WIDTH = 40;
-  const POWERUP_HEIGHT = 40;
-
-  let keys = {};
   let obstacles = [];
-  let powerups = [];
+  let obstacleSpeed = 3;
+  let spawnTimer = 0;
+  let spawnInterval = 60;
   let score = 0;
-  let highscore = localStorage.getItem('mountainHighscore') || 0;
-  let gameOver = false;
-  let powerUpActive = false;
-  let powerUpTimer = 0;
+  let highscore = parseInt(localStorage.getItem('mountainRushHighscore')) || 0;
+  let running = true;
+  let keys = {};
+  let touchActive = {left: false, right: false};
 
-  highscoreEl.textContent = highscore;
-
-  // Helper: random int between min and max
-  function randInt(min,max) {
-    return Math.floor(Math.random()*(max-min+1)) + min;
+  function rectsCollide(a,b) {
+    return !(a.x + a.width < b.x || a.x > b.x + b.width || a.y + a.height < b.y || a.y > b.y + b.height);
   }
-
-  class Player {
-    constructor() {
-      this.x = playerX;
-      this.y = PLAYER_Y;
-      this.width = PLAYER_WIDTH;
-      this.height = PLAYER_HEIGHT;
-      this.color = '#ffdd55';
-      this.speed = PLAYER_SPEED;
-      this.invincible = false;
-    }
-    update() {
-      if(keys['ArrowLeft'] || keys['a']) {
-        this.x -= this.speed;
-      }
-      if(keys['ArrowRight'] || keys['d']) {
-        this.x += this.speed;
-      }
-      if(this.x < 0) this.x = 0;
-      if(this.x + this.width > WIDTH) this.x = WIDTH - this.width;
-    }
-    draw() {
-      ctx.fillStyle = this.invincible ? '#00ffff' : this.color;
-      ctx.fillRect(this.x, this.y, this.width, this.height);
-
-      // head ellipse
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.ellipse(this.x + this.width/2, this.y + 20, 15, 20, 0, 0, Math.PI*2);
-      ctx.fill();
-
-      // eyes
-      ctx.fillStyle = '#000';
-      ctx.beginPath();
-      ctx.ellipse(this.x + this.width/3, this.y + 18, 4, 5, 0, 0, Math.PI*2);
-      ctx.ellipse(this.x + 2*this.width/3, this.y + 18, 4, 5, 0, 0, Math.PI*2);
-      ctx.fill();
-
-      // body stripe
-      ctx.strokeStyle = '#b8860b';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(this.x + 10, this.y + 45);
-      ctx.lineTo(this.x + this.width - 10, this.y + 45);
-      ctx.stroke();
-    }
-  }
-
-  class Obstacle {
-    constructor(x, y, type) {
-      this.x = x;
-      this.y = y;
-      this.type = type; // 'tree', 'rock', 'water'
-      this.width = OBSTACLE_WIDTH;
-      this.height = OBSTACLE_HEIGHT;
-      this.speed = 4 + score/100;
-    }
-    update() {
-      this.y += this.speed;
-    }
-    draw() {
-      ctx.save();
-      if(this.type === 'tree') {
-        ctx.fillStyle = '#145214';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle = '#0c3b0c';
-        ctx.beginPath();
-        ctx.moveTo(this.x + this.width/2, this.y - 20);
-        ctx.lineTo(this.x + this.width, this.y + 10);
-        ctx.lineTo(this.x, this.y + 10);
-        ctx.closePath();
-        ctx.fill();
-      } else if(this.type === 'rock') {
-        ctx.fillStyle = '#7a7a7a';
-        ctx.beginPath();
-        ctx.ellipse(this.x + this.width/2, this.y + this.height/2, this.width/2, this.height/2, 0, 0, Math.PI*2);
-        ctx.fill();
-      } else if(this.type === 'water') {
-        ctx.fillStyle = '#1ca3ec';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.strokeStyle = '#0e76c9';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        for(let i=0; i < 5; i++) {
-          ctx.moveTo(this.x + i*8, this.y + this.height);
-          ctx.quadraticCurveTo(this.x + i*8 + 4, this.y + this.height - 8, this.x + i*8 + 8, this.y + this.height);
-        }
-        ctx.stroke();
-      }
-      ctx.restore();
-    }
-  }
-
-  class PowerUp {
-    constructor(x, y) {
-      this.x = x;
-      this.y = y;
-      this.width = POWERUP_WIDTH;
-      this.height = POWERUP_HEIGHT;
-      this.speed = 4 + score/100;
-      this.type = 'water';
-    }
-    update() {
-      this.y += this.speed;
-    }
-    draw() {
-      ctx.fillStyle = '#00bfff';
-      ctx.beginPath();
-      ctx.arc(this.x + this.width/2, this.y + this.height/2, this.width/2, 0, Math.PI*2);
-      ctx.fill();
-
-      ctx.strokeStyle = '#0077cc';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(this.x + 10, this.y + this.height/2);
-      ctx.lineTo(this.x + this.width - 10, this.y + this.height/2);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(this.x + this.width/2, this.y + 10);
-      ctx.lineTo(this.x + this.width/2, this.y + this.height - 10);
-      ctx.stroke();
-    }
-  }
-
-  const player = new Player();
 
   function spawnObstacle() {
-    const types = ['tree', 'rock', 'water'];
-    const type = types[randInt(0, types.length - 1)];
-    const x = randInt(0, WIDTH - OBSTACLE_WIDTH);
-    obstacles.push(new Obstacle(x, -OBSTACLE_HEIGHT, type));
-  }
-
-  function spawnPowerUp() {
-    const x = randInt(0, WIDTH - POWERUP_WIDTH);
-    powerups.push(new PowerUp(x, -POWERUP_HEIGHT));
-  }
-
-  let obstacleSpawnTimer = 0;
-  let powerUpSpawnTimer = 0;
-
-  function resetGame() {
-    obstacles = [];
-    powerups = [];
-    score = 0;
-    gameOver = false;
-    powerUpActive = false;
-    powerUpTimer = 0;
-    player.x = WIDTH/2 - PLAYER_WIDTH/2;
-    powerupEl.textContent = 'None';
-    scoreEl.textContent = score;
-    gameOverScreen.style.display = 'none';
-    loop();
-  }
-
-  function endGame() {
-    gameOver = true;
-    finalScoreEl.textContent = score;
-    gameOverScreen.style.display = 'flex';
-    if(score > highscore) {
-      highscore = score;
-      localStorage.setItem('mountainHighscore', highscore);
-      highscoreEl.textContent = highscore;
+    let r = Math.random();
+    let obj;
+    if(r < 0.5) {
+      obj = {type:'tree', width:40, height:60, img: treeImg};
+    } else if(r < 0.85) {
+      obj = {type:'rock', width:50, height:40, img: rockImg};
+    } else {
+      obj = {type:'water', width:50, height:30, img: waterImg};
     }
+    obj.x = Math.random() * (WIDTH - obj.width);
+    obj.y = -obj.height;
+    obstacles.push(obj);
   }
 
-  function checkCollision(a, b) {
-    return !(
-      a.x + a.width < b.x ||
-      a.x > b.x + b.width ||
-      a.y + a.height < b.y ||
-      a.y > b.y + b.height
-    );
-  }
+  function update() {
+    if(!running) return;
 
-  function update(delta) {
-    if(gameOver) return;
+    if(keys['arrowleft'] || keys['a'] || touchActive.left) player.x -= player.speed;
+    if(keys['arrowright'] || keys['d'] || touchActive.right) player.x += player.speed;
+    if(player.x < 0) player.x = 0;
+    if(player.x + player.width > WIDTH) player.x = WIDTH - player.width;
 
-    player.update();
-
-    obstacleSpawnTimer += delta;
-    if(obstacleSpawnTimer > 800 - score) { // makin cepet spawn
+    spawnTimer++;
+    if(spawnTimer >= spawnInterval) {
       spawnObstacle();
-      obstacleSpawnTimer = 0;
+      spawnTimer = 0;
+      if(spawnInterval > 20) spawnInterval -= 0.3;
+      obstacleSpeed += 0.015;
     }
 
-    powerUpSpawnTimer += delta;
-    if(powerUpSpawnTimer > 7000) { // spawn powerup tiap 7 detik
-      spawnPowerUp();
-      powerUpSpawnTimer = 0;
+    for(let i=obstacles.length-1; i>=0; i--) {
+      obstacles[i].y += obstacleSpeed;
+      if(obstacles[i].y > HEIGHT) {
+        obstacles.splice(i,1);
+        score++;
+        if(score > highscore) {
+          highscore = score;
+          localStorage.setItem('mountainRushHighscore', highscore);
+        }
+      }
     }
 
-    // update obstacles
-    for(let i = obstacles.length - 1; i >= 0; i--) {
-      obstacles
+    for(let i=obstacles.length-1; i>=0; i--) {
+      let o = obstacles[i];
+      if(rectsCollide(player, o)) {
+        if(o.type === 'water') {
+          player.invincible = true;
+          player.invincibleTimer = 300;
+          obstacles.splice(i,1);
+        } else {
+          if(!player.invincible) {
+            running = false;
+            finalScoreText.textContent = `Score: ${score} | Highscore: ${highscore}`;
+            gameOverScreen.style.display = 'block';
+          } else {
+            obstacles.splice(i,1);
+          }
+        }
+      }
+    }
+
+    if(player.invincible) {
+      player.invincibleTimer--;
+      if(player.invincibleTimer <= 0) {
+        player.invincible = false;
+      }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,WIDTH,HEIGHT);
+    // Background gradient done by CSS
+
+    // Draw player (glow if invincible)
+    if(player.invincible) {
+      ctx.shadowColor = 'yellow';
+      ctx.shadowBlur = 15;
+    } else {
+      ctx.shadowBlur = 0;
+    }
+    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height
