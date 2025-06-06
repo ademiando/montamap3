@@ -1,29 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mountaineer Game</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mountaineer Game</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+    }
+    #gameCanvas {
+      display: block;
+      margin: 0 auto;
+      background: #222;
+    }
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-family: sans-serif;
+      z-index: 10;
+    }
+    #powerup-status {
+      position: absolute;
+      top: 40px;
+      left: 10px;
+      color: lime;
+      font-family: sans-serif;
+    }
+  </style>
 </head>
 <body>
-<div id="game-container">
   <canvas id="gameCanvas" width="800" height="450"></canvas>
+
   <div id="scoreboard">
-    <span id="score">Score: 0</span>
-    <span id="highscore">High Score: 0</span>
+    <span id="scoreText">Score: 0</span><br />
+    <span id="highscore">High Score: 0</span><br />
     <button id="startBtn">Start</button>
     <button id="restartBtn" style="display:none;">Restart</button>
   </div>
-</div>
 
-<div id="score" style="position:absolute; top:10px; left:10px; color:#fff; font-size:20px; font-family:sans-serif;">
-  Score: 0
-</div>
-<div id="powerup-status" style="position:absolute; top:40px; left:10px; color:#0f0; font-size:16px; font-family:sans-serif;">
-  Power-Up: OFF
-</div>
+  <div id="powerup-status">Power-Up: OFF</div>
 
-<script src="game.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
