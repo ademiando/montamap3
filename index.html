@@ -3,92 +3,62 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mountaineering Rush</title>
+<title>Mountaineering Rush - Game</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
   * {
-    margin: 0; padding: 0; box-sizing: border-box;
-    user-select: none;
+    margin: 0; padding: 0; box-sizing: border-box; user-select: none;
   }
   body, html {
-    width: 100%; height: 100%;
-    background: linear-gradient(to top, #2c3e50, #3498db);
-    overflow: hidden;
+    height: 100%; width: 100%;
+    background: linear-gradient(to top, #2e8b57, #87ceeb);
     font-family: 'Orbitron', monospace;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: flex; justify-content: center; align-items: center;
   }
   #gameContainer {
     position: relative;
-    width: 400px;
-    height: 700px;
-    background: linear-gradient(to top, #006400 40%, #87ceeb 100%);
+    width: 400px; height: 700px;
+    background: linear-gradient(to top, #145214 60%, #87ceeb 100%);
     border-radius: 12px;
-    box-shadow: 0 0 30px #0f0;
     overflow: hidden;
-  }
-  #bg1, #bg2 {
-    position: absolute;
-    width: 100%;
-    height: 400px;
-    background: url('https://i.ibb.co/gSThwsF/mountain-bg.png') repeat-x bottom;
-    background-size: contain;
-    animation: bgmove 10s linear infinite;
-  }
-  #bg2 {
-    top: -400px;
-    animation-delay: 5s;
-  }
-  @keyframes bgmove {
-    from {background-position-x: 0;}
-    to {background-position-x: -800px;}
+    box-shadow: 0 0 25px #0a470a;
   }
   canvas {
     display: block;
-    margin: auto;
     background: transparent;
-    position: relative;
-    z-index: 2;
   }
   #ui {
     position: absolute;
-    width: 100%;
-    top: 10px;
-    left: 0;
-    z-index: 3;
-    display: flex;
-    justify-content: space-around;
-    color: #e0e0e0;
+    top: 10px; width: 100%;
+    display: flex; justify-content: space-around;
+    color: #fff;
     font-size: 18px;
     text-shadow: 1px 1px 3px #000;
+    z-index: 10;
   }
   #gameOverScreen {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: rgba(20,20,20,0.8);
-    color: #fff;
+    color: white;
     font-size: 32px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    top: 0;
-    left: 0;
-    z-index: 10;
+    z-index: 20;
     display: none;
   }
   #gameOverScreen button {
     margin-top: 20px;
-    background: #27ae60;
-    border: none;
     padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    background: #27ae60;
     color: white;
     font-size: 20px;
-    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s ease;
   }
   #gameOverScreen button:hover {
     background: #2ecc71;
@@ -97,8 +67,6 @@
 </head>
 <body>
   <div id="gameContainer">
-    <div id="bg1"></div>
-    <div id="bg2"></div>
     <canvas id="gameCanvas" width="400" height="700"></canvas>
     <div id="ui">
       <div>Score: <span id="score">0</span></div>
@@ -106,7 +74,7 @@
       <div>Power-Up: <span id="powerup">None</span></div>
     </div>
     <div id="gameOverScreen">
-      Game Over<br />
+      Game Over
       <div>Your Score: <span id="finalScore">0</span></div>
       <button id="restartBtn">Restart</button>
     </div>
@@ -126,19 +94,24 @@
   const WIDTH = canvas.width;
   const HEIGHT = canvas.height;
 
+  // Player config
   const PLAYER_WIDTH = 40;
   const PLAYER_HEIGHT = 60;
+  const PLAYER_Y = HEIGHT - PLAYER_HEIGHT - 20;
+  let playerX = WIDTH/2 - PLAYER_WIDTH/2;
+  const PLAYER_SPEED = 7;
+
+  // Obstacles
   const OBSTACLE_WIDTH = 40;
   const OBSTACLE_HEIGHT = 40;
+
+  // Powerup
   const POWERUP_WIDTH = 40;
   const POWERUP_HEIGHT = 40;
 
-  let playerX = WIDTH / 2 - PLAYER_WIDTH / 2;
-  const playerY = HEIGHT - PLAYER_HEIGHT - 30;
-  let playerSpeed = 7;
+  let keys = {};
   let obstacles = [];
   let powerups = [];
-  let keys = {};
   let score = 0;
   let highscore = localStorage.getItem('mountainHighscore') || 0;
   let gameOver = false;
@@ -147,89 +120,20 @@
 
   highscoreEl.textContent = highscore;
 
-  class Obstacle {
-    constructor(x, y, type) {
-      this.x = x;
-      this.y = y;
-      this.type = type; // 'tree', 'rock', 'water'
-      this.speed = 4 + score/100;
-    }
-    update() {
-      this.y += this.speed;
-    }
-    draw() {
-      ctx.save();
-      if (this.type === 'tree') {
-        ctx.fillStyle = '#145214';
-        ctx.fillRect(this.x, this.y, OBSTACLE_WIDTH, OBSTACLE_HEIGHT);
-        ctx.fillStyle = '#0c3b0c';
-        ctx.beginPath();
-        ctx.moveTo(this.x + OBSTACLE_WIDTH/2, this.y - 20);
-        ctx.lineTo(this.x + OBSTACLE_WIDTH, this.y + 10);
-        ctx.lineTo(this.x, this.y + 10);
-        ctx.closePath();
-        ctx.fill();
-      } else if (this.type === 'rock') {
-        ctx.fillStyle = '#7a7a7a';
-        ctx.beginPath();
-        ctx.ellipse(this.x + OBSTACLE_WIDTH/2, this.y + OBSTACLE_HEIGHT/2, OBSTACLE_WIDTH/2, OBSTACLE_HEIGHT/2, 0, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (this.type === 'water') {
-        ctx.fillStyle = '#1ca3ec';
-        ctx.fillRect(this.x, this.y, OBSTACLE_WIDTH, OBSTACLE_HEIGHT);
-        ctx.strokeStyle = '#0e76c9';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        for(let i=0; i < 5; i++){
-          ctx.moveTo(this.x + i*8, this.y + OBSTACLE_HEIGHT);
-          ctx.quadraticCurveTo(this.x + i*8 + 4, this.y + OBSTACLE_HEIGHT - 8, this.x + i*8 + 8, this.y + OBSTACLE_HEIGHT);
-        }
-        ctx.stroke();
-      }
-      ctx.restore();
-    }
-  }
-
-  function spawnObstacle() {
-    const types = ['tree', 'rock', 'water'];
-    if(Math.random() < 0.04) {
-      const x = Math.random() * (WIDTH - OBSTACLE_WIDTH);
-      const type = types[Math.floor(Math.random() * types.length)];
-      obstacles.push(new Obstacle(x, -OBSTACLE_HEIGHT, type));
-    }
+  // Helper: random int between min and max
+  function randInt(min,max) {
+    return Math.floor(Math.random()*(max-min+1)) + min;
   }
 
   class Player {
     constructor() {
       this.x = playerX;
-      this.y = playerY;
+      this.y = PLAYER_Y;
       this.width = PLAYER_WIDTH;
       this.height = PLAYER_HEIGHT;
-      this.color = '#ffd700';
-      this.speed = playerSpeed;
+      this.color = '#ffdd55';
+      this.speed = PLAYER_SPEED;
       this.invincible = false;
-    }
-    draw() {
-      ctx.fillStyle = this.invincible ? '#00ffff' : this.color;
-      ctx.fillRect(this.x, this.y, this.width, this.height);
-      // head
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.ellipse(this.x + this.width/2, this.y + 15, 12, 15, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // eyes
-      ctx.fillStyle = '#000';
-      ctx.beginPath();
-      ctx.ellipse(this.x + this.width/3, this.y + 12, 3, 4, 0, 0, Math.PI * 2);
-      ctx.ellipse(this.x + 2*this.width/3, this.y + 12, 3, 4, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // body stripes
-      ctx.strokeStyle = '#b8860b';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(this.x + 10, this.y + 35);
-      ctx.lineTo(this.x + this.width - 10, this.y + 35);
-      ctx.stroke();
     }
     update() {
       if(keys['ArrowLeft'] || keys['a']) {
@@ -240,6 +144,76 @@
       }
       if(this.x < 0) this.x = 0;
       if(this.x + this.width > WIDTH) this.x = WIDTH - this.width;
+    }
+    draw() {
+      ctx.fillStyle = this.invincible ? '#00ffff' : this.color;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+
+      // head ellipse
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.ellipse(this.x + this.width/2, this.y + 20, 15, 20, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      // eyes
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.ellipse(this.x + this.width/3, this.y + 18, 4, 5, 0, 0, Math.PI*2);
+      ctx.ellipse(this.x + 2*this.width/3, this.y + 18, 4, 5, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      // body stripe
+      ctx.strokeStyle = '#b8860b';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(this.x + 10, this.y + 45);
+      ctx.lineTo(this.x + this.width - 10, this.y + 45);
+      ctx.stroke();
+    }
+  }
+
+  class Obstacle {
+    constructor(x, y, type) {
+      this.x = x;
+      this.y = y;
+      this.type = type; // 'tree', 'rock', 'water'
+      this.width = OBSTACLE_WIDTH;
+      this.height = OBSTACLE_HEIGHT;
+      this.speed = 4 + score/100;
+    }
+    update() {
+      this.y += this.speed;
+    }
+    draw() {
+      ctx.save();
+      if(this.type === 'tree') {
+        ctx.fillStyle = '#145214';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = '#0c3b0c';
+        ctx.beginPath();
+        ctx.moveTo(this.x + this.width/2, this.y - 20);
+        ctx.lineTo(this.x + this.width, this.y + 10);
+        ctx.lineTo(this.x, this.y + 10);
+        ctx.closePath();
+        ctx.fill();
+      } else if(this.type === 'rock') {
+        ctx.fillStyle = '#7a7a7a';
+        ctx.beginPath();
+        ctx.ellipse(this.x + this.width/2, this.y + this.height/2, this.width/2, this.height/2, 0, 0, Math.PI*2);
+        ctx.fill();
+      } else if(this.type === 'water') {
+        ctx.fillStyle = '#1ca3ec';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.strokeStyle = '#0e76c9';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        for(let i=0; i < 5; i++) {
+          ctx.moveTo(this.x + i*8, this.y + this.height);
+          ctx.quadraticCurveTo(this.x + i*8 + 4, this.y + this.height - 8, this.x + i*8 + 8, this.y + this.height);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
     }
   }
 
@@ -256,11 +230,93 @@
       this.y += this.speed;
     }
     draw() {
-      ctx.fillStyle = '#1ca3ec';
-      ctx.fillRect(this.x, this.y, this.width, this.height);
-      ctx.strokeStyle = '#0e76c9';
+      ctx.fillStyle = '#00bfff';
+      ctx.beginPath();
+      ctx.arc(this.x + this.width/2, this.y + this.height/2, this.width/2, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#0077cc';
       ctx.lineWidth = 3;
       ctx.beginPath();
-      for(let i=0; i < 5; i++){
-        ctx.moveTo(this.x + i*8, this.y + this.height);
-        ctx.quadraticCurveTo(this.x + i*8 + 4, this.y + this.height - 8, this.x + i*
+      ctx.moveTo(this.x + 10, this.y + this.height/2);
+      ctx.lineTo(this.x + this.width - 10, this.y + this.height/2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(this.x + this.width/2, this.y + 10);
+      ctx.lineTo(this.x + this.width/2, this.y + this.height - 10);
+      ctx.stroke();
+    }
+  }
+
+  const player = new Player();
+
+  function spawnObstacle() {
+    const types = ['tree', 'rock', 'water'];
+    const type = types[randInt(0, types.length - 1)];
+    const x = randInt(0, WIDTH - OBSTACLE_WIDTH);
+    obstacles.push(new Obstacle(x, -OBSTACLE_HEIGHT, type));
+  }
+
+  function spawnPowerUp() {
+    const x = randInt(0, WIDTH - POWERUP_WIDTH);
+    powerups.push(new PowerUp(x, -POWERUP_HEIGHT));
+  }
+
+  let obstacleSpawnTimer = 0;
+  let powerUpSpawnTimer = 0;
+
+  function resetGame() {
+    obstacles = [];
+    powerups = [];
+    score = 0;
+    gameOver = false;
+    powerUpActive = false;
+    powerUpTimer = 0;
+    player.x = WIDTH/2 - PLAYER_WIDTH/2;
+    powerupEl.textContent = 'None';
+    scoreEl.textContent = score;
+    gameOverScreen.style.display = 'none';
+    loop();
+  }
+
+  function endGame() {
+    gameOver = true;
+    finalScoreEl.textContent = score;
+    gameOverScreen.style.display = 'flex';
+    if(score > highscore) {
+      highscore = score;
+      localStorage.setItem('mountainHighscore', highscore);
+      highscoreEl.textContent = highscore;
+    }
+  }
+
+  function checkCollision(a, b) {
+    return !(
+      a.x + a.width < b.x ||
+      a.x > b.x + b.width ||
+      a.y + a.height < b.y ||
+      a.y > b.y + b.height
+    );
+  }
+
+  function update(delta) {
+    if(gameOver) return;
+
+    player.update();
+
+    obstacleSpawnTimer += delta;
+    if(obstacleSpawnTimer > 800 - score) { // makin cepet spawn
+      spawnObstacle();
+      obstacleSpawnTimer = 0;
+    }
+
+    powerUpSpawnTimer += delta;
+    if(powerUpSpawnTimer > 7000) { // spawn powerup tiap 7 detik
+      spawnPowerUp();
+      powerUpSpawnTimer = 0;
+    }
+
+    // update obstacles
+    for(let i = obstacles.length - 1; i >= 0; i--) {
+      obstacles
