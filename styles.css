@@ -1,55 +1,127 @@
-body {
-  font-family: sans-serif;
-  text-align: center;
-  background: #e0f7fa;
+/* ==========================================================================
+   Montane Ascent – 2D Mountaineering Game Styles
+   (HUD, Overlay, Controls, Positioning)
+   ========================================================================== */
+
+html, body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  background: #87ceeb;
+  font-family: sans-serif;
+  user-select: none;
 }
 
-.game-container {
-  max-width: 400px;
-  margin: auto;
-  padding: 10px;
+#game-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
 }
 
-.status {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+.hidden {
+  display: none;
+}
+
+/* HUD: Height, High Score, Stamina */
+#hud {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  color: #000;
+}
+.hud-line {
   font-size: 18px;
+  margin-bottom: 4px;
+  text-shadow: 1px 1px 2px #fff;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 2px;
-  margin: 10px 0;
+#stamina-bar-bg {
+  width: 200px;
+  height: 20px;
+  background: #444;
+  border-radius: 4px;
+  overflow: hidden;
+}
+#stamina-bar-fill {
+  width: 200px;
+  height: 20px;
+  background: #0f0;
 }
 
-.cell {
-  background: #cfd8dc;
-  width: 100%;
-  aspect-ratio: 1;
+/* Tombol Pause */
+#btn-pause {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.2);
+  border: 2px solid #000;
+  border-radius: 4px;
+  color: #000;
+  padding: 6px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Kontrol Mobile (Kiri, Lompat, Kanan) */
+#mobile-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
   display: flex;
-  justify-content: center;
+  gap: 20px;
+}
+.mobile-btn {
+  width: 60px;
+  height: 60px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 2px solid #000;
+  border-radius: 50%;
+  color: #000;
+  font-size: 32px;
+  display: flex;
   align-items: center;
-  font-weight: bold;
+  justify-content: center;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* Overlay (Menu, Settings, Credits, Pause, Game Over) */
+.overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  z-index: 20;
+}
+.overlay h1 {
+  font-size: 48px;
+  margin: 0;
+  text-shadow: 2px 2px 4px #000;
+}
+.overlay button {
+  margin: 10px;
+  padding: 10px 20px;
   font-size: 20px;
+  border: 2px solid #fff;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  min-width: 160px;
 }
-
-.player { background: #00796b; color: white; }
-.goal { background: #ffa000; color: black; }
-.path { background: #80cbc4; }
-.wrong { background: #ef9a9a; }
-
-.controls button {
+.overlay p {
   font-size: 24px;
-  padding: 10px;
-  margin: 5px;
-}
-
-.message {
-  margin-top: 10px;
-  font-weight: bold;
-  font-size: 18px;
+  margin: 10px 0;
+  text-align: center;
+  max-width: 80%;
 }
