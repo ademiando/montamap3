@@ -878,3 +878,34 @@ requestAnimationFrame(gameLoop);
 
 
 document.getElementById('powerup-status').textContent = 'Power-Up: ' + (powerUpActive ? 'ON' : 'OFF');
+
+
+
+function restartGame() {
+  obstacles = [];
+  score = 0;
+  obstacleInterval = 90;
+  gameOver = false;
+  player.x = width / 4;
+  player.y = FLOOR_Y - PLAYER_HEIGHT;
+  player.vx = 0;
+  player.vy = 0;
+  cheatActive = false;
+  cheatTimer = 0;
+  player.setInvincible(0);
+}
+
+function activateCheat() {
+  cheatActive = true;
+  cheatTimer = 300; // 5 detik @60fps
+  player.setInvincible(300);
+}
+
+window.addEventListener('keydown', e => {
+  if (e.code === 'KeyR' && gameOver) {
+    restartGame();
+  }
+  if (e.code === 'KeyC' && !gameOver && !cheatActive) {
+    activateCheat();
+  }
+});
