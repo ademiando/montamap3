@@ -1,50 +1,1249 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mountaineer Game</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      overflow: hidden;
-    }
-    #gameCanvas {
-      display: block;
-      margin: 0 auto;
-      background: #222;
-    }
-    #scoreboard {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: white;
-      font-family: sans-serif;
-      z-index: 10;
-    }
-    #powerup-status {
-      position: absolute;
-      top: 40px;
-      left: 10px;
-      color: lime;
-      font-family: sans-serif;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gunung Indonesia | Pemandangan Indah Pegunungan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <style>
+        /* ======== VARIABLES & RESET ======== */
+        :root {
+            --primary-color: #2a6e5d;
+            --secondary-color: #4c956c;
+            --accent-color: #f9a03f;
+            --dark-bg: #0d1b2a;
+            --light-bg: #f8f9fa;
+            --text-dark: #1d3557;
+            --text-light: #f1faee;
+            --mountain-gradient: linear-gradient(135deg, #2a6e5d 0%, #1b4332 100%);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            transition: var(--transition);
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') no-repeat center center/cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        body.dark-theme {
+            background: var(--dark-bg);
+            color: var(--text-light);
+        }
+
+        body.dark-theme::before {
+            background: url('https://images.unsplash.com/photo-1531512073830-ba890ca4eba2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') no-repeat center center/cover;
+            opacity: 0.08;
+        }
+
+        /* ======== 3D MOUNTAIN BACKGROUND ======== */
+        #mountain-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        /* ======== HEADER STYLING ======== */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 30px;
+            background: rgba(13, 27, 42, 0.85);
+            backdrop-filter: blur(10px);
+            color: var(--text-light);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            border-bottom: 1px solid rgba(76, 149, 108, 0.3);
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .left-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--mountain-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(76, 149, 108, 0.5);
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px rgba(76, 149, 108, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(76, 149, 108, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(76, 149, 108, 0.5); }
+        }
+
+        .left-logo i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--text-light);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 5px 20px rgba(76, 149, 108, 0.3);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+        }
+
+        .theme-switch {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 5px;
+            backdrop-filter: blur(5px);
+        }
+
+        .theme-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 50px;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .theme-btn.active {
+            background: rgba(76, 149, 108, 0.5);
+            color: white;
+            box-shadow: 0 0 15px rgba(76, 149, 108, 0.4);
+        }
+
+        #hamburger {
+            font-size: 28px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: white;
+            margin-left: 15px;
+            transition: var(--transition);
+        }
+
+        #hamburger:hover {
+            color: var(--accent-color);
+            transform: rotate(90deg);
+        }
+
+        .menu {
+            position: absolute;
+            right: 30px;
+            top: 70px;
+            width: 250px;
+            background: rgba(13, 27, 42, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: var(--transition);
+            pointer-events: none;
+            border: 1px solid rgba(76, 149, 108, 0.3);
+        }
+
+        .menu.menu-visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .menu-button {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: none;
+            border-radius: 12px;
+            background: var(--mountain-gradient);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 14px;
+        }
+
+        /* ======== HERO SECTION ======== */
+        .hero-section {
+            position: relative;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 0 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            padding: 30px;
+            background: rgba(13, 27, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(76, 149, 108, 0.3);
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tagline {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            line-height: 1.2;
+            animation: textGlow 3s infinite alternate;
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            100% { text-shadow: 0 0 20px rgba(249, 160, 63, 0.8), 0 0 30px rgba(249, 160, 63, 0.6); }
+        }
+
+        .sub-tagline {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+            line-height: 1.6;
+            animation: fadeIn 1.5s ease-out 0.8s both;
+        }
+
+        .hero-btn {
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: var(--mountain-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            animation: pulseBtn 2s infinite;
+        }
+
+        .hero-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes pulseBtn {
+            0% { transform: scale(1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 15px 35px rgba(76, 149, 108, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); }
+        }
+
+        .parallax-mountains {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .mountain-layer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: auto;
+        }
+
+        /* ======== TABS SECTION ======== */
+        .tabs-section {
+            max-width: 1200px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+
+        .horizontal-tab-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dark);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-theme .tab {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+        }
+
+        .tab:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .tab.active {
+            background: var(--mountain-gradient);
+            color: white;
+            box-shadow: 0 10px 25px rgba(42, 110, 93, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ======== MOUNTAIN CARDS SECTION ======== */
+        .mountain-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 0 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .mountain-card {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            height: 400px;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        .mountain-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .mountain-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.8s ease;
+        }
+
+        .mountain-card:hover .mountain-image {
+            transform: scale(1.1);
+        }
+
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent 60%);
+            z-index: 2;
+            opacity: 0.85;
+            transition: var(--transition);
+        }
+
+        .mountain-card:hover .card-overlay {
+            opacity: 0.95;
+        }
+
+        .favorite-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.8);
+            z-index: 3;
+            cursor: pointer;
+            transition: var(--transition);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .favorite-icon:hover {
+            color: var(--accent-color);
+            transform: scale(1.2);
+        }
+
+        .favorite-icon.active {
+            color: #ff4d4d;
+        }
+
+        .mountain-info {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            z-index: 3;
+            color: white;
+            max-width: 80%;
+        }
+
+        .mountain-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .mountain-details {
+            font-size: 1rem;
+            line-height: 1.5;
+            opacity: 0.9;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .status-open {
+            color: #8cffb3;
+            font-weight: 600;
+        }
+
+        .status-closed {
+            color: #ff7f7f;
+            font-weight: 600;
+        }
+
+        .weather-icon {
+            width: 40px;
+            height: 40px;
+            vertical-align: middle;
+            margin-right: 10px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .elevation, .difficulty {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .difficulty-level {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .difficulty-beginner {
+            background: rgba(76, 175, 80, 0.3);
+        }
+
+        .difficulty-intermediate {
+            background: rgba(255, 152, 0, 0.3);
+        }
+
+        .difficulty-expert {
+            background: rgba(244, 67, 54, 0.3);
+        }
+
+        /* ======== LOAD MORE BUTTON ======== */
+        .load-more-container {
+            display: flex;
+            justify-content: center;
+            margin: 50px 0;
+        }
+
+        #loadMoreBtn {
+            padding: 16px 45px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            background: var(--mountain-gradient);
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #loadMoreBtn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(45deg) translateX(-100%); }
+            100% { transform: rotate(45deg) translateX(100%); }
+        }
+
+        #loadMoreBtn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(42, 110, 93, 0.5);
+        }
+
+        /* ======== FOOTER ======== */
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 50px 20px 30px;
+            background: rgba(13, 27, 42, 0.9);
+            color: var(--text-light);
+            margin-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: var(--mountain-gradient);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .footer-logo span {
+            color: var(--accent-color);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.3rem;
+            transition: var(--transition);
+        }
+
+        .social-icons a:hover {
+            background: var(--accent-color);
+            transform: translateY(-5px) rotate(10deg);
+            box-shadow: 0 5px 15px rgba(249, 160, 63, 0.4);
+        }
+
+        .copyright {
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* ======== RESPONSIVE DESIGN ======== */
+        @media (max-width: 992px) {
+            .tagline {
+                font-size: 2.8rem;
+            }
+            .sub-tagline {
+                font-size: 1.1rem;
+            }
+            .mountain-container {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 10px 20px;
+            }
+            .logo {
+                font-size: 1.3rem;
+            }
+            .left-logo {
+                width: 40px;
+                height: 40px;
+            }
+            .search-bar {
+                width: 200px;
+            }
+            .hero-section {
+                height: 70vh;
+            }
+            .tagline {
+                font-size: 2.2rem;
+            }
+            .sub-tagline {
+                font-size: 1rem;
+            }
+            .hero-btn {
+                padding: 14px 30px;
+                font-size: 1rem;
+            }
+            .tab {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo {
+                font-size: 1.1rem;
+            }
+            .search-bar {
+                width: 150px;
+            }
+            .search-bar input {
+                padding: 10px 15px 10px 35px;
+            }
+            .hero-section {
+                height: 60vh;
+            }
+            .tagline {
+                font-size: 1.8rem;
+            }
+            .hero-content {
+                padding: 20px;
+            }
+            .mountain-container {
+                grid-template-columns: 1fr;
+            }
+            .footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="800" height="450"></canvas>
+    <!-- Background 3D Mountains -->
+    <div id="mountain-bg"></div>
 
-  <div id="scoreboard">
-    <span id="scoreText">Score: 0</span><br />
-    <span id="highscore">High Score: 0</span><br />
-    <button id="startBtn">Start</button>
-    <button id="restartBtn" style="display:none;">Restart</button>
-  </div>
+    <!-- Header Section -->
+    <header>
+        <div class="logo-container">
+            <div class="left-logo">
+                <i class="fas fa-mountain"></i>
+            </div>
+            <a href="#" class="logo">PEGUNUNGAN<span>ID</span></a>
+        </div>
+        
+        <div class="search-container">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Cari gunung...">
+            </div>
+            
+            <div class="theme-switch">
+                <button class="theme-btn active">Light</button>
+                <button class="theme-btn">Dark</button>
+            </div>
+            
+            <button id="hamburger">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div class="menu">
+            <button class="menu-button">
+                <i class="fas fa-bookmark"></i> Simpan Perjalanan
+            </button>
+            <button class="menu-button">
+                <i class="fas fa-history"></i> Riwayat Pendakian
+            </button>
+            <select>
+                <option>Urutkan berdasarkan</option>
+                <option>Tinggi Gunung</option>
+                <option>Popularitas</option>
+                <option>Jarak Terdekat</option>
+            </select>
+            <button class="menu-button">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+            </button>
+        </div>
+    </header>
 
-  <div id="powerup-status">Power-Up: OFF</div>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="tagline">Jelajahi Keindahan Alam Pegunungan Indonesia</h1>
+            <p class="sub-tagline">Temukan pengalaman mendaki yang tak terlupakan dengan pemandangan menakjubkan, udara segar, dan petualangan yang menantang di gunung-gunung terbaik nusantara.</p>
+            <button class="hero-btn">Mulai Petualangan</button>
+        </div>
+        
+        <!-- Parallax Mountain Layers -->
+        <div class="parallax-mountains">
+            <img src="https://i.ibb.co.com/6YvF8W5/mountain-layer-1.png" alt="Mountain Layer 1" class="mountain-layer" style="height: 60%;">
+            <img src="https://i.ibb.co.com/Mc1G7rB/mountain-layer-2.png" alt="Mountain Layer 2" class="mountain-layer" style="height: 50%;">
+            <img src="https://i.ibb.co.com/0X6Dp4s/mountain-layer-3.png" alt="Mountain Layer 3" class="mountain-layer" style="height: 40%;">
+        </div>
+    </section>
 
-  <script src="game.js"></script>
+    <!-- Tabs Section -->
+    <section class="tabs-section">
+        <div class="horizontal-tab-container">
+            <button class="tab active" data-tab="all">Semua Gunung</button>
+            <button class="tab" data-tab="java">Pulau Jawa</button>
+            <button class="tab" data-tab="sumatra">Sumatra</button>
+            <button class="tab" data-tab="sulawesi">Sulawesi</button>
+            <button class="tab" data-tab="papua">Papua</button>
+        </div>
+        
+        <div class="tab-content active" id="all">
+            <!-- Mountain Cards Container -->
+            <div class="mountain-container">
+                <!-- Mountain Card 1 -->
+                <div class="mountain-card">
+                    <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" alt="Gunung Bromo" class="mountain-image">
+                    <div class="card-overlay"></div>
+                    <i class="far fa-heart favorite-icon"></i>
+                    <div class="mountain-info">
+                        <h2 class="mountain-name">Gunung Bromo</h2>
+                        <p class="mountain-details">
+                            <span class="status-open">Buka • Jawa Timur</span><br>
+                            Ketinggian: 2,329 mdpl
+                        </p>
+                        <div class="card-footer">
+                            <div class="elevation">
+                                <i class="fas fa-mountain"></i> 2,329 mdpl
+                            </div>
+                            <div class="difficulty">
+                                <span class="difficulty-level difficulty-intermediate">Menengah</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mountain Card 2 -->
+                <div class="mountain-card">
+                    <img src="https://images.unsplash.com/photo-1511497584788-876760111969?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" alt="Gunung Rinjani" class="mountain-image">
+                    <div class="card-overlay"></div>
+                    <i class="fas fa-heart favorite-icon active"></i>
+                    <div class="mountain-info">
+                        <h2 class="mountain-name">Gunung Rinjani</h2>
+                        <p class="mountain-details">
+                            <span class="status-open">Buka • Nusa Tenggara Barat</span><br>
+                            Ketinggian: 3,726 mdpl
+                        </p>
+                        <div class="card-footer">
+                            <div class="elevation">
+                                <i class="fas fa-mountain"></i> 3,726 mdpl
+                            </div>
+                            <div class="difficulty">
+                                <span class="difficulty-level difficulty-expert">Sulit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mountain Card 3 -->
+                <div class="mountain-card">
+                    <img src="https://images.unsplash.com/photo-1506535995048-638aa1b62b77?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" alt="Gunung Semeru" class="mountain-image">
+                    <div class="card-overlay"></div>
+                    <i class="far fa-heart favorite-icon"></i>
+                    <div class="mountain-info">
+                        <h2 class="mountain-name">Gunung Semeru</h2>
+                        <p class="mountain-details">
+                            <span class="status-closed">Sementara Tutup • Jawa Timur</span><br>
+                            Ketinggian: 3,676 mdpl
+                        </p>
+                        <div class="card-footer">
+                            <div class="elevation">
+                                <i class="fas fa-mountain"></i> 3,676 mdpl
+                            </div>
+                            <div class="difficulty">
+                                <span class="difficulty-level difficulty-expert">Sulit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mountain Card 4 -->
+                <div class="mountain-card">
+                    <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" alt="Gunung Kerinci" class="mountain-image">
+                    <div class="card-overlay"></div>
+                    <i class="far fa-heart favorite-icon"></i>
+                    <div class="mountain-info">
+                        <h2 class="mountain-name">Gunung Kerinci</h2>
+                        <p class="mountain-details">
+                            <span class="status-open">Buka • Sumatra Barat</span><br>
+                            Ketinggian: 3,805 mdpl
+                        </p>
+                        <div class="card-footer">
+                            <div class="elevation">
+                                <i class="fas fa-mountain"></i> 3,805 mdpl
+                            </div>
+                            <div class="difficulty">
+                                <span class="difficulty-level difficulty-intermediate">Menengah</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mountain Card 5 -->
+                <div class="mountain-card">
+                    <img src="https://images.unsplash.com/photo-1599246445833-4f8fcf5dbb6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" alt="Gunung Prau" class="mountain-image">
+                    <div class="card-overlay"></div>
+                    <i class="far fa-heart favorite-icon"></i>
+                    <div class="mountain-info">
+                        <h2 class="mountain-name">Gunung Prau</h2>
+                        <p class="mountain-details">
+                            <span class="status-open">Buka • Jawa Tengah</span><br>
+                            Ketinggian: 2,565 mdpl
+                        </p>
+                        <div class="card-footer">
+                            <div class="elevation">
+                                <i class="fas fa-mountain"></i> 2,565 mdpl
+                            </div>
+                            <div class="difficulty">
+                                <span class="difficulty-level difficulty-beginner">Mudah</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mountain Card 6 -->
+                <div class="mountain-card">
+                    <img src="https://images.unsplash.com/photo-1605548230624-8d2e0412b8ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" alt="Gunung Merbabu" class="mountain-image">
+                    <div class="card-overlay"></div>
+                    <i class="far fa-heart favorite-icon"></i>
+                    <div class="mountain-info">
+                        <h2 class="mountain-name">Gunung Merbabu</h2>
+                        <p class="mountain-details">
+                            <span class="status-open">Buka • Jawa Tengah</span><br>
+                            Ketinggian: 3,145 mdpl
+                        </p>
+                        <div class="card-footer">
+                            <div class="elevation">
+                                <i class="fas fa-mountain"></i> 3,145 mdpl
+                            </div>
+                            <div class="difficulty">
+                                <span class="difficulty-level difficulty-intermediate">Menengah</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Load More Button -->
+            <div class="load-more-container">
+                <button id="loadMoreBtn">Muat Lebih Banyak</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">PEGUNUNGAN<span>ID</span></div>
+            <p>Menemani setiap langkah petualangan Anda di puncak-puncak indonesia</p>
+            
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+            
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-home"></i> Beranda</a>
+                <a href="#"><i class="fas fa-mountain"></i> Gunung</a>
+                <a href="#"><i class="fas fa-route"></i> Rute Pendakian</a>
+                <a href="#"><i class="fas fa-newspaper"></i> Artikel</a>
+                <a href="#"><i class="fas fa-info-circle"></i> Tentang Kami</a>
+                <a href="#"><i class="fas fa-envelope"></i> Kontak</a>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2023 PegununganID. Hak Cipta Dilindungi.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Three.js for 3D mountain background
+        function initMountainBackground() {
+            const container = document.getElementById('mountain-bg');
+            if (!container) return;
+            
+            // Set up scene
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Create mountains
+            const mountains = [];
+            const mountainColors = [0x2a6e5d, 0x1b4332, 0x4c956c, 0x2d6a4f];
+            
+            for (let i = 0; i < 15; i++) {
+                const height = Math.random() * 10 + 5;
+                const width = Math.random() * 20 + 10;
+                const depth = Math.random() * 15 + 5;
+                
+                const geometry = new THREE.ConeGeometry(width, height, 4);
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: mountainColors[Math.floor(Math.random() * mountainColors.length)],
+                    wireframe: true,
+                    opacity: 0.15,
+                    transparent: true
+                });
+                
+                const mountain = new THREE.Mesh(geometry, material);
+                mountain.position.x = (Math.random() - 0.5) * 200;
+                mountain.position.y = -30;
+                mountain.position.z = (Math.random() - 0.5) * 100 - 50;
+                mountain.rotation.x = Math.PI / 2;
+                
+                scene.add(mountain);
+                mountains.push(mountain);
+            }
+            
+            // Set camera position
+            camera.position.z = 30;
+            camera.position.y = 10;
+            
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                // Rotate mountains slowly
+                mountains.forEach((mountain, index) => {
+                    mountain.rotation.y += 0.001 * (index % 2 === 0 ? 1 : -1);
+                    mountain.position.y = Math.sin(Date.now() * 0.001 + index) * 0.5 - 30;
+                });
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // DOM Manipulations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize 3D background
+            initMountainBackground();
+            
+            // Theme Toggle
+            const themeButtons = document.querySelectorAll('.theme-btn');
+            themeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    themeButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    if (this.textContent === 'Dark') {
+                        document.documentElement.classList.add('dark-theme');
+                        document.body.classList.add('dark-theme');
+                    } else {
+                        document.documentElement.classList.remove('dark-theme');
+                        document.body.classList.remove('dark-theme');
+                    }
+                });
+            });
+            
+            // Hamburger Menu
+            const hamburger = document.getElementById('hamburger');
+            const menu = document.querySelector('.menu');
+            
+            hamburger.addEventListener('click', function() {
+                menu.classList.toggle('menu-visible');
+            });
+            
+            // Tab Switching
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    this.classList.add('active');
+                    const tabName = this.getAttribute('data-tab');
+                    document.getElementById(tabName).classList.add('active');
+                });
+            });
+            
+            // Favorite Icon Toggle
+            const favoriteIcons = document.querySelectorAll('.favorite-icon');
+            favoriteIcons.forEach(icon => {
+                icon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('far');
+                    this.classList.toggle('fas');
+                    this.classList.toggle('active');
+                    
+                    // Animation effect
+                    if (this.classList.contains('active')) {
+                        gsap.to(this, {
+                            scale: 1.5,
+                            duration: 0.3,
+                            yoyo: true,
+                            repeat: 1
+                        });
+                    }
+                });
+            });
+            
+            // Mountain Card Hover Effect
+            const mountainCards = document.querySelectorAll('.mountain-card');
+            mountainCards.forEach(card => {
+                card.addEventListener('mousemove', function(e) {
+                    const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+                    const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+                    this.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg) translateY(-10px)`;
+                });
+                
+                card.addEventListener('mouseenter', function() {
+                    this.style.transition = 'none';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transition = 'all 0.5s ease';
+                    this.style.transform = 'rotateY(0deg) rotateX(0deg) translateY(0)';
+                });
+            });
+            
+            // Load More Button Animation
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', function() {
+                    // Animation effect
+                    gsap.to(this, {
+                        scale: 0.95,
+                        duration: 0.2,
+                        yoyo: true,
+                        repeat: 1
+                    });
+                    
+                    // Simulate loading more content
+                    setTimeout(() => {
+                        // Add new cards
+                        const mountainContainer = document.querySelector('.mountain-container');
+                        const newCard = mountainCards[0].cloneNode(true);
+                        mountainContainer.appendChild(newCard);
+                    }, 500);
+                });
+            }
+            
+            // Hero Button Animation
+            const heroBtn = document.querySelector('.hero-btn');
+            if (heroBtn) {
+                heroBtn.addEventListener('click', function() {
+                    gsap.to(this, {
+                        scale: 0.9,
+                        duration: 0.2,
+                        yoyo: true,
+                        repeat: 1
+                    });
+                    
+                    // Scroll to mountain section
+                    document.querySelector('.tabs-section').scrollIntoView({ 
+                        behavior: 'smooth' 
+                    });
+                });
+            }
+            
+            // Parallax Effect for Hero Section
+            window.addEventListener('scroll', function() {
+                const scrollPosition = window.pageYOffset;
+                const parallaxLayers = document.querySelectorAll('.mountain-layer');
+                
+                parallaxLayers.forEach((layer, index) => {
+                    const speed = 0.2 * (index + 1);
+                    const yPos = -(scrollPosition * speed);
+                    layer.style.transform = `translateY(${yPos}px)`;
+                });
+            });
+        });
+    </script>
 </body>
 </html>
