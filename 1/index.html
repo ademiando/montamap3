@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFilms - Creative | Video | Ads | Art</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            overflow: hidden;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #fff;
+            height: 100vh;
+        }
+
+        #container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glass-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            background: rgba(15, 23, 42, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            position: relative;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(56, 189, 248, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .logo img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+        }
+
+        .titles {
+            text-align: center;
+        }
+
+        .titles h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            margin-bottom: 0.2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .titles h2 {
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: #cbd5e1;
+            letter-spacing: 1px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 0.8rem 1.8rem;
+            color: #e2e8f0;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            font-weight: 500;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: rgba(56, 189, 248, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+        }
+
+        .hamburger-menu {
+            display: none;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-menu:hover {
+            background: rgba(56, 189, 248, 0.2);
+            transform: rotate(90deg);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .content-section {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .home-content {
+            text-align: center;
+            max-width: 700px;
+            padding: 2rem;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .home-content h3 {
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            color: #38bdf8;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .home-content p {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #cbd5e1;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2.8rem;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Card Layouts */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 1.8rem;
+        }
+
+        .card h4 {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            color: #38bdf8;
+        }
+
+        .card p {
+            color: #94a3b8;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .video-card iframe {
+            width: 100%;
+            height: 220px;
+            border: none;
+            border-radius: 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #38bdf8;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            padding: 0 2rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            border-radius: 2px;
+        }
+
+        /* About Section */
+        .about-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .about-content p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .team-member {
+            text-align: center;
+        }
+
+        .team-member img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 3px solid rgba(56, 189, 248, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Hamburger Menu */
+        .hamburger-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 300px;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            padding: 3rem 2rem;
+            transition: right 0.4s ease;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .hamburger-panel.active {
+            right: 0;
+        }
+
+        .hamburger-panel h3 {
+            color: #38bdf8;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 1.8rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hamburger-panel ul {
+            list-style: none;
+        }
+
+        .hamburger-panel li {
+            margin-bottom: 1rem;
+        }
+
+        .hamburger-panel a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: #e2e8f0;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hamburger-panel a:hover {
+            background: rgba(56, 189, 248, 0.2);
+            transform: translateX(5px);
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-menu:hover {
+            color: #38bdf8;
+            transform: rotate(90deg);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #94a3b8;
+            font-size: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .nav-buttons {
+                display: none;
+            }
+            
+            .hamburger-menu {
+                display: flex;
+            }
+            
+            header {
+                padding: 1rem;
+            }
+            
+            .titles h1 {
+                font-size: 2.2rem;
+            }
+            
+            .titles h2 {
+                font-size: 1.1rem;
+            }
+            
+            .home-content h3 {
+                font-size: 2.2rem;
+            }
+            
+            .card-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+            
+            .about-content {
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .home-content {
+                padding: 1.5rem;
+            }
+            
+            .home-content h3 {
+                font-size: 1.8rem;
+            }
+            
+            .home-content p {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .titles h1 {
+                font-size: 1.8rem;
+            }
+            
+            .logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .logo img {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .about-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Three.js Container -->
+    <div id="container"></div>
+    
+    <!-- Glassmorphism UI -->
+    <div class="glass-ui">
+        <header>
+            <div class="logo-container">
+                <a href="#" class="logo">
+                    <img src="https://i.ibb.co/0jD1F2z/film-logo.png" alt="HDFilms Logo">
+                </a>
+                <div class="titles">
+                    <h1>HDFilms</h1>
+                    <h2>Creative | Video | Ads | Art</h2>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn active" data-target="home">Home</button>
+                <button class="nav-btn" data-target="about">About</button>
+                <button class="nav-btn" data-target="videos">Videos</button>
+                <button class="nav-btn" data-target="art">Art</button>
+            </div>
+            
+            <div class="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </header>
+        
+        <main>
+            <!-- Home Content -->
+            <div id="home-content" class="content-section active">
+                <div class="home-content">
+                    <h3>Transform Your Vision into Cinematic Reality</h3>
+                    <p>HDFilms is a premier creative studio specializing in high-quality video production, captivating advertisements, and stunning visual art. Our team of experts is dedicated to bringing your ideas to life with innovation and excellence.</p>
+                    <button class="cta-button">Explore Our Work</button>
+                </div>
+            </div>
+            
+            <!-- About Content -->
+            <div id="about-content" class="content-section">
+                <h3 class="section-title">About Us</h3>
+                <div class="about-content">
+                    <p>Founded in 2015, HDFilms has been at the forefront of creative media production. Our mission is to blend artistry with technology to deliver unparalleled visual experiences.</p>
+                    <p>We work with a diverse range of clients from startups to Fortune 500 companies, helping them tell their stories through compelling visuals.</p>
+                    
+                    <h4 style="margin-top: 3rem; margin-bottom: 1.5rem; color: #38bdf8; font-size: 1.5rem;">Our Creative Team</h4>
+                    <div class="team-grid">
+                        <div class="team-member">
+                            <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Team Member">
+                            <h4>Sarah Johnson</h4>
+                            <p>Creative Director</p>
+                        </div>
+                        <div class="team-member">
+                            <img src="https://randomuser.me/api/portraits/men/44.jpg" alt="Team Member">
+                            <h4>Michael Chen</h4>
+                            <p>Lead Cinematographer</p>
+                        </div>
+                        <div class="team-member">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Team Member">
+                            <h4>Emma Rodriguez</h4>
+                            <p>Visual Artist</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Videos Content -->
+            <div id="videos-content" class="content-section">
+                <h3 class="section-title">Our Videos</h3>
+                <div class="card-grid">
+                    <div class="card video-card">
+                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video 1" allowfullscreen></iframe>
+                        <div class="card-content">
+                            <h4>Mountain Adventure</h4>
+                            <p>Breathtaking views from our latest adventure documentary.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card video-card">
+                        <iframe src="https://www.youtube.com/embed/jNQXAC9IVRw" title="Video 2" allowfullscreen></iframe>
+                        <div class="card-content">
+                            <h4>Urban Dreams</h4>
+                            <p>Exploring city life through the lens of young artists.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card video-card">
+                        <iframe src="https://www.youtube.com/embed/9bZkp7q19f0" title="Video 3" allowfullscreen></iframe>
+                        <div class="card-content">
+                            <h4>Ocean Symphony</h4>
+                            <p>The mesmerizing beauty of marine life captured in 4K.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card video-card">
+                        <iframe src="https://www.youtube.com/embed/L_jWHffIx5E" title="Video 4" allowfullscreen></iframe>
+                        <div class="card-content">
+                            <h4>Desert Mirage</h4>
+                            <p>A cinematic journey through the world's most beautiful deserts.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card video-card">
+                        <iframe src="https://www.youtube.com/embed/VYOjWnS4cMY" title="Video 5" allowfullscreen></iframe>
+                        <div class="card-content">
+                            <h4>Northern Lights</h4>
+                            <p>Chasing the aurora borealis in the Arctic wilderness.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Art Content -->
+            <div id="art-content" class="content-section">
+                <h3 class="section-title">Our Art</h3>
+                <div class="card-grid">
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1543857778-c4a1a569e7bd" alt="Artwork 1" class="card-image">
+                        <div class="card-content">
+                            <h4>Abstract Harmony</h4>
+                            <p>A blend of colors and shapes creating visual harmony.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5" alt="Artwork 2" class="card-image">
+                        <div class="card-content">
+                            <h4>Urban Geometry</h4>
+                            <p>Exploring the geometric patterns of modern architecture.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1501084817091-a4f3d1d19e07" alt="Artwork 3" class="card-image">
+                        <div class="card-content">
+                            <h4>Nature's Palette</h4>
+                            <p>Colors inspired by the changing seasons.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9" alt="Artwork 4" class="card-image">
+                        <div class="card-content">
+                            <h4>Digital Dreams</h4>
+                            <p>A fusion of traditional art with digital techniques.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1579546929662-711aa81148cf" alt="Artwork 5" class="card-image">
+                        <div class="card-content">
+                            <h4>Light & Shadow</h4>
+                            <p>Playing with contrast to create dramatic compositions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2023 HDFilms. All rights reserved. | Premium Creative Studio</p>
+        </footer>
+    </div>
+    
+    <!-- Hamburger Menu Panel -->
+    <div class="hamburger-panel">
+        <button class="close-menu"><i class="fas fa-times"></i></button>
+        <h3>HDFilms Menu</h3>
+        <ul>
+            <li><a href="#" data-target="home"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#" data-target="about"><i class="fas fa-info-circle"></i> About</a></li>
+            <li><a href="#" data-target="videos"><i class="fas fa-video"></i> Videos</a></li>
+            <li><a href="#" data-target="art"><i class="fas fa-palette"></i> Art</a></li>
+            <li><a href="#"><i class="fas fa-info-circle"></i> Info</a></li>
+            <li><a href="#"><i class="fas fa-file-contract"></i> Terms</a></li>
+            <li><a href="#"><i class="fas fa-shield-alt"></i> Privacy</a></li>
+            <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+            <li><a href="#"><i class="fas fa-lightbulb"></i> Prototype</a></li>
+        </ul>
+    </div>
+    
+    <script>
+        // Three.js Background Implementation
+        let camera, scene, renderer;
+        let objects = [];
+        let targets = { sphere: [], helix: [], grid: [], table: [] };
+        let currentMode = 'sphere';
+
+        init();
+        animate();
+
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 5000);
+            camera.position.z = 2000;
+            
+            // Create objects for the scene
+            for (let i = 0; i < 20; i++) {
+                const element = document.createElement('div');
+                element.className = 'element';
+                element.style.backgroundColor = `rgba(56, 189, 248, ${Math.random() * 0.2 + 0.1})`;
+                element.style.width = '100px';
+                element.style.height = '100px';
+                element.style.borderRadius = '12px';
+                element.style.border = '2px solid rgba(255, 255, 255, 0.15)';
+                element.style.display = 'flex';
+                element.style.alignItems = 'center';
+                element.style.justifyContent = 'center';
+                element.style.fontSize = '24px';
+                element.style.color = 'white';
+                element.textContent = 'HDF';
+                element.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.2)';
+                
+                const object = new THREE.CSS3DObject(element);
+                object.position.x = Math.random() * 4000 - 2000;
+                object.position.y = Math.random() * 4000 - 2000;
+                object.position.z = Math.random() * 4000 - 2000;
+                scene.add(object);
+                objects.push(object);
+                
+                // Sphere configuration
+                const phi = Math.acos(-1 + (2 * i) / 20);
+                const theta = Math.sqrt(20 * Math.PI) * phi;
+                
+                const targetSphere = new THREE.Object3D();
+                targetSphere.position.setFromSphericalCoords(800, phi, theta);
+                targets.sphere.push(targetSphere);
+                
+                // Helix configuration
+                const targetHelix = new THREE.Object3D();
+                targetHelix.position.x = 1200 * Math.sin(i * 0.2);
+                targetHelix.position.y = - (i * 8) + 450;
+                targetHelix.position.z = 1200 * Math.cos(i * 0.2);
+                targets.helix.push(targetHelix);
+                
+                // Grid configuration
+                const targetGrid = new THREE.Object3D();
+                targetGrid.position.x = ((i % 5) * 400) - 800;
+                targetGrid.position.y = (- (Math.floor(i / 5) % 5) * 400) + 800;
+                targetGrid.position.z = 0;
+                targets.grid.push(targetGrid);
+                
+                // Table configuration (for About)
+                const targetTable = new THREE.Object3D();
+                if (i === 0) {
+                    // Center the first element
+                    targetTable.position.x = 0;
+                    targetTable.position.y = 0;
+                    targetTable.position.z = 0;
+                    element.style.width = '200px';
+                    element.style.height = '200px';
+                    element.style.fontSize = '36px';
+                } else {
+                    // Position other elements far away
+                    targetTable.position.x = 10000;
+                    targetTable.position.y = 10000;
+                    targetTable.position.z = 10000;
+                }
+                targets.table.push(targetTable);
+            }
+            
+            // Renderer setup
+            renderer = new THREE.CSS3DRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // Initial transform to sphere
+            transform(targets.sphere, 1500);
+            
+            // Window resize handler
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+        }
+
+        function transform(targets, duration) {
+            TWEEN.removeAll();
+            
+            for (let i = 0; i < objects.length; i++) {
+                const object = objects[i];
+                const target = targets[i];
+                
+                new TWEEN.Tween(object.position)
+                    .to({
+                        x: target.position.x,
+                        y: target.position.y,
+                        z: target.position.z
+                    }, Math.random() * duration + duration)
+                    .easing(TWEEN.Easing.Exponential.Out)
+                    .start();
+                
+                new TWEEN.Tween(object.rotation)
+                    .to({
+                        x: target.rotation.x,
+                        y: target.rotation.y,
+                        z: target.rotation.z
+                    }, Math.random() * duration + duration)
+                    .easing(TWEEN.Easing.Exponential.Out)
+                    .start();
+            }
+            
+            new TWEEN.Tween(this)
+                .to({}, duration * 2)
+                .onUpdate(render)
+                .start();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            TWEEN.update();
+            
+            // Slowly rotate the sphere
+            if (currentMode === 'sphere') {
+                const time = Date.now() * 0.0005;
+                camera.position.x = Math.sin(time) * 2000;
+                camera.position.z = Math.cos(time) * 2000;
+                camera.lookAt(scene.position);
+            }
+            
+            render();
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+        // UI Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation buttons
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const target = this.dataset.target;
+                    
+                    // Update active button
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update content section
+                    contentSections.forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    document.getElementById(`${target}-content`).classList.add('active');
+                    
+                    // Update Three.js background
+                    currentMode = target === 'about' ? 'table' : target;
+                    transform(targets[currentMode], 1000);
+                });
+            });
+            
+            // Hamburger menu
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const closeMenu = document.querySelector('.close-menu');
+            const hamburgerPanel = document.querySelector('.hamburger-panel');
+            
+            hamburgerMenu.addEventListener('click', function() {
+                hamburgerPanel.classList.add('active');
+            });
+            
+            closeMenu.addEventListener('click', function() {
+                hamburgerPanel.classList.remove('active');
+            });
+            
+            // Hamburger menu links
+            const menuLinks = document.querySelectorAll('.hamburger-panel a[data-target]');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.dataset.target;
+                    
+                    // Update content
+                    contentSections.forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    document.getElementById(`${target}-content`).classList.add('active');
+                    
+                    // Update nav buttons
+                    navButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.target === target) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    
+                    // Update Three.js background
+                    currentMode = target === 'about' ? 'table' : target;
+                    transform(targets[currentMode], 1000);
+                    
+                    // Close menu
+                    hamburgerPanel.classList.remove('active');
+                });
+            });
+            
+            // Set initial mode to sphere
+            transform(targets.sphere, 0);
+        });
+    </script>
+</body>
+</html>
