@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HDFilms</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://threejs.org/examples/js/renderers/CSS3DRenderer.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+    #container { position: absolute; width: 100%; height: 100%; z-index: 0; }
+    header {
+      position: fixed; top: 0; width: 100%; display: flex;
+      justify-content: space-between; align-items: center;
+      padding: 10px 20px; background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px); z-index: 10;
+    }
+    .logo { height: 40px; }
+    .hamburger {
+      display: flex; flex-direction: column; cursor: pointer;
+      gap: 5px;
+    }
+    .hamburger div {
+      width: 25px; height: 3px; background: white;
+    }
+    nav#navMenu {
+      position: fixed; top: 60px; right: 10px; background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px); padding: 10px; display: none;
+      flex-direction: column; z-index: 10;
+    }
+    nav#navMenu.open { display: flex; }
+    nav#navMenu a {
+      color: white; text-decoration: none; margin: 5px 0;
+    }
+    .controls {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 5; display: flex; gap: 10px;
+    }
+    .controls button {
+      padding: 10px 20px; background: rgba(255,255,255,0.2);
+      border: none; color: white; border-radius: 10px;
+      backdrop-filter: blur(10px); cursor: pointer;
+    }
+    .overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      backdrop-filter: blur(20px); background: rgba(0,0,0,0.3);
+      display: none; z-index: 2; overflow-y: auto;
+    }
+    .overlay.visible { display: block; }
+    .panel {
+      display: none; color: white; padding: 60px 20px;
+    }
+    .panel.active { display: block; }
+    .card-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px; overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .card iframe, .card img {
+      width: 100%; height: 200px; object-fit: cover; border: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="assets/logo.png" alt="Logo" class="logo" />
+    <div class="hamburger" onclick="toggleMenu()">
+      <div></div><div></div><div></div>
+    </div>
+    <nav id="navMenu">
+      <a href="#" onclick="transform('home')">Home</a>
+      <a href="#" onclick="transform('about')">About</a>
+      <a href="#" onclick="transform('videos')">Videos</a>
+      <a href="#" onclick="transform('art')">Art</a>
+      <a href="#" onclick="transform('info')">Info</a>
+      <a href="#" onclick="transform('terms')">Terms</a>
+      <a href="#" onclick="transform('privacy')">Privacy</a>
+      <a href="#" onclick="transform('contact')">Contact</a>
+      <a href="#" onclick="transform('prototype')">Prototype</a>
+    </nav>
+    <div class="controls">
+      <button onclick="transform('home')">Home</button>
+      <button onclick="transform('about')">About</button>
+      <button onclick="transform('videos')">Videos</button>
+      <button onclick="transform('art')">Art</button>
+    </div>
+  </header>
+  <div id="container"></div>
+  <div id="contentOverlay" class="overlay">
+    <div id="aboutContent" class="panel">
+      <h1>About</h1>
+      <p>HDFilms is a creative production studio focused on artistic video content, innovative ads, and visual storytelling.</p>
+    </div>
+    <div id="videosContent" class="panel">
+      <h1>Videos</h1>
+      <div class="card-grid">
+        <div class="card"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe></div>
+        <div class="card"><iframe src="https://www.youtube.com/embed/3JZ_D3ELwOQ" allowfullscreen></iframe></div>
+        <div class="card"><iframe src="https://www.youtube.com/embed/L_jWHffIx5E" allowfullscreen></iframe></div>
+        <div class="card"><iframe src="https://www.youtube.com/embed/2Vv-BfVoq4g" allowfullscreen></iframe></div>
+        <div class="card"><iframe src="https://www.youtube.com/embed/kXYiU_JCYtU" allowfullscreen></iframe></div>
+      </div>
+    </div>
+    <div id="artContent" class="panel">
+      <h1>Art</h1>
+      <div class="card-grid">
+        <div class="card"><img src="https://source.unsplash.com/random/300x200?art" alt="Art1"></div>
+        <div class="card"><img src="https://source.unsplash.com/random/300x200?design" alt="Art2"></div>
+        <div class="card"><img src="https://source.unsplash.com/random/300x200?creative" alt="Art3"></div>
+        <div class="card"><img src="https://source.unsplash.com/random/300x200?gallery" alt="Art4"></div>
+        <div class="card"><img src="https://source.unsplash.com/random/300x200?modern" alt="Art5"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let camera, scene, renderer;
+    let objects = [];
+    init();
+    animate();function init() {
+  const container = document.getElementById('container');
+  camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
+  camera.position.z = 3000;
+  scene = new THREE.Scene();
+
+  const radius = 800;
+  const total = 200;
+  for (let i = 0; i < total; i++) {
+    const element = document.createElement('div');
+    element.className = 'element glass';
+    element.innerHTML = '<span>' + (i + 1) + '</span>';
+    const objectCSS = new THREE.CSS3DObject(element);
+    const phi = Math.acos(-1 + (2 * i) / total);
+    const theta = Math.sqrt(total * Math.PI) * phi;
+    objectCSS.position.setFromSphericalCoords(radius, phi, theta);
+    objectCSS.lookAt(camera.position);
+    scene.add(objectCSS);
+    objects.push(objectCSS);
+  }
+
+  renderer = new THREE.CSS3DRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  container.appendChild(renderer.domElement);
+
+  window.addEventListener('resize', onWindowResize);
+}
+
+function transform(type) {
+  document.getElementById('contentOverlay').classList.add('visible');
+  document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+  const activePanel = document.getElementById(type + 'Content');
+  if (activePanel) activePanel.classList.add('active');
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  scene.rotation.y += 0.001;
+  renderer.render(scene, camera);
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function toggleMenu() {
+  document.getElementById('navMenu').classList.toggle('open');
+}
+
+  </script>
+</body>
+</html>
