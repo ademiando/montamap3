@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HDFilms</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Segoe+UI:400,700&display=swap" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; color: white; }
+    
+    /* Background Canvas */
+    #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+    
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+    
+    .logo { height: 40px; }
+    
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 5px;
+      z-index: 12;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+    }
+    
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background: white;
+      transition: all 0.3s ease;
+    }
+    
+    .hamburger.open div:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .hamburger.open div:nth-child(2) { opacity: 0; }
+    .hamburger.open div:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+    
+    nav#navMenu {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 280px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 80px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      z-index: 11;
+      transition: right 0.3s ease;
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+    }
+    
+    nav#navMenu.open { right: 0; }
+    
+    nav#navMenu a {
+      color: white;
+      text-decoration: none;
+      padding: 12px 15px;
+      margin: 5px 0;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    nav#navMenu a:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(-5px);
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 12;
+    }
+    
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .controls button {
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .controls button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    #contentOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(20px);
+      display: none;
+      z-index: 2;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.6);
+    }
+    
+    #contentOverlay.visible { display: block; }
+    
+    .panel {
+      display: none;
+      padding: 80px 20px 120px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .panel.active { display: block; }
+    
+    .panel h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+    
+    .panel h3 {
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 40px;
+      font-weight: 300;
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    }
+    
+    .panel p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+    
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 20px;
+    }
+    
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    }
+    
+    .card iframe, .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border: none;
+      display: block;
+    }
+    
+    .card .title {
+      padding: 15px;
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      .controls {
+        bottom: 10px;
+        gap: 5px;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        padding: 0 10px;
+      }
+      
+      .controls button {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+      }
+      
+      .panel {
+        padding: 70px 15px 100px;
+      }
+      
+      .panel h1 {
+        font-size: 2rem;
+      }
+      
+      .panel h3 {
+        font-size: 1.2rem;
+      }
+      
+      .card-grid {
+        gap: 15px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .controls button {
+        width: 45%;
+        padding: 10px;
+      }
+      
+      nav#navMenu {
+        width: 100%;
+        right: -100%;
+      }
+    }
+    
+    .spree-bg { background: linear-gradient(45deg, #ff0080, #00ffff, #8000ff); }
+    .helix-bg { background: linear-gradient(135deg, #1a2a6c, #b21f1f, #001510); }
+    .particles-bg { background: linear-gradient(45deg, #0f2027, #203a43, #2c5364); }
+  </style>
+</head>
+<body>
+  <!-- Background Canvas -->
+  <canvas id="bgCanvas"></canvas>
+  
+  <header>
+    <img src="https://via.placeholder.com/150x40/333/fff?text=HDFilms" alt="Logo" class="logo" />
+    <div class="hamburger" onclick="toggleMenu()">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <nav id="navMenu">
+      <span class="close-btn" onclick="toggleMenu()">✕</span>
+      <a href="#" onclick="showPanel('home')">Home</a>
+      <a href="#" onclick="showPanel('about')">About</a>
+      <a href="#" onclick="showPanel('videos')">Videos</a>
+      <a href="#" onclick="showPanel('art')">Art</a>
+      <a href="#" onclick="showPanel('info')">Info</a>
+      <a href="#" onclick="showPanel('terms')">Terms</a>
+      <a href="#" onclick="showPanel('privacy')">Privacy</a>
+      <a href="#" onclick="showPanel('contact')">Contact</a>
+      <a href="#" onclick="showPanel('prototype')">Prototype</a>
+    </nav>
+    <div class="controls">
+      <button onclick="showPanel('home')">Home</button>
+      <button onclick="showPanel('about')">About</button>
+      <button onclick="showPanel('videos')">Videos</button>
+      <button onclick="showPanel('art')">Art</button>
+    </div>
+  </header>
+  
+  <div id="contentOverlay">
+    <div id="home" class="panel active">
+      <h1>HDFilms</h1>
+      <h3>Creative | Video | Ads | Art</h3>
+      <p>Welcome to our creative studio where imagination meets innovation. Explore our portfolio and discover our unique approach to visual storytelling.</p>
+    </div>
+    
+    <div id="about" class="panel">
+      <h1>About</h1>
+      <p>HDFilms is a creative production studio specializing in video artistry, innovative advertising, and visual storytelling. We craft engaging content that resonates and inspires.</p>
+      <p>Founded in 2010, we've worked with top brands and artists to create memorable visual experiences that push creative boundaries.</p>
+    </div>
+    
+    <div id="videos" class="panel">
+      <h1>Videos</h1>
+      <div class="card-grid">
+        <div class="card">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+          <div class="title">Creative Showcase</div>
+        </div>
+        <div class="card">
+          <iframe src="https://www.youtube.com/embed/3JZ_D3ELwOQ" allowfullscreen></iframe>
+          <div class="title">Commercial Project</div>
+        </div>
+        <div class="card">
+          <iframe src="https://www.youtube.com/embed/L_jWHffIx5E" allowfullscreen></iframe>
+          <div class="title">Music Video</div>
+        </div>
+        <div class="card">
+          <iframe src="https://www.youtube.com/embed/2Vv-BfVoq4g" allowfullscreen></iframe>
+          <div class="title">Short Film</div>
+        </div>
+        <div class="card">
+          <iframe src="https://www.youtube.com/embed/kXYiU_JCYtU" allowfullscreen></iframe>
+          <div class="title">Documentary</div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="art" class="panel">
+      <h1>Art</h1>
+      <div class="card-grid">
+        <div class="card">
+          <img src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Digital Art">
+          <div class="title">Digital Painting</div>
+        </div>
+        <div class="card">
+          <img src="https://images.unsplash.com/photo-1501084817091-a4f3d1d19e07?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Concept Art">
+          <div class="title">Concept Art</div>
+        </div>
+        <div class="card">
+          <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="3D Art">
+          <div class="title">3D Render</div>
+        </div>
+        <div class="card">
+          <img src="https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Motion Graphics">
+          <div class="title">Motion Graphics</div>
+        </div>
+        <div class="card">
+          <img src="https://images.unsplash.com/photo-1578302758063-0ef3e048ca6a?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Illustration">
+          <div class="title">Illustration</div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="info" class="panel"><h1>Info</h1><p>Coming soon...</p></div>
+    <div id="terms" class="panel"><h1>Terms</h1><p>Legal terms...</p></div>
+    <div id="privacy" class="panel"><h1>Privacy</h1><p>Privacy policy...</p></div>
+    <div id="contact" class="panel"><h1>Contact</h1><p>Contact info...</p></div>
+    <div id="prototype" class="panel"><h1>Prototype</h1><p>Interactive prototype...</p></div>
+  </div>
+  
+  <script>
+    // Three.js helix background
+    let scene, camera, renderer;
+    let helix;
+    
+    function initHelix() {
+      // Scene setup
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a192f);
+      
+      // Camera setup
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 30;
+      
+      // Renderer setup
+      renderer = new THREE.WebGLRenderer({ 
+        canvas: document.getElementById('bgCanvas'),
+        antialias: true,
+        alpha: true
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      
+      // Create helix
+      helix = new THREE.Group();
+      scene.add(helix);
+      
+      const geometry = new THREE.BoxGeometry(1, 1, 1);
+      const material = new THREE.MeshPhongMaterial({
+        color: 0x00ffff,
+        emissive: 0x0088ff,
+        shininess: 100,
+        transparent: true,
+        opacity: 0.8
+      });
+      
+      // Create helix structure
+      const helixRadius = 10;
+      const helixHeight = 30;
+      const helixTurns = 3;
+      const boxCount = 120;
+      
+      for (let i = 0; i < boxCount; i++) {
+        const progress = i / boxCount;
+        const angle = progress * Math.PI * 2 * helixTurns;
+        const y = (progress - 0.5) * helixHeight;
+        const x = Math.cos(angle) * helixRadius;
+        const z = Math.sin(angle) * helixRadius;
+        
+        const box = new THREE.Mesh(geometry, material.clone());
+        box.position.set(x, y, z);
+        box.scale.set(1, 0.5, 0.5);
+        
+        // Add color variation
+        box.material.color.setHSL(progress, 0.8, 0.5);
+        
+        helix.add(box);
+      }
+      
+      // Add lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(5, 5, 5);
+      scene.add(directionalLight);
+      
+      // Add particle system for background
+      const particleCount = 2000;
+      const particles = new THREE.BufferGeometry();
+      const posArray = new Float32Array(particleCount * 3);
+      
+      for (let i = 0; i < particleCount * 3; i += 3) {
+        posArray[i] = (Math.random() - 0.5) * 100;
+        posArray[i + 1] = (Math.random() - 0.5) * 100;
+        posArray[i + 2] = (Math.random() - 0.5) * 100;
+      }
+      
+      particles.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+      const particleMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.1,
+        transparent: true
+      });
+      
+      const particleSystem = new THREE.Points(particles, particleMaterial);
+      scene.add(particleSystem);
+      
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+      
+      // Start animation
+      animate();
+    }
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      // Rotate helix
+      helix.rotation.x += 0.005;
+      helix.rotation.y += 0.01;
+      
+      // Render scene
+      renderer.render(scene, camera);
+    }
+    
+    // Panel functions
+    function showPanel(id) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.getElementById('contentOverlay').classList.add('visible');
+      
+      if (id === 'home') {
+        document.getElementById('contentOverlay').classList.remove('visible');
+        document.body.className = '';
+      } else if (id === 'videos' || id === 'art') {
+        document.body.className = 'spree-bg';
+      } else {
+        document.body.className = 'helix-bg';
+      }
+      
+      // Close menu on mobile
+      document.getElementById('navMenu').classList.remove('open');
+      document.querySelector('.hamburger').classList.remove('open');
+    }
+    
+    function toggleMenu() {
+      document.getElementById('navMenu').classList.toggle('open');
+      document.querySelector('.hamburger').classList.toggle('open');
+    }
+    
+    // Close overlay when clicking outside content
+    document.body.addEventListener('click', e => {
+      if (e.target.id === 'contentOverlay') showPanel('home');
+    });
+    
+    // Initialize on load
+    window.onload = function() {
+      initHelix();
+      showPanel('home');
+    };
+  </script>
+</body>
+</html>
