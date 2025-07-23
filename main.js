@@ -1,44 +1,59 @@
 import * as THREE from 'https://cdn.skypack.dev/three';
 
+// Embed shader langsung
+const vertexShader = `
+varying vec2 vUv;
+varying vec3 vNormal;
+uniform float time;
+void main() {
+  vUv = uv;
+  vNormal = normalize(normalMatrix * normal);
+  vec3 pos = position + normal * 0.15 * sin(time * 2.0 + position.y * 10.0);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+}`;
+const fragmentShader = `
+precision highp float;
+varying vec2 vUv;
+varying vec3 vNormal;
+uniform float time;
+uniform vec2 mouse;
+void main() {
+  float light = dot(vNormal, normalize(vec3(mouse, 1.0)));
+  vec3 base = 0.5 + 0.5 * cos(time + vUv.xyx * 6.0 + vec3(0.0,2.0,4.0));
+  vec3 glow = vec3(1.0,0.8,0.6) * smoothstep(0.0,1.0,light);
+  vec3 color = mix(base, glow, 0.4);
+  gl_FragColor = vec4(color, 1.0);
+}`;
+
 let scene, camera, renderer, mesh, uniforms;
 
-init();
-animate();
-
-async function init() {
+function init() {
   scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
   camera.position.z = 2;
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.setSize(innerWidth, innerHeight);
   document.body.appendChild(renderer.domElement);
-
-  const [vertexShader, fragmentShader] = await Promise.all([
-    fetch('./shaders/vertex.glsl').then(res => res.text()),
-    fetch('./shaders/fragment.glsl').then(res => res.text())
-  ]);
 
   uniforms = {
     time: { value: 0 },
-    resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
     mouse: { value: new THREE.Vector2(0, 0) }
   };
 
-  const geometry = new THREE.SphereGeometry(0.7, 256, 256);
-  const material = new THREE.ShaderMaterial({
-    vertexShader,
-    fragmentShader,
-    uniforms,
-    wireframe: false
+  const geo = new THREE.SphereGeometry(0.7, 256, 256);
+  const mat = new THREE.ShaderMaterial({ 
+    vertexShader, 
+    fragmentShader, 
+    uniforms 
   });
 
-  mesh = new THREE.Mesh(geometry, material);
+  mesh = new THREE.Mesh(geo, mat);
   scene.add(mesh);
 
-  window.addEventListener('resize', onWindowResize);
-  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('resize', onResize);
+  window.addEventListener('mousemove', onMouse);
 }
 
 function animate() {
@@ -47,14 +62,17 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
+function onResize() {
+  camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
+  renderer.setSize(innerWidth, innerHeight);
 }
 
-function onMouseMove(e) {
-  uniforms.mouse.value.x = (e.clientX / window.innerWidth) * 2.0 - 1.0;
-  uniforms.mouse.value.y = -((e.clientY / window.innerHeight) * 2.0 - 1.0);
+function onMouse(e) {
+  uniforms.mouse.value.x = (e.clientX / innerWidth) * 2 - 1;
+  uniforms.mouse.value.y = -((e.clientY / innerHeight) * 2 - 1);
 }
+
+// Jalankan init + animate
+init();
+animate();
