@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HDFilms</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Segoe+UI:400,700&display=swap" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; overflow:hidden; font-family:'Segoe UI',sans-serif; color:white; }
+    /* Background canvas */
+    #bgCanvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; }
+
+    /* Header & hamburger */
+    header {
+      position:fixed; top:0; width:100%; display:flex;
+      justify-content:space-between; align-items:center;
+      padding:10px 20px; background:rgba(0,0,0,0.3);
+      backdrop-filter:blur(10px); z-index:10;
+      flex-wrap:wrap;
+    }
+    .logo { height:40px; flex-shrink:0; }
+    .hamburger {
+      display:flex; flex-direction:column; gap:5px;
+      cursor:pointer; z-index:11;
+    }
+    .hamburger div {
+      width:30px; height:3px; background:white;
+      transition: all 0.3s ease;
+    }
+    nav#navMenu {
+      display:none;
+      flex-direction:column;
+      position:fixed; top:60px; right:20px;
+      background:rgba(0,0,0,0.7); backdrop-filter:blur(10px);
+      padding:10px; border-radius:8px;
+      z-index:10;
+    }
+    nav#navMenu.open { display:flex; }
+    nav#navMenu a {
+      color:white; text-decoration:none; margin:8px 0;
+      font-weight:500;
+    }
+
+    /* Controls bar on desktop */
+    .controls {
+      display:flex; gap:10px;
+      z-index:11;
+    }
+    .controls button {
+      padding:8px 16px; background:rgba(255,255,255,0.2);
+      border:none; color:white; border-radius:8px;
+      backdrop-filter:blur(10px); cursor:pointer;
+      font-weight:500;
+    }
+
+    /* Overlay panels */
+    #contentOverlay {
+      position:absolute; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.5); backdrop-filter:blur(20px);
+      display:none; z-index:9; overflow-y:auto;
+      padding-top:60px;
+    }
+    #contentOverlay.visible { display:block; }
+    .panel { display:none; padding:20px; }
+    .panel.active { display:block; }
+
+    /* Responsive adjustments */
+    @media (max-width:768px) {
+      .controls { display:none; }
+      .hamburger { display:flex; }
+      nav#navMenu { right:10px; }
+    }
+    @media (min-width:769px) {
+      .hamburger { display:none; }
+      nav#navMenu { position:static; display:flex; flex-direction:row; background:transparent; backdrop-filter:none; padding:0; }
+      nav#navMenu a { margin:0 12px; }
+    }
+
+    /* Spree mode background filter */
+    .spree canvas { filter: hue-rotate(90deg) saturate(1.2); }
+  </style>
+</head>
+<body>
+  <!-- Background Three.js Helix -->
+  <canvas id="bgCanvas"></canvas>
+
+  <header>
+    <img src="assets/logo.png" alt="Logo" class="logo" />
+    <div class="hamburger" onclick="toggleMenu()">
+      <div></div><div></div><div></div>
+    </div>
+    <nav id="navMenu">
+      <a href="#" onclick="navAction('home', event)">Home</a>
+      <a href="#" onclick="navAction('about', event)">About</a>
+      <a href="#" onclick="navAction('videos', event)">Videos</a>
+      <a href="#" onclick="navAction('art', event)">Art</a>
+      <!-- add other links as needed -->
+    </nav>
+    <div class="controls">
+      <button onclick="navAction('home')">Home</button>
+      <button onclick="navAction('about')">About</button>
+      <button onclick="navAction('videos')">Videos</button>
+      <button onclick="navAction('art')">Art</button>
+    </div>
+  </header>
+
+  <div id="contentOverlay">
+    <div id="home" class="panel active">
+      <h1>HDFilms</h1>
+      <h3>Creative | Video | Ads | Art</h3>
+    </div>
+    <!-- Other panels... -->
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+  <script>
+    // Three.js Helix background
+    const canvas = document.getElementById('bgCanvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera.position.z = 50;
+
+    // Create helix of boxes
+    const helix = new THREE.Group();
+    const num = 100;
+    const radius = 20;
+    for (let i = 0; i < num; i++) {
+      const phi = i * 0.3;
+      const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+      const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(
+        radius * Math.cos(phi),
+        (i - num/2) * 0.5,
+        radius * Math.sin(phi)
+      );
+      helix.add(mesh);
+    }
+    scene.add(helix);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      helix.rotation.y += 0.005;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Responsive resize
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    // Navigation & menu logic
+    function navAction(panelId, e) {
+      if (e) { e.preventDefault(); document.getElementById('navMenu').classList.remove('open'); }
+      // panels
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      const pan = document.getElementById(panelId);
+      if (pan) pan.classList.add('active');
+      // overlay
+      const overlay = document.getElementById('contentOverlay');
+      panelId === 'home' ? overlay.classList.remove('visible') : overlay.classList.add('visible');
+
+      // toggle spree mode on bg
+      if (panelId !== 'home') {
+        document.body.classList.add('spree');
+      } else {
+        document.body.classList.remove('spree');
+      }
+    }
+    function toggleMenu() {
+      document.getElementById('navMenu').classList.toggle('open');
+    }
+
+  </script>
+</body>
+</html>
